@@ -1,0 +1,601 @@
+---
+name: travel-intel
+description: 贵州之客旅游情报系统 — 统一采集+分析贵州旅游行业与竞品信息，定时产出分级报告，同时为其他技能提供两级回退查询接口。合并 travel-knowledge + travel-monitor。
+triggers:
+  # 查询触发
+  - "查一下XX景点信息"
+  - "知识库里有没有XX"
+  - "搜一下知识库"
+  - "XX景点最新消息"
+  # 手动触发
+  - "travel-intel query"
+tags: [travel, intel, collector, reporter, querier, 贵州之客]
+category: travel
+version: 1.3.0
+dependencies:
+  skills: [feishu-doc, feishu-wiki, opencli]
+  commands: [lark-cli, agent-browser, opencli]
+---
+
+# travel-intel — 贵州之客旅游情报系统
+
+> **定位：** 合并 travel-knowledge + travel-monitor。一条流水线：采集→入库→过期校验→分级报告+查询。
+
+## 架构
+
+```
+采集层 (Collector)
+  ├─ L1a: agent-browser 百度+夸克 (WSL本地 06:30)
+  ├─ L1b: opencli 微博热搜+知乎热榜 (WSL本地 06:35) ★新增
+  ├─ L2: urllib 站点直抓 (云端 07:00)
+  ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (WSL本地 每5分钟)
+  ├─ 分类路由：竞品→EAMYw1CPoi / 行业→V0Lhwl7KYi (⚠️ 子分类已失效→回退至UF7Cw5w2Wi)
+  └─ 同 URL 去重
+      ↓
+校验层 (Expiry)
+  ├─ 每日 03:00 扫描两节点
+  └─ 15类过期规则 + 评论标记
+      ↓
+报告层 (Reporter)                   查询层 (Querier)
+  ├─ 每日简报 09:00                   ├─ Wiki 搜索 → 降权
+  ├─ 周度分析 周一 09:00              └─ 未命中 → web_search
+  └─ 综合洞察 周六 10:00
+```
+
+详见 [references/agent-browser-setup.md](references/agent-browser-setup.md) 和 [references/l3-bitable-dispatch.md](references/l3-bitable-dispatch.md)。
+
+## 存储节点
+
+> 行业资讯和竞品动态现已归入「咨询洞察」一级分类下。node_token 不变。
+
+| 节点 | Wiki Token | 所属分类 | 内容 |
+|------|-----------|---------|------|
+| 行业资讯 | `V0Lhwl7KYiWYDDk1vCncv2GhnYf` | 咨询洞察 | 政策/景点/交通/酒店/活动/报告 |
+| 竞品动态 | `EAMYw1CPoipVWtkObbtcR2oDnNc` | 咨询洞察 | 竞品价格/新品/营销/社媒 |
+| **🔧 咨询洞察(一级)** | **`UF7Cw5w2WiHGfjkKVvBcxj8Hnib`** | **一级分类回退** | **2026-06-04确认：子分类token全部3380002，入库统一使用此token** |
+| L3 任务队列 | `TDYYwZ0T0ifLtdkK9iOcp2HTnwf` (Bitable) | 咨询洞察·行业资讯下 | 深度搜索关键词队列 |
+| Space ID | `7643710721485753535` | | |
+| 推送群 | `oc_40570cc921ca1f645f8667151c1e85e6` | | |
+
+---
+
+## 模块 1: 采集引擎 (Collector)
+
+### 三条通道
+
+| 优先级 | 通道 | 方法 | 环境 | 调度 | 备注 |
+|:--:|------|------|:--:|------|------|
+| L1 | 百度 + 夸克 | agent-browser 通用搜索 | 🏠 WSL本地 | 06:30 | 行业+竞品关键词，双引擎互补 |
+| L2 | urllib 站点直抓 | Python urllib.request | ☁️ 云端 | 07:00 | 品橙/迈点/闻旅/执惠 |
+| L3 | 百度/B站/头条 | agent-browser 深度搜索 | 🏠 WSL本地 | 每5分钟轮询 | 云端 cron → Bitable 队列 → 本地 poller |
+
+### L3 Bitable 分发架构 ★
+
+云端 travel-intel-collect (07:00) 在完成 L2 站点直抓后，根据当日采集概况精选 4-6 个深度研究关键词，写入 Bitable 任务队列。WSL 本地 l3_poller.py 每 5 分钟轮询，使用 agent-browser 执行搜索，结果入库 Wiki。
+
+```
+Cloud cron (07:00)        Bitable 队列               WSL crontab (每5分)
+┌─────────────────┐     ┌──────────────┐     ┌────────────────────┐
+│ travel-intel-   │────▶│ TDYYwZ0T0if  │────▶│ l3_poller.py       │
+│ collect         │     │ tblVKG82oOl  │     │ ├─ 读取 pending     │
+│ Step 4: L3分发  │     │  搜索关键词   │     │ ├─ agent-browser    │
+│  4-6个关键词    │     │  平台(百度/   │     │ │  百度/B站/头条    │
+│  竞品优先       │     │  B站/头条/综合│     │ ├─ 创建Wiki文档    │
+└─────────────────┘     │  结果摘要     │     │ └─ 更新任务状态    │
+                        └──────────────┘     └────────────────────┘
+```
+
+**Bitable 字段:**
+| 字段 | 用途 | 备注 |
+|------|------|------|
+| Text | 任务名称 (如"竞品_探洞行业动态") | 含"竞品"→路由到竞品动态节点 |
+| 搜索关键词 | agent-browser 搜索词 | |
+| 平台 | 百度/B站/头条/综合 | 综合=三平台全搜 |
+| 结果摘要 | 任务状态+结果URL | pending→processing→done/failed |
+
+**平台选择建议:**
+- 竞品深度研究 → 综合 (百度+B站+头条全覆盖)
+- 政策类 → 百度
+- 视频内容 → B站
+- 资讯动态 → 头条
+
+### L1 本地采集架构
+
+**L1 由两个子通道组成：**
+
+| 子通道 | 引擎 | 数据源 | 内容 | 调度 |
+|:--:|------|------|------|:--:|
+| **L1a** | agent-browser | 百度 + 夸克 | 关键词搜索（行业10词+竞品10词） | 06:30 |
+| **L1b** | opencli | 微博热搜 + 知乎热榜 | 热榜扫描→旅游关键词过滤 | 06:35 |
+
+**WSL crontab (每天 06:30) → l3_cron.sh → browser_collector.py --channel L1 → hotlist_collector.py**
+
+### L1b 社交热榜扫描 ★
+
+微博和知乎因反爬机制（微博强制登录、知乎 40362），agent-browser 无法直接访问。通过 opencli（Chrome CDP 真实浏览器驱动）获取热搜/热榜数据，过滤旅游相关话题后入库。
+
+```
+opencli weibo hot -f json          → 30条热搜
+opencli zhihu hot -f json --limit 50 → 50条热榜
+       ↓ 旅游关键词过滤
+  ├─ 贵州直接相关 (贵州/黔西南/兴义/万峰林…)  → 竞品动态节点 (高关注)
+  └─ 泛旅游/户外 (旅游/探洞/徒步/避暑…)      → 行业资讯节点 (趋势信号)
+```
+
+**过滤关键词** — 两层匹配：
+- **贵州直接**：贵州、黔西南、黔南、黔东南、兴义、安龙、贞丰、万峰林、马岭河、黄果树、荔波、梵净山…
+- **泛旅游/户外**：旅游、景区、探洞、天坑、桨板、SUP、漂流、溯溪、户外、徒步、避暑、康养、旅居、研学…
+
+**关键约束**：
+- 依赖 opencli → Chrome Extension + Daemon（WSL 本地）
+- 非关键路径：Chrome 未运行时静默失败，不影响 L1a/L2/L3
+- 热榜数据天然低频命中（80条中通常 0-3 条旅游相关），定位为趋势信号补充而非主力采集
+
+> ⚠️ **crontab PATH 陷阱 (2026-06-01 修复):** crontab 环境无完整 PATH，`lark-cli`（位于 `~/.local/bin/`）和 `node`（位于 `~/.hermes/node/bin/`）均不可用。`l3_cron.sh` 已添加 `export PATH="$HOME/.local/bin:$HOME/.hermes/node/bin:$PATH"`，否则 browser_collector.py 的 `subprocess.run(['lark-cli', ...])` 会触发 `FileNotFoundError`，导致所有采集结果推送失败（134 条全丢）。
+
+```
+L1 通用搜索:
+  ├─ 🔍 百度 10 关键词        → ~40条  (政策/赛事/官方)
+  └─ 🔍 夸克 10 关键词        → ~34条  (攻略/8264/跨平台)
+
+去重 → lark-cli → 飞书 Wiki
+  ├─ 行业资讯 V0Lhwl7KYiWYDDk1vCncv2GhnYf
+  └─ 竞品动态 EAMYw1CPoipVWtkObbtcR2oDnNc
+```
+
+**平台实测结果 (2026-05-30, 更新 2026-06-01):**
+
+| 平台 | 状态 | 方式 | 说明 |
+|------|:--:|------|------|
+| 百度 | ✅ | agent-browser | 通用搜索，4s渲染 |
+| 夸克 | ✅ | agent-browser | AI搜索，5s渲染 |
+| B站 | ✅ | agent-browser | 视频搜索，可提取标题/URL/UP主 |
+| 头条 | ✅ | agent-browser | 资讯+视频，需滚动跳过热榜 |
+| **微博** | ✅ | **opencli** | 热搜榜，30条/次；原 agent-browser 直访 ❌ (强制登录) |
+| **知乎** | ✅ | **opencli** | 热榜(top 50)，tophub.today 数据源；原 agent-browser 直访 ❌ (反爬40362) |
+| 小红书 | ❌ | — | IP风控300012，opencli 浏览器模式需登录后可用 |
+
+### L2 urllib 站点直抓（云端）
+
+**站点配置**
+
+| 站点 | URL | 编码 | 产出/次 | 提取模式 | 状态 |
+|------|-----|:--:|:--:|------|:--:|
+| **品橙旅游** | pinchain.com | utf-8 | 10-12 | `<h2><a href>` | ✅ 主力 |
+| **迈点网 文旅** | meadin.com/wl/ | utf-8 | 20-30 | img alt 属性 (噪音多) | ✅ 新增 |
+| **迈点网 景区** | meadin.com/jq/ | utf-8 | 20-30 | img alt 属性 (噪音多) | ✅ 新增 |
+| **闻旅** | wenlvnews.com | utf-8 | 0-3 | SSL需禁用验证，实际产出极低 | ⚠️ 低产(标签链接) |
+| 执惠旅游 | tripvivid.com | utf-8 | 0-2 | text标签 | ⚠️ 低产(JS) |
+| ~~贵州文旅厅~~ | whhly.guizhou.gov.cn | — | 0 | ❌ JS-SPA |
+| ~~8264户外~~ | 8264.com | — | 0 | ❌ JS-SPA(4KB壳) |
+| ~~中国旅游报~~ | ctnews.com.cn | — | 0 | ❌ JS-SPA |
+
+### 运行
+
+```bash
+python3 scripts/collector.py --channels urllib --date $(date +%Y-%m-%d)
+```
+
+输出 JSON 数组，每条：`{title, url, snippet, source, trust(high|medium|low), date}`
+
+---
+
+## 模块 2: 入库引擎 (Ingestor)
+
+### 文档命名规范 ★
+
+**两类场景，两套规则：**
+
+| 场景 | 触发方 | 命名规则 | 示例 |
+|------|:--:|------|------|
+| **用户对话产出** | 用户直接要求创建 | **纯主题命名**，无日期/来源前缀 | `贵州之客户外安全操作规范` |
+| **自动化情报采集** | cron 定时任务 | `YYYY-MM-DD_[source]_简短主题` | `2026-06-01_baidu_贵州探洞新发现` |
+
+**自动化情报命名详情** — 适用于 L1a/L1b/L2/L3 四个通道：
+
+| 通道 | 命名来源 | 格式示例 |
+|------|---------|------|
+| L1a (百度/夸克) | `_make_doc_title()` | `2026-06-01_baidu_贵州探洞新发现` |
+| L1b (微博/知乎热榜) | `_make_doc_title()` | `2026-06-01_zhihu_hot_徒步25公里野炊引争议` |
+| L2 (urllib站点) | ingestor XML `<title>` | `2026-06-01_行业_品橙旅游发布贵州避暑报告` |
+| L3 (Bitable深度) | 同 L1a 逻辑 | `2026-06-01_bilibili_UP主探洞实战视频` |
+
+**自动化标题生成规则** (`_sanitize_title` + `_make_doc_title`):
+1. 去除控制字符、换行、emoji — 保留中英文/数字/基本标点
+2. 前缀 `日期_来源_`（约 18-22 字符），剩余空间 38-42 字符用于主题
+3. 在自然断点截断（句号/逗号/空格），不断在词中
+4. 兜底：标题为空/过短时使用搜索关键词替代
+5. 总长 ≤ 60 字符 — 避免飞书 API 静默拒绝
+
+> ⚠️ **修复记录 (2026-06-01):** 原 browser_collector.py 和 hotlist_collector.py 使用 100 字符原始标题 + 简单正则清理，飞书 API 对过长/含特殊字符的标题会静默回退为默认名称"无标题"。现已统一替换为上述规范。
+
+### 分类路由
+
+采集结果按标题+摘要匹配关键词：
+
+| 目标节点 | 关键词正则 |
+|---------|-----------|
+| 竞品动态 | 探洞|天坑|桨板|SUP|竞品|新品|价格调整|营销|
+| 行业资讯 | 其余全部 + 政策|规划|景区|5A|旅居|康养|酒店|交通|节庆|
+
+> ⚠️ 由于子分类 token 3380002 问题，新文档统一创建在「咨询洞察」一级分类下，需定期通过 Move API 分拣至子分类。完整工作流见 [references/reclassification-workflow.md](references/reclassification-workflow.md)。
+
+### 命名规范
+
+文档标题：`YYYY-MM-DD_类型_主题`
+
+### 运行
+
+```bash
+# L2 入库专用（推荐 — 替代有 bug 的原 ingestor.py）
+python3 scripts/l2_ingestor.py 2026-06-03 /tmp/l2_ingest.json
+
+# 通用入库（原 ingestor.py — 当前有 3380002 bug，待修复）
+# python3 scripts/ingestor.py --input collector_output.json
+```
+
+---
+
+## 模块 3: 过期校验 (Expiry)
+
+15 类过期规则见 `references/expiry-rules.yaml`。
+
+标注方式：`lark-cli drive +add-comment` 添加整文档评论（纯 ASCII）。
+
+```bash
+python3 scripts/expiry_checker.py
+```
+
+---
+
+## 模块 4: 报告引擎 (Reporter)
+
+| 报告 | cron | 内容 |
+|------|------|------|
+| 每日简报 | 09:00 | 当日采集概要 + 行业/竞品/政策分组 |
+| 周度分析 | 周一 09:00 | 本周汇总 + 趋势 + 关键词审计 + 建议 |
+| 综合洞察 | 周六 10:00 | 跨节点 6 维 LLM 分析 |
+
+全部创建飞书文档 → 推送 ≤3000 字符群摘要。群摘要格式见 [templates/daily_brief.md](templates/daily_brief.md)。
+
+> **执行指南：** 综合洞察和周度分析的具体执行步骤（文档优先级、批量读取策略、效率提示）见 [references/insight-execution-guide.md](references/insight-execution-guide.md)。
+
+> **简报执行须知：** Wiki 中文档是骨架格式（仅标题 + 来源信息 + 可选 `<bookmark>` 链接），无正文内容。L2 采集文档可能不含 bookmark URL（仅 callout 标题+来源），此时回退为从标题生成概要。完整策略见 [references/briefing-execution-notes.md](references/briefing-execution-notes.md)。分类与噪音过滤实践见 [references/daily-brief-classification.md](references/daily-brief-classification.md)。
+
+---
+
+## 模块 5: 查询引擎 (Querier)
+
+两级回退：
+
+```
+Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
+  ├─ 是 → 返回（标注"知识库·采集于{日期}"）
+  └─ 否 → web_search → 返回（标注"互联网·实时搜索"）
+```
+
+触发词：`查XX景点` `知识库有没有XX` `搜一下XX`
+
+---
+
+## 查询示例
+
+其他技能调用方式（在 SKILL.md 中引用）：
+
+```markdown
+# 查询目的地知识库
+加载 travel-intel，使用 querier 模块查询"{目的地} {信息类型}"。
+结果标注来源后返回给用户。
+```
+
+---
+
+## Cron 清单
+
+| 名称 | Hermes Job ID | 调度 | 通道 | 环境 |
+|------|:------------:|------|:--:|:--:|
+| travel-intel-collect | `07ceed5fc5a8` | 0 7 * * * | **L2+L3-dispatch** (不执行 L1) | ☁️ agent |
+| travel-intel-l1-local | *(WSL crontab)* | 30 6 * * * | **L1a**(百度+夸克)+**L1b**(微博+知乎) | 🏠 l3_cron.sh |
+| travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 WSL `no_agent` script |
+| travel-intel-expire | `09c5407d9244` | 0 3 * * * | 过期校验 | ☁️ agent |
+| travel-intel-daily | `646091130172` | 0 9 * * * | 每日简报 | ☁️ agent |
+| travel-intel-weekly | `011f4af010cd` | 0 9 * * 1 | 周度分析 | ☁️ agent |
+| travel-intel-insight | `dda612e69d65` | 0 10 * * 6 | 综合洞察 | ☁️ agent |
+
+全部 deliver: `feishu:oc_40570cc921ca1f645f8667151c1e85e6`，除 l3-poller 为 `local`（仅脚本输出存档），l1-local 为 WSL 本地 crontab（非 Hermes cron）。
+
+> **注意**: L1a+L1b 由 WSL 本地 crontab 调度（`l3_cron.sh`），不经过 Hermes cron 系统。上表中的 `travel-intel-l1-local` 仅供文档记录，并非 Hermes cron job。
+
+**本地脚本:**
+| 脚本 | 路径 | 用途 |
+|------|------|------|
+| l3_poller.py | `~/.hermes-feishu/scripts/l3_poller.py` | L3 Bitable 轮询器 (no_agent cron, 每5分钟) |
+| l2_ingestor.py | `skills/travel/travel-intel/scripts/l2_ingestor.py` | L2 urllib 结果入库 (替代有 bug 的 ingestor.py，批冷却防限流) |
+| ingestor.py | `skills/travel/travel-intel/scripts/ingestor.py` | 通用入库引擎 (⚠️ 当前有 3380002 bug，建议用 l2_ingestor.py) |
+| browser_collector.py | `skills/travel/travel-intel/scripts/browser_collector.py` | L1a 百度+夸克 agent-browser 采集 |
+| hotlist_collector.py | `skills/travel/travel-intel/scripts/hotlist_collector.py` | L1b 微博+知乎 opencli 热榜采集 |
+
+---
+
+## 与其他技能的关系
+
+| 技能 | 关系 | 方式 |
+|------|------|------|
+| travel-itinerary | 消费者 | 调用 querier 查目的地信息 |
+| trip-landing | 消费者 | 调用 querier 查景点/须知 |
+| feishu-doc | 依赖 | 创建文档 |
+| feishu-wiki | 依赖 | 节点管理 |
+| opencli | 依赖 | L1b 微博热搜+知乎热榜采集 |
+
+---
+
+## 关键约束
+
+1. **L1a 仅在 WSL 本地运行** — browser_collector.py (百度+夸克)，WSL crontab 每天 6:30。云端 cron 不执行 L1（已从 prompt 移除 web_search）。
+2. **L1b 仅在 WSL 本地运行** — hotlist_collector.py (微博+知乎)，依赖 opencli (Chrome Extension + Daemon)。非关键路径，失败不影响其他通道。
+3. **L2 为云端主力** — urllib 站点直抓 (品橙/迈点/闻旅/执惠)，云端 cron 每天 7:00
+4. **L3 云端分发、本地执行** — 云端 cron → Bitable 队列 → WSL l3_poller.py 轮询 → agent-browser 搜索
+5. **WSL crontab 必须包含 lark-cli/node 路径** — `l3_cron.sh` 已添加 `export PATH="$HOME/.local/bin:$HOME/.hermes/node/bin:$PATH"`，否则推送 100% 失败（FileNotFoundError）
+
+## 实测陷阱
+
+### lark-cli 响应格式差异 (2026-05-30, 更新 2026-06-03)
+
+`lark-cli api` 子命令返回**原始飞书 API 响应** `{code: 0, data: {...}}`，**输出到 stderr 而非 stdout**。其他子命令（`+create`/`+update`/`+record-list` 等）输出到 stdout 且有 lark-cli 的 `ok` 包裹层。
+
+```python
+# ✅ 正确解析逻辑 — 注意 stderr/stdout 差异
+def parse_larkcli_output(result):
+    # lark-cli 'api' subcommand → stderr
+    # lark-cli '+create' / '+node-list' etc → stdout
+    raw = result.stderr.strip() or result.stdout.strip()
+    data = json.loads(raw)
+    
+    if data.get("ok"):
+        inner = data.get("data", data)  # lark-cli 子命令
+    else:
+        inner = data                    # lark-cli api (raw Feishu response)
+    
+    if isinstance(inner, dict) and "code" in inner:
+        if inner["code"] != 0:
+            raise ...                   # API error
+        return inner.get("data", inner) # unwrap Feishu data envelope
+    return inner
+```
+
+**lark-cli api vs 子命令 输出目标一览：**
+
+| 命令类型 | 输出目标 | 格式 | 示例 |
+|---------|:--:|------|------|
+| `lark-cli api GET/POST ...` | **stderr** | `{code: 0, data: {...}}` | Bitable records, node info |
+| `lark-cli docs +create` | **stdout** | `{ok: true, data: {...}}` | Document creation |
+| `lark-cli docs +update` | **stdout** | `{ok: true, data: {...}}` | Document update |
+| `lark-cli wiki +node-list` | **stdout** | `{ok: true, data: {nodes: [...]}}` | Node listing |
+
+### 飞书 API 频率限制 (99991400)
+
+连续 `docs +create` 超过 ~10 次/分钟会触发 rate limit。**入库必须加延迟**，每条间隔 ≥3 秒。ingestor.py 已内置 `--delay` 参数（默认 3 秒）。
+
+```bash
+python3 scripts/ingestor.py --input collector_output.json --delay 3
+```
+
+> ⚠️ **批量限制 (2026-06-01 实测):** 即使间隔 3 秒，连续创建 ~20 条后仍可能触发 99991400。当入库量 >20 条时，建议每 15 条插入一次 10-15 秒冷却，或对失败条目自动重试（延迟 10 秒后重试通常成功）。
+
+### 云端 cron 管道安全限制 (2026-06-01)
+
+云端 agent 运行 cron 时，安全扫描器会拦截所有**管道到解释器**的写法：
+
+```
+❌ curl ... | python3 -c "..."     # tirith:curl_pipe_shell
+❌ cat file.json | python3 -c "..." # tirith:pipe_to_interpreter
+❌ python3 collector.py | python3 -c "..."  # 同上
+```
+
+**正确做法：** 先用 `write_file` 写入 .py 脚本文件，再用 `terminal` 直接执行：
+
+```bash
+# ✅ 分两步
+write_file /tmp/my_script.py  # 写入完整脚本
+terminal python3 /tmp/my_script.py  # 直接执行，不经过管道
+```
+
+### L3 Bitable 分发 — 命令执行方式 (2026-06-01, 更新 2026-06-03)
+
+Python `subprocess.run(['lark-cli', ...])` 方式在脚本中容易因 import 顺序、PATH 环境变量传递等问题静默失败。**推荐直接在 shell 中逐条调用**，利用 `$(...)` 捕获输出。
+
+**关键注意事项 (2026-06-03 验证):**
+- Bitable 字段名为 `Text`（非 `任务名称`），API 对不存在的字段名返回 1254045 FieldNameNotFound
+- `lark-cli api POST` 输出到 **stderr** 非 stdout，Python subprocess 需读 `r.stderr`
+- Bitable app token 为 `TDYYwZ0T0ifLtdkK9iOcp2HTnwf`（旧 `DhZcbnof3aj` 已删除）
+- Table ID 为 `tblVKG82oOl3UaNW`
+
+```bash
+# ✅ 推荐：直接 shell 调用（cron 中需写入 .py 脚本后 terminal 执行）
+export PATH="/home/aorus/.local/bin:$PATH"
+r=$(lark-cli api POST "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables/tblVKG82oOl3UaNW/records" \
+  --as bot --data '{"fields":{"Text":"任务名","搜索关键词":"kw","平台":"百度","结果摘要":"pending"}}' 2>&1)
+```
+
+**Python dispatch 示例：**
+```python
+import subprocess, json, os
+
+ENV = os.environ.copy()
+ENV["PATH"] = f"{os.path.expanduser('~/.local/bin')}:{ENV.get('PATH', '')}"
+
+body = {"fields": {
+    "Text": "竞品_探洞行业最新动态",
+    "搜索关键词": "探洞 贵州 户外 2026",
+    "平台": "综合",
+    "结果摘要": "pending"
+}}
+
+r = subprocess.run(
+    ["lark-cli", "api", "POST",
+     "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables/tblVKG82oOl3UaNW/records",
+     "--as", "bot", "--data", json.dumps(body, ensure_ascii=False)],
+    capture_output=True, text=True, timeout=15, env=ENV
+)
+
+# lark-cli api outputs to stderr
+resp = json.loads(r.stderr.strip() or r.stdout.strip())
+if resp.get("code") == 0:
+    record_id = resp["data"]["record"]["record_id"]
+```
+
+### Bing → 百度+夸克 迁移（2026-05，多周确认的系统性问题）
+
+L1 原使用 Hermes 内置 web_search（底层 Bing 中文搜索）。对"探洞""天坑""桨板""SUP"等垂直长尾关键词，Bing 大量返回字典页（zdic/hgcha/cidianwang）而非行业新闻，中文意图识别差，负向关键词和 site: 操作符均无效。**连续多周可复现，非偶发故障。**
+
+**对策：** L1 全面迁移至 agent-browser 百度+夸克双引擎（WSL本地 06:30）。百度覆盖政策/赛事/官方信息，夸克补充攻略/UGC/跨平台内容。web_search 降级为仅查询层回退（模块5 querier）。
+
+### 周六预生成 → 周一 Cron 冲突 (2026-06-01)
+
+travel-intel-insight (周六 10:00 综合洞察) 可能已为当前周生成了 `{YYYY}_WW周_周度分析`，导致周一 09:00 的 travel-intel-weekly cron 重复运行。**周一 cron 必须先检测已有报告，采用 check-and-append 模式而非创建新文档。**
+
+```bash
+# Step 1: 检测已有报告
+lark-cli wiki +node-list --space-id 7643710721485753535 \
+  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-all --as bot 2>&1 \
+  | grep "{YYYY}_WW周_周度分析"
+
+# Step 2: 如存在 → grep 检查周日新增文档 → 读取最新每日简报 → append 补充
+# Step 3: 修正统计数据（文档数、实质内容占比）并在群摘要中高亮新增发现
+```
+
+> 详情见 [references/insight-execution-guide.md](references/insight-execution-guide.md) 步骤 0。
+
+### L2 站点直抓 — 品橙/闻旅 采集修正 (2026-06-03)
+
+**品橙旅游 (pinchain.com) 正则模式错误**：原 `title=` 属性匹配在首页仅命中 `点击看更多` 一个 UI 元素，真实文章标题在 `<h2><a href="/article/NNN">标题</a></h2>` 结构中。修正：
+
+```python
+# ❌ 原模式 — 仅命中 UI 元素
+for m in re.finditer(r'<a[^>]*title=\"([^\"]+)\"[^>]*href=\"([^\"]+)\"', html):
+
+# ✅ 修正模式 — 命中所有文章
+for m in re.finditer(r'<h2[^>]*>\s*<a[^>]*href=\"([^\"]+)\"[^>]*>([^<]+)</a>', html):
+    url, title = m.group(1), m.group(2)
+```
+
+**闻旅 (wenlvnews.com) SSL 证书错误**：`urlopen()` 默认验证 SSL 证书，闻旅站返回 `CERTIFICATE_VERIFY_FAILED`。需创建不验证的 SSL context：
+
+```python
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+html = urllib.request.urlopen(req, timeout=15, context=ctx).read().decode('utf-8', errors='ignore')
+```
+
+即使修复 SSL，闻旅首页仅返回 3 条标签链接（非真实文章），实际产出几乎为零。**建议从主力采集站降级或移除。**
+
+### ingestor.py 全量 3380002 故障 (2026-06-03 定位+修复)
+
+原 `scripts/ingestor.py` 对所有入库条目返回 3380002 "Parent node not found"，即使 node_token 经 `wiki +node-list` 验证有效、且同 token 的单独 `docs +create` 调用成功。
+
+**根因未完全定位**（可能涉及 `shutil.which("lark-cli")` 在模块加载时的 PATH 解析、或 XML 构建中的字符转义差异），但已验证的替代方案有效：
+
+- ✅ 使用 Python `subprocess.run(['lark-cli', ...])` + 显式 `PATH` 环境变量
+- ✅ XML 使用简单 `str.replace()` 转义（移除控制字符，& → &amp;，< → &lt;，> → &gt;）
+- ✅ 每 8 条插入 12s 冷却（batch_size=8, cool_down=12）
+- ✅ 每项 4s 延迟（而非默认 3s）
+
+**替代入库脚本**见 `scripts/l2_ingestor.py`（从 `/tmp/l2_ingestor_v2.py` 提取）。原 `ingestor.py` 待完整重写。
+
+原5站中仅品橙旅游(pinchain.com)仍为服务端渲染（39KB静态HTML可提取）。其余4站已全面迁移至JS动态渲染（SPA）：
+- 贵州文旅厅(whhly): 44KB HTML全是document.write壳
+- 8264: 4KB JS壳，所有内容异步加载
+- 执惠: 530KB但仅2条静态残留
+- 中国旅游报: 仅导航链接，文章列表JS加载
+
+**根因不是正则匹配问题，是SPA架构不可爬。** 已标记为不可用并从配置移除。
+
+详见 [references/collector-diagnostics.md](references/collector-diagnostics.md)。
+
+### 过期校验：REST API 日期回退 (2026-06-03)
+
+`lark-cli wiki +node-list` 不返回 `obj_edit_time` 字段，导致 663 篇文档中仅 88 篇有 `YYYY-MM-DD_` 标题前缀可提取日期，其余 575 篇因无日期被跳过。
+
+**对策**：`expiry_checker.py` 已升级至 v2：
+1. `list_docs()` 改用 curl + REST API（返回 `obj_edit_time` Unix 时间戳）
+2. `parse_title_date()` 新增 `YYYY_WW周_` 格式支持
+3. `check_expiry()` 降级逻辑：标题日期 → `obj_edit_time` → 放弃
+
+**依赖**：需要 `FEISHU_APP_ID` / `FEISHU_APP_SECRET` 环境变量（用于获取 tenant_access_token）。cron 环境需确保这些变量已配置。
+
+### L1b opencli 依赖 Chrome + Daemon (2026-06-01)
+
+hotlist_collector.py 通过 opencli 调用微博/知乎，依赖链：`opencli → Daemon (127.0.0.1:19825) → TCP relay → Chrome Extension → Chrome CDP`。此依赖链仅在 WSL 本地且 Chrome 运行时可工作。
+
+**cron 凌晨 6:35 运行时的注意事项**：
+- Chrome 是否为开机自启？否则首次 cron 运行 L1b 会静默失败
+- WSL IP 重启后可能变化，需更新 portproxy 和 TCP relay 的 IP 绑定
+- 建议：将 Chrome 设为 Windows 开机自启，确保 Daemon + relay 在 WSL 启动后自动拉起
+
+**验证命令**：
+```bash
+curl -s http://$(ip route show default | awk '{print $3}'):9222/json/version | grep Chrome
+opencli doctor
+```
+
+### `docs +create --doc-format markdown` 中 `--title` 被覆盖 (2026-06-02)
+
+当 markdown 内容以 `# 标题` 开头时，lark-cli 将文档标题设为 heading 文本，**忽略 `--title` 参数**。后果：自动化采集的 `YYYY-MM-DD_source_topic` 格式标题丢失日期/来源前缀，文档以原始文章标题命名。
+
+| 方案 | 结果 | 适用 |
+|------|------|------|
+| markdown + `# Title` | 标题 = 文章标题（无日期前缀） | ❌ 不适合自动化审计 |
+| markdown + 省略 `#` | 标题 = `--title` 值 | ✅ 需精确标题时 |
+| XML + `<title>` | 标题 = XML 中 `<title>` 值 | ✅ 完全控制 |
+
+**对策**：L2 入库脚本中，不写 `#` heading 行，仅用 `--title` 传标题。或改用 XML 格式。
+
+### L3 Bitable 队列迁移 (2026-06-02 已解决)
+
+Bitable 分发目标 `DhZcbnof3aj/tblVKG82oOl` 返回 91402 NOTEXIST — 旧 app 已删除。但 Bitable 实际存活：被迁移到行业资讯节点下，app token 变为 `TDYYwZ0T0ifLtdkK9iOcp2HTnwf`（标题"任务队列"），table_id `tblVKG82oOl3UaNW` 不变，字段/记录完整。
+
+**已修复**：
+1. l3_poller.py / task_poller.py → BASE_TOKEN 已更新
+2. SKILL.md / l3-bitable-dispatch.md → 引用已更新
+
+**验证命令**：
+```bash
+lark-cli api GET "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables" --as bot
+# 正常返回 tables 列表，包含 tblVKG82oOl3UaNW
+```
+
+### 子分类 node_token 全量 3380002 确认 + 回退验证 (2026-06-04) ★
+
+`V0Lhwl7KYiWYDDk1vCncv2GhnYf` (行业资讯) 和 `EAMYw1CPoipVWtkObbtcR2oDnNc` (竞品动态) 两个子分类 token 已**确认全部失效**。l2_ingestor.py 使用这两个 token 作为 `--parent-token` 时，100% 返回 3380002 "Parent node not found"（69 条全量失败）。
+
+**回退验证**：改用一级分类 token `UF7Cw5w2WiHGfjkKVvBcxj8Hnib`（咨询洞察）后，69/69 条全部成功创建，零失败。批冷却 12s/8条 + 每条 4s 延迟策略有效，未触发 99991400 限流。
+
+**★ Move API 不受影响 (2026-06-05 验证)**：3380002 仅影响 `docs +create` 的 `--parent-token` 参数。**Move API (`POST /wiki/v2/spaces/{id}/nodes/{nt}/move`) 使用 `target_parent_token` 仍可正常将文档移入子分类节点**。这意味着事后分拣完全可行——文档先创建在一级分类下，再通过 Move API 批量移入行业资讯/竞品动态。
+
+**对策**：
+1. `l2_ingestor.py` 已改为统一使用 `UF7Cw5w2WiHGfjkKVvBcxj8Hnib` 作为默认 parent token
+2. L1 采集脚本（browser_collector.py, hotlist_collector.py）需同步更新，使用一级分类 token
+3. 文档创建在「咨询洞察」一级分类下 → 通过 Move API 批量分拣至子分类（见 [references/reclassification-workflow.md](references/reclassification-workflow.md)）
+4. 飞书 UI 中删除旧子分类节点并重建，可使 token 恢复（但需手动重新挂载现有文档）
+
+**历史**：feishu-doc 技能中 2026-06-03 记录为「可能失效」，本日（2026-06-04）确认全部失效。2026-06-05 验证 Move API 不受影响。
+
+### lark-cli 内容写入与验证陷阱 ★ (2026-06-01 定位+校正)
+
+**认知校正**：`docs +update v2` 对 Wiki docx 节点**实际可以写入**——之前认为"永远无效"是 `docs +fetch` 的误报（fetch 显示 blocks=0 但 REST API 确认内容存在）。但两步法仍不推荐——一步法更可靠。
+
+**三步现状**：
+
+| # | 问题 | 影响 | 状态 |
+|---|------|------|:--:|
+| 1 | `lark-cli doc +create` 无效命令（应为 `docs`） | hotlist_collector 从未成功 | ✅ 已修正为 `docs +create` |
+| 2 | `lark-cli docs +create --markdown` 用 v1 API | **实测可正常工作** (REST API 验证) | ✅ 可靠，已回退到一步法 |
+| 3 | `docs +fetch` 不可靠（blocks=0 误报） | 无法通过 CLI 验证内容 | 用 REST API 验证 |
+
+**travel-intel 特有**：Wiki 文档为骨架格式（标题 + bookmark 链接），无正文内容。内容写入失败不影响采集流水线——简报生成时 `curl` 取原文提取摘要。
+
+**内容验证**：不用 `docs +fetch`，用 REST API：
+```bash
+lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/children" --as bot
+```

@@ -1,0 +1,255 @@
+---
+name: advanced-elicitation
+description: 结构化深度追问——产出后自动触发多维审视。含69种方法(Tree of Thoughts/First Principles/Pre-mortem/Red Team/6 Hats/SCAMPER等)。触发：深度审视/重新审视/换个角度/追问到底/push deeper/challenge this/red team/second opinion/质疑/挑刺。
+version: 1.0.0
+author: Hermes Agent (adapted from BMAD bmad-advanced-elicitation)
+license: MIT
+metadata:
+  hermes:
+    tags: [elicitation, critique, review, questioning, reasoning, quality]
+    related_skills: [answer, blue-team, systematic-debugging, editorial-review-prose]
+---
+
+# Advanced Elicitation — 结构化深度追问
+
+## 概述
+
+对任何产出（方案/代码/文档/决策/分析）进行结构化深度审视。不是泛泛的"再看看"，而是从69种具体方法中选择最匹配的5种，逐一应用，层层推进。
+
+**核心原则**：产出不是终点——深度审视是质量的门禁。
+
+## 触发条件
+
+### 自动触发（产生产出后主动建议）
+- answer Phase 7 Review 完成 → 建议运行 AE 做多视角审视
+- 完成复杂决策/方案/架构 → 建议至少运行1-2轮
+- feishu-html 页面交付前 → 建议运行 AE 做设计决策审视
+
+### 手动触发
+- "深度审视这个方案"
+- "换个角度看看"
+- "追问到底"
+- "push deeper on this"
+- "challenge this"
+- "red team this"
+- "second opinion on this"
+- "质疑这个结论"
+- "挑挑刺"
+
+### 不触发
+- 简单事实查询
+- 已有明确答案的问题
+- 用户明确表示"不需要"
+
+---
+
+## 方法库（69种，按类别）
+
+### 高级推理 (8)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 1 | Tree of Thoughts | 探索多条推理路径后评估选择 | 路径→评估→选择 |
+| 2 | Graph of Thoughts | 建模为互联思想网络揭示隐藏关系 | 节点→连接→模式 |
+| 3 | Thread of Thought | 编织连续叙事线索保持跨长上下文一致 | 上下文→线索→合成 |
+| 4 | Self-Consistency Validation | 多独立方案对比一致性 | 方案→对比→共识 |
+| 5 | Meta-Prompting Analysis | 退一步分析方法论本身 | 现状→分析→优化 |
+| 6 | Reasoning via Planning | 构建世界模型引导的推理树 | 模型→规划→策略 |
+| 7 | Chain-of-Thought Scaffolding | 强制显式中间推理步骤 | 前提→步骤→结论 |
+| 8 | Few-Shot Exemplar Priming | 提供2-3个工作示例对齐输出格式 | 示例→模式识别→应用 |
+
+### 核心方法 (11)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 24 | First Principles Analysis | 剥离假设从基本真理重建 | 假设→真理→新方法 |
+| 25 | 5 Whys Deep Dive | 反复追问钻到根因 | why链→根因→方案 |
+| 26 | Socratic Questioning | 用定向问题揭示隐藏假设 | 问题→揭示→理解 |
+| 27 | Critique and Refine | 系统识别优劣后改进 | 优劣→改进→精炼 |
+| 28 | Explain Reasoning | 逐步展示思维过程 | 步骤→逻辑→结论 |
+| 29 | Expand or Contract for Audience | 为目标受众动态调整深度 | 受众→调整→精炼 |
+| 30 | Second-Order Thinking | 超越直接后果预判连锁效应 | 行动→后果→二阶→选择 |
+| 31 | Inversion Analysis | 翻转问题：如何保证失败？ | 目标→反转→失败路径→规避 |
+| 32 | Problem Decomposition | 拆解为独立子问题逐解决 | 整体→部分→方案→重组 |
+| 33 | Analogy Mapping | 找到熟悉的平行领域迁移结构 | 源域→映射→目标洞见 |
+| 34 | Steelmanning | 构建对方最强论证再回应 | 对立→最强形式→诚实反驳 |
+
+### 风险分析 (7)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 57 | Pre-mortem Analysis | 想象未来失败倒推预防 | 失败→原因→预防 |
+| 58 | Failure Mode Analysis | 系统探索每个组件如何失败 | 组件→失败→预防 |
+| 59 | Challenge from Critical Perspective | 扮魔鬼代言人找弱点 | 假设→挑战→加强 |
+| 60 | Identify Potential Risks | 全类别头脑风暴风险 | 类别→风险→缓解 |
+| 61 | Chaos Monkey Scenarios | 故意破坏测试韧性 | 破坏→观察→加固 |
+| 62 | Assumption Audit | 列出所有假设评级后压力测试 | 列表→评级→测试→加固 |
+| 63 | Cascading Failure Simulation | 跟踪单组件失败如何传播 | 触发→传播→放大器→解耦 |
+
+### 协作模式 (11)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 9 | Stakeholder Round Table | 多角色贡献多元视角 | 视角→合成→对齐 |
+| 10 | Expert Panel Review | 领域专家深度分析 | 专家→共识→建议 |
+| 11 | Debate Club Showdown | 两方辩论+裁判评分 | 论点→反论→合题 |
+| 12 | User Persona Focus Group | 用户角色反馈提案 | 反应→关切→优先级 |
+| 13 | Time Traveler Council | 过去的你和未来的你建议现在的你 | 过去→现在→未来 |
+| 14 | Cross-Functional War Room | PM+工程师+设计师共解 | 约束→权衡→方案 |
+| 15 | Mentor and Apprentice | 高级教初级问天真的问题 | 解释→问题→更深理解 |
+| 16 | Good Cop Bad Cop | 好人坏人交替审查 | 鼓励→批评→平衡 |
+| 17 | Improv Yes-And | 多人接力构建不阻塞 | 想法→构建→惊喜 |
+| 18 | Customer Support Theater | 愤怒客户+客服揭露痛点 | 投诉→调查→解决 |
+| 19 | Six Thinking Hats | 6种模式轮转(事实/情感/谨慎/乐观/创意/流程) | 白→红→黑→黄→绿→蓝 |
+| 20 | Delphi Method | 专家独立估计→匿名结果→修订→收敛 | 独立→揭示→修订→收敛 |
+
+### 创造性 (7)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 35 | SCAMPER Method | 7种创意镜头(替代/组合/适应/修改/他用/消除/反转) | S→C→A→M→P→E→R |
+| 36 | Reverse Engineering | 从期望结果倒推实现路径 | 终点→倒推→路径 |
+| 37 | What If Scenarios | 探索替代现实的后果 | 场景→影响→洞见 |
+| 38 | Random Input Stimulus | 注入无关概念激发意外连接 | 随机→关联→新想法 |
+| 39 | Exquisite Corpse Brainstorm | 每人只看到前一个贡献继续构建 | 贡献→传递→惊喜 |
+| 40 | Genre Mashup | 组合不相关领域找新方法 | 域A+域B→混合洞见 |
+| 41 | Constraint Injection | 故意添加限制(budget/time/tech)强制创新 | 加约束→创造力→评估 |
+| 42 | Morphological Analysis | 参数独立选项枚举后系统组合 | 参数→网格→组合→评估 |
+
+### 框架重构 (3)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 43 | Abstraction Laddering | 上移(为什么)或下移(怎么做)找正确层次 | 具体↔抽象→正确层次 |
+| 44 | Reframe the Question | 质疑当前问题是否是真正问题 | 陈述→重构→真问题→方案 |
+| 45 | Stakeholder Lens Rotation | 轮流采纳每个利益相关者视角 | 视角A→B→C→发现缺口 |
+
+### 竞争对抗 (3)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 21 | Red Team vs Blue Team | 对抗攻防分析找漏洞 | 防御→攻击→加固 |
+| 22 | Shark Tank Pitch | 创业者向挑剔投资人推销 | 提案→挑战→精炼 |
+| 23 | Code Review Gauntlet | 不同哲学的高级开发者审查同一代码 | 审查→辩论→标准 |
+
+### 学习验证 (3)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 46 | Feynman Technique | 像教孩子那样简化解释复杂概念 | 复杂→简化→缺口→掌握 |
+| 47 | Active Recall Testing | 不用参考测试理解 | 测试→缺口→强化 |
+| 48 | Deliberate Practice Loop | 识别子技能→训练→反馈→调整→重复 | 隔离→训练→反馈→调整 |
+
+### 哲学/伦理 (2)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 49 | Occam's Razor Application | 找最简单充分解释消除不必要复杂 | 选项→简化→选择 |
+| 50 | Trolley Problem Variations | 通过道德困境探索价值权衡 | 困境→分析→决策 |
+
+### 研究分析 (3)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 51 | Literature Review Personas | 乐观+怀疑+综合研究者评估证据 | 来源→批评→合成 |
+| 52 | Thesis Defense Simulation | 学生向委员会辩护假设 | 论点→挑战→辩护→精炼 |
+| 53 | Comparative Analysis Matrix | 多分析师对选项评分 | 选项→标准→分数→建议 |
+| 54 | Source Triangulation | 至少三种独立来源(定量/定性/专家)确认才接受 | 断言→源A→源B→源C→置信度 |
+
+### 回顾反思 (2)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 55 | Hindsight Reflection | 想象从未来回看获取视角 | 未来→洞见→应用 |
+| 56 | Lessons Learned Extraction | 系统提取关键教训和可行改进 | 经验→教训→行动 |
+
+### 技术审查 (5)
+| # | 方法 | 描述 | 流程 |
+|---|------|------|------|
+| 64 | Architecture Decision Records | 多个架构师提案辩论架构选择 | 选项→权衡→决策→理由 |
+| 65 | Rubber Duck Debugging Evolved | 向越来越技术化的鸭子解释代码直到找到bug | 简单→详细→技术→aha |
+| 66 | Algorithm Olympics | 多个方案同台竞技比基准 | 实现→基准→胜者 |
+| 67 | Security Audit Personas | 黑客+防御者+审计员多角度审查 | 漏洞→防御→合规 |
+| 68 | Performance Profiler Panel | 数据库+前端+DevOps专家诊断慢速 | 症状→分析→优化 |
+| 69 | Boundary & Edge Case Sweep | 系统测试极端值/零/空/最大/类型不匹配 | 输入→边界→边缘→失败 |
+
+---
+
+## 主流程
+
+### Step 1: 接收内容 + 分析上下文
+
+接收待审视的内容。分析：
+- 内容类型（方案/代码/文档/决策/架构/报告）
+- 复杂度（简单/中等/复杂）
+- 风险级别（低/中/高）
+- 受众（内部/客户/公开）
+
+### Step 2: 智能选择 5 种方法
+
+从69种方法中选择5种最匹配当前内容类型的方法：
+- 方案/决策类 → 优先 Risk + Core 方法
+- 代码/技术类 → 优先 Technical + Core 方法
+- 文案/内容类 → 优先 Creative + Core 方法
+- 架构/策略类 → 优先 Framing + Core + Risk 方法
+
+平衡搭配：1-2个核心方法 + 1-2个专项方法 + 1个创造性/框架方法。
+
+### Step 3: 展示选项
+
+```
+**深度审视选项**
+选择编号 (1-5), [r] 换一批, [a] 查看全部69种, [x] 完成:
+
+1. {方法名} — {一句话描述}
+2. {方法名} — {一句话描述}
+3. {方法名} — {一句话描述}
+4. {方法名} — {一句话描述}
+5. {方法名} — {一句话描述}
+```
+
+### Step 4: 执行选中方法
+
+用户选择编号 → 基于方法的描述执行深度审视 → 展示该方法揭示的问题/改进 → 询问是否应用改动 → 返回选项菜单。
+
+**应用改动**：仅在用户明确说"应用"时修改内容。默认只观察不修改。
+
+### Step 5: 迭代直到用户说 [x]
+
+每次执行完一个方法后重新展示5个选项（保留上轮最有价值的+替换新的）。用户说 [x] 时输出本轮审视摘要。
+
+---
+
+## 与 Hermes 技能的集成
+
+### 被 answer Phase 7 调用
+
+```
+加载 advanced-elicitation，对 Review 中发现的 Must Fix / Should Fix 项逐一运行 2-3 种方法做深度审视。
+```
+
+### 被 travel-intel 综合洞察调用
+
+```
+加载 advanced-elicitation，对本周关键竞品动态运行 Pre-mortem + Stakeholder Lens + Inversion。
+```
+
+### 被 feishu-html 阶段一B 调用
+
+```
+加载 advanced-elicitation，对设计决策树的关键分支运行 Reframe + First Principles + What If。
+```
+
+---
+
+## 约束
+
+- 每次最多选5种方法建议，避免选择瘫痪
+- 每次执行一种方法后返回到选项菜单（除非用户连续输入多个编号）
+- 不主动修改内容，只提出问题/建议
+- 如果产出本身质量很高（无明显问题），诚实说"此内容通过了{方法名}审视——无新发现"
+- 69种方法不必全部展示给用户——只展示选出的5种。用户说 [a] 时才展开完整列表
+
+## 常见陷阱
+
+1. **一次跑太多方法** → 每次最多执行1-2种再返回菜单
+2. **方法选择不匹配内容类型** → 代码内容用创意方法会浪费时间
+3. **替代执行而非审视** → 不是用新方法重做，是用新视角审视已有产出
+4. **跳过用户确认直接修改** → 永远等用户说"应用"才改
+
+## 验证清单
+
+- [ ] 接收到有效内容
+- [ ] 5种方法均匹配内容类型
+- [ ] 每种方法执行后有具体发现或诚实确认"无新发现"
+- [ ] 用户确认应用后才修改内容
+- [ ] 完成时输出本轮审视摘要
