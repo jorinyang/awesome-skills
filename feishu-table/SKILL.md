@@ -21,7 +21,7 @@ metadata:
 | **多维表格 (Bitable)** | `lark-cli base` (78 子命令) | CRM、产品库、订单、看板、结构化数据 |
 | **电子表格 (Sheet)** | `lark-cli api` 调用 REST 端点 | 财务报表、公式计算、预算、成本核算 |
 
-共用 `lark-cli` 认证体系（App ID: `YOUR_FEISHU_APP_ID`），无需额外配置。
+共用 `lark-cli` 认证体系（App ID: `cli_aa9ead14c2641cc3`），无需额外配置。
 
 ---
 
@@ -43,10 +43,10 @@ metadata:
 
 ## Token 获取
 
-lark-cli 已配置完成（`YOUR_FEISHU_APP_ID`），每次命令自动处理 token。手动 API 调用时：
+lark-cli 已配置完成（`cli_aa9ead14c2641cc3`），每次命令自动处理 token。手动 API 调用时：
 
 ```bash
-FEISHU_APP_ID=YOUR_FEISHU_APP_ID
+FEISHU_APP_ID=cli_aa9ead14c2641cc3
 TOKEN=$(curl -s -X POST "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal" \
   -H "Content-Type: application/json" \
   -d "{\"app_id\":\"$FEISHU_APP_ID\",\"app_secret\":\"$FEISHU_APP_SECRET\"}" \
@@ -396,6 +396,8 @@ lark-cli api POST "/open-apis/sheets/v3/spreadsheets" \
 
 | # | 陷阱 | 正确做法 |
 |---|------|----------|
+| 0 | **Bitable API 不支持浏览器 CORS 调用** | 飞书 Open API 不支持从浏览器 JS 直接调用（无 Access-Control-Allow-Origin 头）。前端 SPA 不能直连 Bitable API，必须通过后端代理或 Serverless 函数中转。若需多人共享数据的 Web 工具，考虑用 Supabase 等支持 CORS 的 BaaS，或 OSS JSON + 轻量代理方案（见 feishu-html references/oss-json-backend.md）。 |
+|---|------|----------|
 | 1 | **lark-cli 用字符串类型名** | `type: "text"/"select"/"number"/"datetime"/"user"` 不是整数 |
 | 2 | **+field-create 不支持 property** | 带选项的 select 字段需用 REST API 直调 |
 | 3 | **+record-batch-create 用列式** | 格式 `{"fields":["col1","col2"],"rows":[["a","b"]]}` |
@@ -415,6 +417,10 @@ lark-cli api POST "/open-apis/sheets/v3/spreadsheets" \
 | 17 | **wiki +node-create 输出前3行是状态信息** | JSON 从第 4 行开始。解析前先 `tail -n +4` 或搜索第一个 `{"ok"` 位置。 |
 | 18 | **不能删除 Bitable 的最后一张表** | 错误码 800080004。必须先建新表，再删默认空表。 |
 | 19 | **lark-cli 不在 execute_code 的 PATH 中** | 完整路径 `/home/aorus/.local/bin/lark-cli`。或用 `terminal()` 运行脚本（PATH 正常）。 |
+| 20 | **+table-create 字段类型错误时表仍创建** | 传入错误的 type 值（如整数而非字符串）时，API 可能返回错误但仍创建了空表（只有默认 auto_number 字段）。检查 `+table-list` 确认，已创建的表需手动加字段或删除重建。 |
+| 20 | **+table-create 字段类型错误时表仍创建** | 传入错误的 type 值（如整数而非字符串）时，API 可能返回错误但仍创建了空表（只有默认 auto_number 字段）。检查 `+table-list` 确认，已创建的表需手动加字段或删除重建。 |
+| 21 | **+table-create 用 string type vs REST API 用 int type** | lark-cli CLI 用 `"text"`/`"number"`/`"datetime"`；REST API `+api POST .../tables` 用整数 1/2/5。混用会报 `800010701 Invalid discriminator`。 |
+| 22 | **+table-create 部分成功（表建了但字段失败）** | 如果 type 格式错误，表本身会创建成功（有 table_id），但字段全部跳过只留 auto_number ID。此时表已存在，重新 create 同名会报 `800010102 validation_error`。正确做法：用 REST API 的 `POST .../tables/{id}/fields` 单独补加字段。 |
 
 ---
 
@@ -433,6 +439,7 @@ kanban-orchestrator  → 任务分解编排（底层可调用本技能建表）
 
 - `references/bitable-field-types.md` — 全部 27 种字段类型、属性结构、写入值格式
 - `references/sheets-api.md` — 电子表格 REST API 完整参考（v2 + v3，37+ 端点）
+- `references/bitable-spa-integration.md` — 使用 Bitable 作为 Web App 后端：CORS 限制与 FC 代理方案
 - `references/bitable-api.md` — 多维表格 REST API 端点详情（继承自 feishu-wiki）
 
 ## Templates

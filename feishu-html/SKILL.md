@@ -5,7 +5,7 @@ triggers:
   - 用户要求创建内部方案+对外宣传两个版本（双轨交付）
 metadata:
   hermes:
-    related_skills: [ai-native-workflow, huashu-design, trip-landing, feishu-doc, blue-team]
+    related_skills: [ai-native-workflow, huashu-design, trip-landing, feishu-doc, blue-team, hallmark]
 ---
 
 # Feishu HTML · 内容制作与 OSS 部署
@@ -15,8 +15,8 @@ metadata:
 - **Bucket**：`clawshell-vault`
 - **OSS Endpoint**：`https://oss-cn-hongkong.aliyuncs.com`
 - **绑定域名**：`https://gzzhike.cn`
-- **AccessKey ID**：`YOUR_ALIBABA_CLOUD_ACCESS_KEY_ID`
-- **AccessKey Secret**：`YOUR_ALIBABA_CLOUD_ACCESS_KEY_SECRET`
+- **AccessKey ID**：`<YOUR_OSS_ACCESS_KEY_ID>`
+- **AccessKey Secret**：`<YOUR_OSS_ACCESS_KEY_SECRET>`
 - **部署目录前缀**：`web-spa/`
 - **OSS SDK**：`oss2`（`pip install oss2`）
 
@@ -86,7 +86,7 @@ metadata:
      # 1. 获取 tenant_access_token
      req = urllib.request.Request(
          'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
-         data=urllib.parse.urlencode({'app_id': 'YOUR_FEISHU_APP_ID', 'app_secret': 'YOUR_FEISHU_APP_SECRET'}).encode(),
+         data=urllib.parse.urlencode({'app_id': 'cli_aa9ead14c2641cc3', 'app_secret': 'ZUUm7yI7HmfLi42ki8fPTgZzbj2AuTeM'}).encode(),
          headers={'Content-Type': 'application/x-www-form-urlencoded'}
      )
      with urllib.request.urlopen(req) as r:
@@ -162,6 +162,8 @@ metadata:
 - `references/solution-proposal-template.md` — B2B方案/系统建设提案的客户演示页结构（双轨交付：飞书文档+HTML）
 - `references/interactive-demo-template.md` — 交互式功能Demo（客户可点击操作的 prototype，含mock数据/模态框CRUD/多步表单）
 - `references/course-landing-template.md` — 课程/培训落地页：3 TAB结构（概览→详解→知识卡片），移动端优先，操作速查卡+公式框+步骤列表
+- `references/event-poster-pattern.md` — 活动海报生成模式：HTML设计→Playwright截图→OSS PNG，含海报布局规范（色板/字体/分区结构）和完整工作流
+- `references/shared-data-spa.md` — **多人共享 SPA 数据层模式**：OSS JSON + Python 代理 + SSH 隧道，替代 localStorage 实现跨设备共享数据
 
 ---
 
@@ -365,7 +367,7 @@ metadata:
 
 ```python
 import oss2
-auth = oss2.Auth('YOUR_ALIBABA_CLOUD_ACCESS_KEY_ID', 'YOUR_ALIBABA_CLOUD_ACCESS_KEY_SECRET')
+auth = oss2.Auth('<YOUR_OSS_ACCESS_KEY_ID>', '<YOUR_OSS_ACCESS_KEY_SECRET>')
 bucket = oss2.Bucket(auth, 'oss-cn-hongkong.aliyuncs.com', 'clawshell-vault')
 acl = bucket.get_bucket_acl()
 print('Bucket ACL:', acl.acl)
@@ -380,7 +382,16 @@ print('Bucket ACL:', acl.acl)
 
 ### 阶段五：页面校验
 
-> **设计质量门禁**（增强层）：部署前可选调用 design-review 思维——视觉层次、美学一致性、组件复用。完整设计审查流程见 `ai-native-workflow` Phase ⑦。
+> **设计质量门禁**（增强层）：部署前调用 `hallmark` 技能执行 58 道反 AI-slop 关卡检查。另可调用 design-review 思维——视觉层次、美学一致性、组件复用。完整设计审查流程见 `ai-native-workflow` Phase ⑦。
+>
+> **Hallmark 集成**：进入阶段五时，加载 `hallmark` 技能，对产出 HTML 执行：
+> 1. 视觉反模式检查（V1-V7 关卡）
+> 2. 内容诚信检查（C1-C4 关卡）
+> 3. 移动端硬地板检查（M1-M5 关卡）
+> 4. 六轴预发射自评（P/H/E/S/R/V 各 1-5 分）
+> 5. 输出 Hallmark stamp 到 CSS 顶部：`/* Hallmark · pre-emit critique: P? H? E? S? R? V? · gates: N/58 ✓ */`
+>
+> 不通过则修复后重新验证，直到所有关卡通过方可部署。
 
 对阶段二、阶段三产出的**所有 HTML 页面**（功能性页面 + 展示性页面）逐一进行校验，不通过则修复后再继续：
 
@@ -507,7 +518,7 @@ def verify_online_page(url):
 **Bucket ACL 预检（防止部署后无法访问）**：
 ```python
 import oss2
-auth = oss2.Auth('YOUR_ALIBABA_CLOUD_ACCESS_KEY_ID', 'YOUR_ALIBABA_CLOUD_ACCESS_KEY_SECRET')
+auth = oss2.Auth('<YOUR_OSS_ACCESS_KEY_ID>', '<YOUR_OSS_ACCESS_KEY_SECRET>')
 bucket = oss2.Bucket(auth, 'oss-cn-hongkong.aliyuncs.com', 'clawshell-vault')
 acl = bucket.get_bucket_acl()
 if acl.acl == 'private':
@@ -586,7 +597,7 @@ if acl.acl == 'private':
 ```python
 import oss2, os, glob, time, hashlib
 
-auth = oss2.Auth('YOUR_ALIBABA_CLOUD_ACCESS_KEY_ID', 'YOUR_ALIBABA_CLOUD_ACCESS_KEY_SECRET')
+auth = oss2.Auth('<YOUR_OSS_ACCESS_KEY_ID>', '<YOUR_OSS_ACCESS_KEY_SECRET>')
 bucket = oss2.Bucket(auth, 'https://oss-cn-hongkong.aliyuncs.com', 'clawshell-vault')
 
 def slugify(name):
@@ -720,6 +731,9 @@ def deploy_static_package(local_file, project_name):
 | 嵌入资源（PDF/视频）无法访问 | 降级为下载链接，在页面提供"点击下载" |
 | 响应式断点判断失误 | 优先保证移动端可用，桌面端在窄窗口手动测试 |
 | 内容理解偏差 | 在需求确认阶段向用户重述理解，等用户纠正 |
+| **对简单 SPA 使用 `answer` 7 阶段工作流** | 单文件纯前端 SPA（localStorage/JSON 数据）不需要 answer 的完整 Clarify→Brief→Architect→Standards→Decompose→Build→Review 流程。这会拖慢交付 5-10x。直接用 `feishu-html` 技能自带的阶段二→阶段三→阶段六流程。判断标准：是否需要多产出物（方案文档+技能+部署）、是否需要深度论证。单一 HTML 产出 = 不需要 answer。 |
+| **SSH 隧道 URL 不稳定当作永久方案** | localhost.run 每次重连 URL 变化。快速原型可接受，生产环境需固定后端（Supabase / 阿里云 FC / Vercel Serverless Function）。运维模式见 `references/ssh-tunnel-maintenance.md`。 |
+| **SPA 需要多人共享数据（localStorage 不够）** | 见 `references/shared-data-spa.md`：快速原型用 OSS JSON + Python 代理 + SSH 隧道；生产推 Supabase。飞书 Bitable 需 CORS 代理；OSS 预签名 PUT URL（oss2 `sign_url`）浏览器不可用（签名不含 Content-Type/MD5）。 |
 
 ---
 

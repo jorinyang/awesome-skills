@@ -11,7 +11,7 @@ triggers:
   - "travel-intel query"
 tags: [travel, intel, collector, reporter, querier, 贵州之客]
 category: travel
-version: 1.3.0
+version: 1.5.1
 dependencies:
   skills: [feishu-doc, feishu-wiki, opencli]
   commands: [lark-cli, agent-browser, opencli]
@@ -33,7 +33,7 @@ dependencies:
   └─ 同 URL 去重
       ↓
 校验层 (Expiry)
-  ├─ 每日 03:00 扫描两节点
+  ├─ 每日 03:00 扫描三节点（行业+竞品+咨询洞察一级）
   └─ 15类过期规则 + 评论标记
       ↓
 报告层 (Reporter)                   查询层 (Querier)
@@ -164,17 +164,23 @@ L1 通用搜索:
 | **品橙旅游** | pinchain.com | utf-8 | 10-12 | `<h2><a href>` | ✅ 主力 |
 | **迈点网 文旅** | meadin.com/wl/ | utf-8 | 20-30 | img alt 属性 (噪音多) | ✅ 新增 |
 | **迈点网 景区** | meadin.com/jq/ | utf-8 | 20-30 | img alt 属性 (噪音多) | ✅ 新增 |
-| **闻旅** | wenlvnews.com | utf-8 | 0-3 | SSL需禁用验证，实际产出极低 | ⚠️ 低产(标签链接) |
-| 执惠旅游 | tripvivid.com | utf-8 | 0-2 | text标签 | ⚠️ 低产(JS) |
+| **闻旅** | wenlvnews.com | utf-8 | ~100 (仅5-10条实质) | 含大量政宣/导航，需旅行关键词过滤后 ~10条 | ⚠️ 高噪需精选 |
+| 执惠旅游 | tripvivid.com | utf-8 | 30-60 | 行业日报汇总，信息密度高（需旅行关键词过滤后 ~36条实质内容） | ✅ 高产但需精选 |
 | ~~贵州文旅厅~~ | whhly.guizhou.gov.cn | — | 0 | ❌ JS-SPA |
 | ~~8264户外~~ | 8264.com | — | 0 | ❌ JS-SPA(4KB壳) |
 | ~~中国旅游报~~ | ctnews.com.cn | — | 0 | ❌ JS-SPA |
 
-### 运行
+### 运行时
 
 ```bash
-python3 scripts/collector.py --channels urllib --date $(date +%Y-%m-%d)
+# L2 站点直抓 → /tmp/l2_results.json
+python3 scripts/l2_collect.py $(date +%Y-%m-%d) > /tmp/l2_results.json
+
+# 三阶段预过滤 → /tmp/l2_ingest.json
+python3 scripts/l2_prefilter.py
 ```
+
+> **注意**: cron 环境中禁止管道到解释器，预过滤脚本需先 `write_file` 再 `terminal` 执行。
 
 输出 JSON 数组，每条：`{title, url, snippet, source, trust(high|medium|low), date}`
 
@@ -224,14 +230,25 @@ python3 scripts/collector.py --channels urllib --date $(date +%Y-%m-%d)
 
 文档标题：`YYYY-MM-DD_类型_主题`
 
-### 运行
+### 入库前预过滤 ★ (2026-06-05, 更新 2026-06-09)
+
+L2 采集原始产量波动大（品橙 ~15 + 迈点 ~80 + 闻旅 ~100 + 执惠 ~60 = **~260 条**），含大量模板占位符、非旅游内容和跨类目重复。**入库前必须三阶段过滤**，避免噪音写入 Wiki 并浪费 API 配额：
+
+| 阶段 | 操作 | 示例效果 (2026-06-09) |
+|:--:|------|:--:|
+| 1 | 去模板占位符 `{{name}}`/空白/过短标题 (<8 chars) | 260 → 195 |
+| 2 | **旅行相关性过滤** — 标题含旅游关键词才保留 (见 `references/l2-pre-filter-keywords.md`) | 195 → 116 |
+| 3 | 去部门导航链接 + 标题去重 (case-insensitive) | 116 → **94** |
+
+> **为什么需要阶段 2**：闻旅返回 ~100 条中大量为政治宣传/部门导航链接（如"更好担负起新的文化使命""云南省文化和旅游厅"），无旅行关键词过滤会保留 165 条噪音 → 入库耗时 ~25min；过滤后仅 94 条实质内容 → 入库 ~12min，节省近一半时间。
+>
+> ⚠️ **阶段 3a 去部门导航不可跳过 (2026-06-10 验证):** 如果预过滤仅做去模板+去重（跳过旅行关键词和去导航阶段），部门链接「XX省文化和旅游厅」会因含"旅游"关键词通过旅行过滤，但最终无阶段 3a 的去导航规则拦截。2026-06-10 实测：23/93 入库条目为部门导航（占比 25%），均来自闻旅 `img alt` 提取。完整三阶段预过滤后应为 70 条实质内容。**始终使用 `scripts/l2_prefilter.py`，不要写内联简化版。**
+
+### 入库
 
 ```bash
-# L2 入库专用（推荐 — 替代有 bug 的原 ingestor.py）
-python3 scripts/l2_ingestor.py 2026-06-03 /tmp/l2_ingest.json
-
-# 通用入库（原 ingestor.py — 当前有 3380002 bug，待修复）
-# python3 scripts/ingestor.py --input collector_output.json
+# L2 入库（foreground ≤50条, background >50条）
+python3 -u scripts/l2_ingestor.py $(date +%Y-%m-%d) /tmp/l2_ingest.json
 ```
 
 ---
@@ -298,8 +315,8 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 | travel-intel-l1-local | *(WSL crontab)* | 30 6 * * * | **L1a**(百度+夸克)+**L1b**(微博+知乎) | 🏠 l3_cron.sh |
 | travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 WSL `no_agent` script |
 | travel-intel-expire | `09c5407d9244` | 0 3 * * * | 过期校验 | ☁️ agent |
-| travel-intel-daily | `646091130172` | 0 9 * * * | 每日简报 | ☁️ agent |
-| travel-intel-weekly | `011f4af010cd` | 0 9 * * 1 | 周度分析 | ☁️ agent |
+| travel-intel-daily | `646091130172` | 5 9 * * * | 每日简报 | ☁️ agent |
+| travel-intel-weekly | `011f4af010cd` | 5 9 * * 1 | 周度分析 | ☁️ agent |
 | travel-intel-insight | `dda612e69d65` | 0 10 * * 6 | 综合洞察 | ☁️ agent |
 
 全部 deliver: `feishu:oc_40570cc921ca1f645f8667151c1e85e6`，除 l3-poller 为 `local`（仅脚本输出存档），l1-local 为 WSL 本地 crontab（非 Hermes cron）。
@@ -311,9 +328,12 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 |------|------|------|
 | l3_poller.py | `~/.hermes-feishu/scripts/l3_poller.py` | L3 Bitable 轮询器 (no_agent cron, 每5分钟) |
 | l2_ingestor.py | `skills/travel/travel-intel/scripts/l2_ingestor.py` | L2 urllib 结果入库 (替代有 bug 的 ingestor.py，批冷却防限流) |
+| l2_prefilter.py | `skills/travel/travel-intel/scripts/l2_prefilter.py` | L2 三阶段预过滤：去模板 → 旅行关键词 → 去导航+去重 |
 | ingestor.py | `skills/travel/travel-intel/scripts/ingestor.py` | 通用入库引擎 (⚠️ 当前有 3380002 bug，建议用 l2_ingestor.py) |
 | browser_collector.py | `skills/travel/travel-intel/scripts/browser_collector.py` | L1a 百度+夸克 agent-browser 采集 |
 | hotlist_collector.py | `skills/travel/travel-intel/scripts/hotlist_collector.py` | L1b 微博+知乎 opencli 热榜采集 |
+| classify_daily_docs.py | `skills/travel/travel-intel/scripts/classify_daily_docs.py` | 每日简报分类脚本：wiki node-list输出→按贵州/户外/政策/常规分组 |
+| classify_daily_brief.py | `skills/travel/travel-intel/scripts/classify_daily_brief.py` | 每日简报全流程分类脚本：拉取三节点→JSON解析(处理内嵌引号)→分类输出 |
 
 ---
 
@@ -374,22 +394,26 @@ def parse_larkcli_output(result):
 
 ### 飞书 API 频率限制 (99991400)
 
-连续 `docs +create` 超过 ~10 次/分钟会触发 rate limit。**入库必须加延迟**，每条间隔 ≥3 秒。ingestor.py 已内置 `--delay` 参数（默认 3 秒）。
+连续 `docs +create` 超过 ~10 次/分钟会触发 rate limit。**入库必须加延迟和批间冷却**。
 
-```bash
-python3 scripts/ingestor.py --input collector_output.json --delay 3
-```
+> ⚠️ **确认参数 (2026-06-05 最终验证):**
+> - BATCH=8 + COOL=12s + DELAY=4s → **17/64 限流 (26.5%)** ❌
+> - BATCH=6 + COOL=15s + DELAY=5s → 0 限流（skill 中 l2_ingestor.py 默认值）✅
+> - BATCH=4 + COOL=20s + DELAY=6s → **17/17 全成功，零重试**（最保守，用于纯重试场景）✅
+>
+> **首条脆弱模式**：冷却后的批次第一项最容易触发限流（令牌桶在冷却期间未完全恢复）。减小 BATCH_SIZE 比增大 COOL_DOWN 更有效。
+>
+> `l2_ingestor.py` 默认值: BATCH_SIZE=6, COOL_DOWN=15s, ITEM_DELAY=5s, RETRY_DELAY=15s, MAX_RETRIES=2。直接调用此脚本即可。
 
-> ⚠️ **批量限制 (2026-06-01 实测):** 即使间隔 3 秒，连续创建 ~20 条后仍可能触发 99991400。当入库量 >20 条时，建议每 15 条插入一次 10-15 秒冷却，或对失败条目自动重试（延迟 10 秒后重试通常成功）。
+### 云端 cron 管道安全限制 (2026-06-01, 更新 2026-06-05)
 
-### 云端 cron 管道安全限制 (2026-06-01)
-
-云端 agent 运行 cron 时，安全扫描器会拦截所有**管道到解释器**的写法：
+云端 agent 运行 cron 时，安全扫描器会拦截所有**管道到解释器**的写法，且 `execute_code` 工具被禁用：
 
 ```
 ❌ curl ... | python3 -c "..."     # tirith:curl_pipe_shell
 ❌ cat file.json | python3 -c "..." # tirith:pipe_to_interpreter
 ❌ python3 collector.py | python3 -c "..."  # 同上
+❌ execute_code 工具              # BLOCKED: cron mode
 ```
 
 **正确做法：** 先用 `write_file` 写入 .py 脚本文件，再用 `terminal` 直接执行：
@@ -400,7 +424,7 @@ write_file /tmp/my_script.py  # 写入完整脚本
 terminal python3 /tmp/my_script.py  # 直接执行，不经过管道
 ```
 
-### L3 Bitable 分发 — 命令执行方式 (2026-06-01, 更新 2026-06-03)
+### L3 Bitable 分发 — 命令执行方式 (2026-06-01, 更新 2026-06-07)
 
 Python `subprocess.run(['lark-cli', ...])` 方式在脚本中容易因 import 顺序、PATH 环境变量传递等问题静默失败。**推荐直接在 shell 中逐条调用**，利用 `$(...)` 捕获输出。
 
@@ -409,6 +433,16 @@ Python `subprocess.run(['lark-cli', ...])` 方式在脚本中容易因 import �
 - `lark-cli api POST` 输出到 **stderr** 非 stdout，Python subprocess 需读 `r.stderr`
 - Bitable app token 为 `TDYYwZ0T0ifLtdkK9iOcp2HTnwf`（旧 `DhZcbnof3aj` 已删除）
 - Table ID 为 `tblVKG82oOl3UaNW`
+
+**★ lark-cli API stderr 多行 JSON 解析 (2026-06-07):** `lark-cli api POST` 返回的 JSON 是**多行格式化**的（pretty-print），不能用 `raw.split("\n")[-1]` 取最后一行。正确做法：
+
+```python
+raw = r.stderr.strip() or r.stdout.strip()
+idx = raw.find('{')  # 找第一個 { 而非最后一行
+resp = json.loads(raw[idx:])
+```
+
+`raw.split("\n")[-1]` 只拿到残缺片段（如 `"id":`），`json.loads` 报 `Expecting value` 错误。此问题在逐条发送多条 Bitable 记录时每一条都触发，6条全失败。
 
 ```bash
 # ✅ 推荐：直接 shell 调用（cron 中需写入 .py 脚本后 terminal 执行）
@@ -466,6 +500,55 @@ lark-cli wiki +node-list --space-id 7643710721485753535 \
 
 > 详情见 [references/insight-execution-guide.md](references/insight-execution-guide.md) 步骤 0。
 
+### Python 输出缓冲：background 模式下静默 (2026-06-05, 更新 2026-06-06) ★
+
+Hermes `terminal(background=true)` + Python 脚本时，`print()` 输出被完全缓冲，`process(action='log')` 和 `process(action='poll')` 始终返回 0 行/空 output_preview。即使脚本正常运行，也无任何可见输出。
+
+```bash
+# ❌ 静默 — 无输出，无法判断进度
+terminal python3 l2_ingestor.py ... --background=true
+
+# ❌ 仍然静默 (2026-06-06 验证) — -u 对 background 模式无效
+terminal python3 -u l2_ingestor.py ... --background=true
+# process(action='poll') → output_preview: "" (543s, 61 篇已入库但零可见输出)
+
+# ✅ 实时输出 — foreground 模式 + -u 才有可见进度
+terminal python3 -u l2_ingestor.py ...  # foreground, timeout=600
+```
+
+**根因**：`-u` 解决 Python 层缓冲，但 background 模式下输出经过 **Hermes 进程捕获层**，该层在进程退出前不刷新中间输出。`notify_on_complete` 会在进程退出后送达完整输出，但运行中无法观察进度。
+
+**正确的 background 模式使用策略**：
+- 信任 `notify_on_complete`：进程退出后会自动送达完整结果
+- **不要在运行中反复 poll/log 来判断进度** — 始终返回空
+- 如需监控进度，用旁路验证：`lark-cli wiki +node-list` 检查已入库文档数
+
+**入库脚本模式选择指南**：
+| 场景 | 模式 | 理由 |
+|------|:--:|------|
+| ≤50 条，预计 <10 分钟 | **foreground + timeout=600** | 可见输出，安心等待 |
+| >50 条，预计 >10 分钟 | **background + notify_on_complete** | 超 600s 上限，信任 notify |
+| 需要实时进度 | foreground (必须) | background 无可信进度 |
+
+### 入库进程卡死恢复流程 (2026-06-06) ★
+
+当 background 模式的 ingestor 长时间无输出，**不要立即 kill**——进程可能在静默工作。按以下步骤处理：
+
+```
+1. 验证实际进度（非 poll/log）
+   lark-cli wiki +node-list → 统计今日已创建文档数
+   
+2. 判断真实状态
+   ├─ 文档数持续增长 → 进程正常，继续等待 notify_on_complete
+   └─ 文档数停滞 >5 分钟 → 进程可能卡死，执行恢复
+
+3. 恢复：diff 找出缺失条目 → foreground 重跑
+   python3 find_missing.py  # 对比 /tmp/l2_ingest.json vs wiki node-list
+   python3 -u l2_ingestor.py DATE /tmp/l2_missing.json  # 仅入库缺失部分
+```
+
+**本次验证 (2026-06-06)**：86 条入库，background 模式下 543s 无输出→被误杀（实际已入库 61/86）。恢复后 foreground 模式 27 条缺失全部成功，总耗时 ~200s。
+
 ### L2 站点直抓 — 品橙/闻旅 采集修正 (2026-06-03)
 
 **品橙旅游 (pinchain.com) 正则模式错误**：原 `title=` 属性匹配在首页仅命中 `点击看更多` 一个 UI 元素，真实文章标题在 `<h2><a href="/article/NNN">标题</a></h2>` 结构中。修正：
@@ -498,8 +581,7 @@ html = urllib.request.urlopen(req, timeout=15, context=ctx).read().decode('utf-8
 
 - ✅ 使用 Python `subprocess.run(['lark-cli', ...])` + 显式 `PATH` 环境变量
 - ✅ XML 使用简单 `str.replace()` 转义（移除控制字符，& → &amp;，< → &lt;，> → &gt;）
-- ✅ 每 8 条插入 12s 冷却（batch_size=8, cool_down=12）
-- ✅ 每项 4s 延迟（而非默认 3s）
+- ✅ 每 6 条插入 15s 冷却（BATCH_SIZE=6, COOL_DOWN=15, ITEM_DELAY=5, RETRY_DELAY=15）— 2026-06-05 确认 0 限流
 
 **替代入库脚本**见 `scripts/l2_ingestor.py`（从 `/tmp/l2_ingestor_v2.py` 提取）。原 `ingestor.py` 待完整重写。
 
@@ -523,6 +605,45 @@ html = urllib.request.urlopen(req, timeout=15, context=ctx).read().decode('utf-8
 3. `check_expiry()` 降级逻辑：标题日期 → `obj_edit_time` → 放弃
 
 **依赖**：需要 `FEISHU_APP_ID` / `FEISHU_APP_SECRET` 环境变量（用于获取 tenant_access_token）。cron 环境需确保这些变量已配置。
+
+### 过期校验覆盖缺口：顶层节点未扫描 (2026-06-09, ✅ 已修复 2026-06-10) ★
+
+`expiry_checker.py` 仅扫描两个子分类节点（`V0Lhwl7KYi` + `EAMYw1CPoi`），但子分类 token 3380002 失效后，L1/L2/L3 新增文档统一创建在「咨询洞察」一级节点 `UF7Cw5w2Wi` 下。**这些新文档完全不在过期扫描范围内**。
+
+> **2026-06-10 已修复**: `expiry_checker.py` L13 已更新，NODES 列表加入 `UF7Cw5w2WiHGfjkKVvBcxj8Hnib`。现在三节点全量覆盖：行业资讯 593 + 竞品动态 333 + 咨询洞察 527 = 1,453 篇。
+
+2026-06-09 巡检数据（修复前）：
+| 扫描节点 | 文档数 | 状态 |
+|----------|:--:|------|
+| 行业资讯 `V0Lhwl7KYi` | 593 | 已覆盖 |
+| 竞品动态 `EAMYw1CPoi` | 333 | 已覆盖 |
+| **咨询洞察 `UF7Cw5w2Wi`** | **432** | **❌ 未覆盖** |
+
+2026-06-10 巡检数据（修复后）：
+| 扫描节点 | 文档数 | 状态 |
+|----------|:--:|------|
+| 行业资讯 `V0Lhwl7KYi` | 593 | ✅ 已覆盖 |
+| 竞品动态 `EAMYw1CPoi` | 333 | ✅ 已覆盖 |
+| 咨询洞察 `UF7Cw5w2Wi` | 527 | ✅ 已覆盖 |
+| **合计** | **1,453** | **全量覆盖**
+
+### 过期规则 `days: null` 不触发检查 (2026-06-09)
+
+`references/expiry-rules.yaml` 中 4 条规则的 `days` 字段为 `null`（文旅厅通知/文件、景点基础信息、节庆/活动、季节性信息）。这些规则标注了特殊逻辑（如"截止日+3"、"活动结束+7"、"跨季当天"），但 `check_expiry()` 函数在遇到 `days: null` 时直接返回 `(0, None)`，**永不触发过期标记**。
+
+```python
+# expiry_checker.py L145-150 — 当前逻辑
+for rule in rules:
+    if rule["type"] == rule_type:
+        rd = rule.get("days")
+        if rd and age > rd:    # None 在此为 falsy → 永不进入
+            return age, rule
+        return 0, None          # 所有 null-days 规则走这里
+```
+
+**影响**：即使存在过期的节庆活动/文旅厅通知文档，也不会被标记。当前数据库年轻（最老 15 天）未暴露此问题，但随着时间推移将产生漏检。
+
+**待修复**：需为这 4 条规则实现对应的动态阈值逻辑，而非统一 `days: null`。
 
 ### L1b opencli 依赖 Chrome + Daemon (2026-06-01)
 
@@ -599,3 +720,28 @@ lark-cli api GET "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables"
 ```bash
 lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/children" --as bot
 ```
+
+### Cron 09:00 时段 agent 模式争抢 → Broken pipe (2026-06-05) ★
+
+当多个 agent 模式 cron job 调度在同一分钟（尤其是 09:00），基础设施层可能出现进程争抢，导致某个 job 被终止并报 `RuntimeError: [Errno 32] Broken pipe`。这是 Python 写管道时对端已关闭的典型症状——agent 进程被调度器提前终止或 API 连接中断。
+
+**诊断方法**（不要急着修代码，先排除环境因素）：
+
+1. **对比同时间槽其他 job**：`cronjob list` 查看同一分钟的其他 job 状态
+   - agent 模式 job 全失败 → 基础设施争抢（概率高）
+   - 仅 script/no_agent job 正常 → 进一步确认是 agent 运行时问题
+2. **区分 agent vs script 模式**：`no_agent: true` 的脚本 job 不受影响说明不是 API/网络问题
+3. **手动重跑验证**：`cronjob run <job_id>` 触发单次运行
+   - 重跑成功 → 确认是瞬态，等下次调度即可
+   - 重跑仍失败 → 检查数据源/API/模型可用性
+4. **`cronjob list` 不实时更新手动运行状态** — `cronjob run` 后 `last_status` 可能仍显示之前的错误，不要以此判断手动运行结果。关注 job 是否实际推送到群。
+
+**已知 09:00 共存 job**（容易互相影响）：
+
+| Job | 类型 | 状态历史 |
+|-----|:--:|------|
+| travel-intel-daily | agent | 2026-06-05 Broken pipe |
+| kanban-daily-review | agent | 2026-06-05 delivery error |
+| zhike-morning | no_agent script | ✅ 正常 |
+
+**缓解措施**：已将 `travel-intel-daily` 和 `travel-intel-weekly` 调度从 `0 9 * * *` 错开至 `5 9 * * *`（09:05），避开整点争抢窗口（2026-06-08 应用）。

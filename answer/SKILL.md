@@ -1,7 +1,7 @@
 ---
 name: answer
 description: AI Native'S Workflow(er) — 7 阶段结构化工作流编排器。适用于任何从零开始的复杂构建任务：新业务/新产品/新技能/新方案/新流程/新系统/调研分析/策略规划/项目启动/决策支持/汇报演示/预算规划/复盘总结/运营营销/品牌策划/架构设计/迭代优化。以 design-flow 编排范式为核心，串联 clarify → brief → architect → standards → decompose → build → review。触发：answer / 梳理思路 / 从零开始 / 帮我规划 / 设计方案 / 启动项目 / 拆解问题 / 写方案 / 做BP / SOP / 做复盘 / 运营方案 / 营销计划 / from scratch / plan this 等 100+ 关键词。
-version: 1.2.0
+version: 1.5.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -197,6 +197,8 @@ triggers:
 - 已有明确答案的问题（"这段代码哪里错了"）
 - 简单操作（"帮我发个消息"、"打开XX文件"）
 - 已有成熟方案的重复性任务（"按上次的流程再做一次"）
+- **小型 Web SPA / 单文件前端应用**（"做个投票页面"、"做个话题提交工具"）—— 产出物单一（1个HTML）、无多模块架构需求、无方案论证需求。用 `feishu-html` + `writing-plans` 直接构建部署，走 answer 会把 1 小时的事拖成半天。判断标准：产出 ≤ 1 个 HTML 文件 + 纯前端 + 数据量小 → 跳过 answer
+- **简单 CRUD 工具**（localStorage 级数据、无后端、无认证）—— 功能边界清晰、无架构争议点。判断标准：数据模型 ≤ 3 个实体 + 无服务端 + 无复杂状态流转 → 跳过 answer
 
 ### 领域自动识别（扩展版）
 
@@ -856,11 +858,15 @@ Date: {date}
 |---|------|------|---------|
 | 0 | **用两步法创建文档（Wiki API 建节点 + v2 update 写内容）** | 返回 `ok:true` revision_id 递增但 blocks=0，文档永远为空。lark-cli v1.0.40–v1.0.44 均存在此 bug | 必须用一步法：`docs +create --api-version v2 --doc-format markdown --title \"标题\" --content @file.md --parent-token TOKEN --as bot`。详见 feishu-doc 技能「两步法陷阱」 |
 | 1 | 跳过 Clarify 直接写 Brief | 后续阶段基于未验证假设 | 至少确认 3 个核心假设 |
+| 1a | **跳过全部 answer 工作流，直接 Build**：用户提供了流程图、角色表、详细需求描述，Agent 认为"需求足够清晰"而跳过 7 阶段交互，直接开始写代码/搭系统 | 技术平台约束（如钉钉 vs 独立 Web App）在需求描述中不可见，Agent 基于错误假设构建了完全不对的交付物。用户会纠正"你没有了解完整需求就动手" | 即使用户需求描述非常详细，也**必须**先完成材料收集（所有图片、文档、纪要逐份确认收到并解析），再走 checkpoints 流程（领域确认 → Clarify 决策树 → 用户确认后才进入下一阶段）。判断标准：在 Phase 1 Clarify 完成前，**不得调用任何构建类工具**（terminal 建表、write_file 写 HTML、deploy 等） |
 | 2 | Brief 写成功能列表 | 失去方向一致性 | 用"体验/流程"语言描述，不用"功能"语言 |
 | 3 | Architect 过于抽象 | 拆解时无法落地 | 每个模块必须有具体的内容描述 |
 | 4 | Standards 写了不用 | Build 产出与 Standards 矛盾——最典型的是 Standards 写"以内容需求为准"但 Build 产出写了具体数字（如"8-45s""8-15s"），用户一眼发现。定性标准被 Build 偷换成定量捷径 | Build 每完成一个任务对照 Standards 逐条检查，尤其警惕"数值化改写"——Standards 说"以内容为准"就不能在产出里写任何时长范围 |
 | 4a | **训练/教学类文档的 Standards 写成"讲师备课用的提词器/教学备注"** | 用户会说"内容的规范应当是讲师面对学员要表达的内容"。Standards 定义了全文档的写作基调，写错则全篇语气偏离 | Standards 的「内容规范」必须写"讲师口吻，面向学员——文档=讲师张嘴就能念的逐字稿"，禁止写"此处讲师引导""讲师应在此处强调"等幕后备注。详见 `references/training-proposal-template.md` 常见陷阱第二条 |
 | 5 | Review 只挑问题不说不好的 | 团队不知道自己什么做对了 | 必须包含 "What Works Well" |
+| 18 | **修改非飞书文档（.xlsx/.docx）后不校验内容** | openpyxl 的 `delete_rows()` 在合并单元格或emoji前缀值时会静默失败或漂移行号；python-docx 的 `doc.tables[N]` 索引容易错位。修改后不校验 = 交付错误文件给客户 | Excel 修改后验证：行数变化、合计金额、关键行保留、表头样式。Word 修改后验证：所有表格的预算一致性、段落关键词无残留。详见 `references/b2b-system-proposal.md` 文档编辑陷阱 |
+| 18a | **python-docx 用固定索引 `doc.paragraphs[N]` 定位段落** | 任何插入操作后所有索引偏移，后续基于旧索引的修改会写到错误段落甚至清空正确内容。多轮 `terminal` 累加修改导致问题逐轮放大 | 用 `find_para(doc, keyword)` 按文本关键词定位，不依赖固定索引。从 `.bak` 备份开始，所有修改在单次脚本中完成。详见 `references/b2b-system-proposal.md`「Word 安全编辑模式」 |
+| 18b | **用户说"修改本地电脑中的word+excel"时创建飞书文档** | 用户明确指定本地文件路径时，应编辑本地文件而非创建飞书在线文档。两者是不同的交付路径 | 先确认文件位置（`/tmp/work_order_spa/`等），直接操作 `python-docx`/`openpyxl` 修改本地文件。飞书文档仅在用户要求"创建飞书文档"或产出对象是飞书Wiki时才创建 |
 
 ### ⛔ 反例与禁止操作
 
@@ -1011,7 +1017,9 @@ Phase 7 REVIEW → 对照审查 + blue-team 压力测试：
 
 ## 开源仓库
 
-GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md + domain-mapping + README + CHANGELOG，含 v1.0.0 / v1.1.0 / v1.1.1 三个 Release。
+GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md + domain-mapping + README + CHANGELOG，含 v1.0.0 / v1.1.0 / v1.1.1 / v1.4.0 / v1.5.0 五个 Release。
+
+> 其他精选技能收集在 **[jorinyang/awesome-skills](https://github.com/jorinyang/awesome-skills)** — 16 个 Agent Skills 的独立仓库，含本技能及 feishu/zhike/travel 全系列。
 
 > **非飞书环境？** 使用 `answer-standalone` 技能（v2.0.0），纯本地 markdown 输出，零外部依赖。与原版 answer 共享相同的 7 阶段方法论和 6 领域模板。
 
@@ -1032,6 +1040,10 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 | training-outline-lite.md | `references/training-outline-lite.md` | 轻量培训大纲模板：纯课程内容，不含报价/场景诊断/公司介绍（已有合作关系、仅需课程设计的场景） |
 | internal-onboarding-training.md | `references/internal-onboarding-training.md` | 内部工具上手培训模式：三层目标框架+手机端实操+逐字稿内容规范（与上一条是两种培训类型） |
 | `pricing-estimation.md` | `references/pricing-estimation.md` | 软件功能报价方法论：Fibonacci+RICE 双因子定价，双 Sheet Excel 输出 |
+| `prd-writing-pattern.md` | `references/prd-writing-pattern.md` | PRD撰写模式：多来源材料→缺口分析→P0/P1/P2分级→用户确认→输出可开发级PRD |
+| `b2b-system-proposal.md` | `references/b2b-system-proposal.md` | B2B系统建设提案模式：三件套交付（Excel+Word+Demo）、双路径定价、10章方案结构、文档编辑陷阱 |
+| `b2b-system-proposal.md` | `references/b2b-system-proposal.md` | B2B系统建设提案模式：三件套交付（Excel+Word+Demo）、双路径定价、10章方案结构 |
+| `svg-to-png-playwright.md` | `references/svg-to-png-playwright.md` | SVG转PNG：WSL+PEP 668 环境下用 Playwright 渲染后嵌入 python-docx |
 | `distribution.md` | `references/distribution.md` | 分发包指南：tar.gz 打包、目标安装、GitHub Token 推送陷阱 |
 | `lark-cli-v2-quickref.md` | `references/lark-cli-v2-quickref.md` | lark-cli v2 API 命令速查：创建/写入/删除/验证 Wiki 文档的正确 flags |
 | marketing-funnel-template.md | `references/marketing-funnel-template.md` | 运营营销方案漏斗数学模板：GMV反推、渠道矩阵、内容复用流、私域承接时间线、预算分配参考 |

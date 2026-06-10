@@ -5,6 +5,7 @@ triggers:
   - 用户要求创建文档
   - 产出内容复杂度超出飞书消息承载范围
   - 用户要求修订已有文档
+  - 用户要求删除文档
   - 讨论主题在知识库检索中被发现已存在
   - 用户要求同时产出「内部实施方案+对外宣传版本」（双轨交付）
   - 用户说「客户提了意见」「看看评论」「有修订意见」「帮我看下文档评论」
@@ -26,13 +27,15 @@ triggers:
 6. **图表支持**：`<whiteboard type="mermaid">` 内嵌 Mermaid/PlantUML/SVG 图表
 7. **全 block 类型**：表格、列表、代码块、引用、分割线、高亮卡片、待办清单、分栏等
 8. **评论驱动修订**：读取文档评论→AI 解析修改意图→精准编辑文档→回复评论告知结果 🔥
-9. **文档推送**：新增/修订后主动推送变更摘要和链接
+9. **文档推送**：用户文档先发审阅再归档（两步流程）；自动化采集产出可直接推送变更摘要
+10. **PRD 需求对齐分析**：原始 PRD + 会议转写/纪要 → 结构化差异对照文档（已对齐/差异/新增）— 详见 `references/prd-diff-methodology.md`
+11. **非 docx 文件访问**：Wiki 节点包裹的 PDF/MD/TXT 文件通过 Drive API 下载读取 — 详见 `references/wiki-file-access.md`
 
 ---
 
 ## 认证
 
-CLI v2 已配置完成（`lark-cli config init --app-id YOUR_FEISHU_APP_ID --app-secret-stdin`），每次命令自动处理 token，无需手动刷新。
+CLI v2 已配置完成（`lark-cli config init --app-id cli_aa9ead14c2641cc3 --app-secret-stdin`），每次命令自动处理 token，无需手动刷新。
 
 ```bash
 # 验证配置
@@ -194,19 +197,20 @@ cd /tmp && lark-cli docs +create --api-version v2 --doc-format markdown \
 
 > 已验证：一步法创建的文档内容可正常回读（blocks > 0, text 完整）。
 
-### ⚠️ `docs +fetch` 无法可靠验证 Wiki 文档内容（2026-06-01）
+### ⚠️ `docs +fetch` 无法可靠验证文档内容（2026-06-01, updated 2026-06-06）
 
-`lark-cli docs +fetch --api-version v2` 对 Wiki 节点创建的文档**不可靠**——即使内容已成功写入（REST API 确认 >400 blocks），`fetch` 仍显示 `blocks=0`。
+`lark-cli docs +fetch --api-version v2` **在 Wiki 节点和云空间文档上均不可靠**——即使内容已成功写入（REST API 确认 blocks 存在），`fetch` 仍显示 `Outline items: 0, Blocks: 0`。2026-06-06 确认云空间文档 (`docs +create` 不带 `--parent-token`) 同样受影响，回退到 `Outline items: 0`。
 
 | 验证方式 | 可靠性 |
 |----------|:--:|
-| `lark-cli docs +fetch --api-version v2` | ❌ 不可靠（Wiki docs 显示 blocks=0 误报） |
+| `lark-cli docs +fetch --api-version v2` | ❌ 不可靠（Wiki + 云空间 docs 均可能显示 blocks=0 误报） |
 | `GET /docx/v1/documents/{id}/blocks/{id}/children` | ✅ 可靠（返回真实 blocks 数量） |
 
 **验证命令**：
 ```bash
-# ✅ 可靠验证
-lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/children?page_size=500" --as bot
+# ✅ 可靠验证（Wiki + 云空间均适用）
+lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/children?page_size=500" --as bot 2>&1 | head -50
+# 确认返回 items 数组非空即可，不依赖 fetch 的 blocks 计数
 ```
 
 ---
@@ -217,15 +221,20 @@ lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/ch
 
 | 优先级 | 工具 | 可靠性 |
 |:--:|------|:--:|
-| 1 | `lark-cli docs +fetch --api-version v2 --doc <token>` | ✅ 可靠 |
-| 2 | `feishu_doc_read(doc_token=...)` | ⚠️ 仅飞书评论上下文中可用 |
-| 3 | `curl` / 浏览器 | ❌ 需要登录，返回登录页 |
+| 1 | `lark-cli docs +fetch --api-version v2 --doc <token>` | ⚠️ 可能显示 blocks=0（见下文 pitfall），用 REST API 二次验证 |
+| 2 | `GET /docx/v1/documents/{id}/blocks/{id}/children` | ✅ 可靠验证（返回真实 blocks） |
+| 3 | `feishu_doc_read(doc_token=...)` | ⚠️ 仅飞书评论上下文中可用 |
+| 4 | `curl` / 浏览器 | ❌ 需要登录，返回登录页 |
 
-**关键 pitfall**：`feishu_doc_read` 在非飞书评论上下文中（如群聊、私聊）报 `"Feishu client not available (not in a Feishu comment context)"`。**永远不要依赖它**——直接用 `lark-cli docs +fetch`。
+**关键 pitfall 1**：`feishu_doc_read` 在非飞书评论上下文中（如群聊、私聊）报 `"Feishu client not available (not in a Feishu comment context)"`。**永远不要依赖它**。
+**关键 pitfall 2**：`docs +fetch` 对 Wiki 和云空间文档均可能返回 `blocks=0` 误报（见实测陷阱）。读取后如 blocks=0，**不要断言文档为空**——立即用 REST API `blocks/children` 二次验证。
 
 ```bash
-# 可靠读取
+# 读取（可能不可靠）
 lark-cli docs +fetch --api-version v2 --doc <doc_token> --as bot
+
+# 验证（可靠 — fetch 返回 blocks=0 时必做）
+lark-cli api GET "/open-apis/docx/v1/documents/{doc_token}/blocks/{doc_token}/children?page_size=500" --as bot
 ```
 
 > ⚠️ 用户不希望你让他们"补全内容"或"重新说一遍"已经在文档里的东西。先读文档，再行动。
@@ -245,6 +254,8 @@ lark-cli docs +search --query "搜索关键词" --as user
   - 新建 → 流程一
 - 未命中 → 流程一
 - `--as user` 身份可能未配置（需 `lark-cli auth login`），此时回退为手动列出知识库节点匹配
+
+> ⚠️ **`docs +search` 仅支持 `--as user`**（`--as bot` 报错 `not supported`）。在 cron/自动化环境中不可用。替代方案：`lark-cli wiki +node-list --parent-node-token TOKEN --page-all --as bot` 列出节点后本地过滤匹配。
 
 ### 流程一：创建新文档
 
@@ -425,13 +436,18 @@ lark-cli docs +whiteboard-update \
 
 > 从 `docs +create` 或 `+update` 的返回值 `document.new_blocks` 中获取 `block_token` 作为 `--whiteboard-token`。
 
-### 流程五：推送给用户
+### 流程五：推送给用户（★ 先发再审，不要急着归档）
 
-每次新增或修订文档后，发送通知：
-- 文档链接
-- 操作类型（新建/修订）
-- 内容摘要（100字内）
-- 主要修改点（修订时）
+**用户文档（非自动化产物）的两步流程：**
+
+1. **创建文档** — 正常 `docs +create --parent-token` 创建到知识库
+2. **发链接给用户审阅** — 用 `send_message` 把文档链接发给用户，**不要**在此时宣称"已归档"或"已完成"。文案示例：「模版已生成，你看看结构有没有要调整的：[链接]」
+3. **等用户确认** — 用户审阅后可能要求修改（改结构、增减字段、换分类等）。修改完再等待确认
+4. **用户认可后才视为定稿** — 此时可以正常推送变更摘要
+
+> ⚠️ **禁止行为**：不要在用户审阅前就推送「文档已创建到知识库 XX 分类」——用户反馈"不要着急入库，你先发给我"。先发链接，等审阅通过再说归档的事。
+
+**自动化情报采集（cron 产出）的推送流程：**
 
 ### 流程六：评论驱动修订（@hermes 自动触发）🔥
 
@@ -675,6 +691,10 @@ for c in comments:
 - [ ] 外部链接是否用 `<bookmark>` 而非 `<a>`？
 - [ ] 是否使用了 ≥4 种 block 类型？
 
+### 集成文档模式（可视化仪表盘 + 详细内容）
+
+当文档需要同时服务"决策者快速扫读"和"执行者深度参考"时，使用双区结构：上半部分 6 模块可视化仪表盘（callout + table），下半部分完整细节。模板和约束见 `references/integrated-doc-pattern.md`。
+
 ---
 
 ### 钉钉文档 CP 提取
@@ -699,8 +719,18 @@ for c in comments:
 | 插入本地文件 | `docs +media-insert --type file` |
 | 创建 Mermaid/PlantUML 图表 | `<whiteboard type="mermaid">` |
 | 搜索知识库 | `docs +search --query` |
-| 读取文档内容 | `docs +fetch --api-version v2` |
-| 获取 block ID | `docs +fetch --detail with-ids` |
+│ 读取文档内容 | `docs +fetch --api-version v2` |
+│ 获取 block ID | `docs +fetch --detail with-ids` |
+
+### ⛔ 用户说"有现成文档"时，先搜本地再搜Wiki
+
+当用户提到已有文档/方案/报价时，**不要**直接创建新文档。按以下顺序搜寻：
+
+1. **本地文件** — 用户指定路径（如 `/tmp/xxx/`、`~/workspace/`）或搜索 `/mnt/c/Users/*/Desktop|Documents|Downloads/`
+2. **Feishu Wiki 节点** — `lark-cli wiki +node-list` 搜索知识库
+3. **Feishu 云空间** — 用户可能分享过文档链接（`feishu.cn/docx/` token）
+
+用户反馈：「本地电脑里有的文档，不要从零开始写」——先从本地 docx/xlsx 读取原始数据，再在此基础上修订。
 | 读取/回复评论 | `lark-cli api GET/POST .../comments`（详见 `references/comments-api.md`）|
 | 创建 Bitable 节点 | `--parent-token PARENT` + 后续 Bitable API |
 | 列出文档评论 | `feishu_drive_list_comments(file_token=DOC, file_type="docx")` |
@@ -745,7 +775,7 @@ for c in comments:
 
 | 错误 | 原因 | 处理 |
 |------|------|------|
-| `not configured` | CLI 未初始化 | 运行 `echo "SECRET" \| lark-cli config init --app-id YOUR_FEISHU_APP_ID --app-secret-stdin --force-init` |
+| `not configured` | CLI 未初始化 | 运行 `echo "SECRET" \| lark-cli config init --app-id cli_aa9ead14c2641cc3 --app-secret-stdin --force-init` |
 | `--content: invalid file path` | `@file` 用了绝对路径 | `cd` 到文件目录，传相对路径 |
 | `permission denied` | Wiki 权限不足 | 确认应用已开通 `wiki:space:write_only` 并**重新发布** |
 | `node: not found` | Node.js 不在 PATH | `export PATH="/home/aorus/.local/bin:$PATH"` |
@@ -760,6 +790,14 @@ for c in comments:
 ---
 
 ## 实测陷阱（2026-05-27 全量验证）
+
+### XML 多表格渲染为 callout（2026-06-10 实测）
+
+- **触发条件**：用 `--doc-format xml` 创建含 ≥3 个 `<table>` 块的文档
+- **后果**：部分表格被错误渲染为 `callout`（type 31），而非 `table`（type 22）。5 个表格中 3 个变成 callout，仅 2 个正确。文档视觉结构被破坏
+- **根因**：lark-cli v1.0.40 XML tokenizer 在处理连续表格块时存在 bug，callout 和 table 混淆
+- **正确做法**：表格密集的文档**必须用 `--doc-format markdown`** 创建，Markdown 模式可正确渲染所有表格
+- **规则**：文档含 ≥3 个表格 → 用 Markdown；≤2 个表格且需要 callout/whiteboard/grid 等高级 block → 用 XML
 
 ### `<source>` 文件附件
 - **不能用 `name` 属性凭空创建**。`<source name="报告.pdf"/>` 作为独立块会报 `too big file size` 错误，因为缺少实际文件 token
@@ -911,7 +949,56 @@ cat scripts_with_s10_header.txt | lark-cli ... --content -
 - **变更日志 token**：`LJ7RdGzVVoUX6rxmzwpcH3L0npg`
 - 详细操作 → 加载 `feishu-wiki` 技能
 
-### `wiki +node-create` 会创建空文档，不能引用已有文档 (2026-06-01)
+### `lark-cli api DELETE` 查询参数必须用 `--params` 而非 URL query string (2026-06-06)
+
+- **触发条件**：`lark-cli api DELETE "/path?type=docx"` — 在 URL 中附加 `?type=docx` 查询参数
+- **后果**：返回 `99992402: field validation failed, "type is required"`。lark-cli 在 DELETE 请求中不自动将 URL query string 传参
+- **正确做法**：使用 `--params '{"type":"docx"}'` 显式传递查询参数：
+  ```bash
+  # ✅ 正确
+  lark-cli api DELETE "/open-apis/drive/v1/files/{doc_token}" --params '{"type":"docx"}' --as bot
+  ```
+- **验证**：删除后 `docs +fetch` 返回 `3380003: Document page has been deleted` 确认成功
+
+### 多实例文本替换（≥3 处）：用源 XML + overwrite
+
+`str_replace` 仅替换首次匹配，无法处理批量同名替换（如"于袁天"出现 9 次需 9 次 API 调用）。高效方案：
+
+```bash
+# 1. 保留文档的原始 XML 源文件（创建时用的 .xml）
+# 2. sed 一次性替换所有实例
+sed -i 's/旧文本/新文本/g' /tmp/doc_source.xml
+# 3. overwrite 回写
+cd /tmp && lark-cli docs +update --api-version v2 --doc DOC_ID \
+  --command overwrite --content @doc_source.xml --as bot
+```
+
+**前提**：必须有原始 XML 源文件。如果丢失，`docs +fetch` 不可靠（Wiki 文档 blocks=0），需用 REST API 逐 block 重建 XML，代价大。
+
+### `docs +fetch` 云空间文档同样 blocks=0 (2026-06-06)
+
+此前已记录 Wiki 文档的 `docs +fetch` blocks=0 误报。2026-06-06 确认：**不带 `--parent-token` 创建的云空间文档同样受影响**，`fetch` 返回 `Outline items: 0, Blocks: 0` 但 REST API 确认内容存在（callout、heading1、divider 等 block 正常）。
+
+**对策不变**：始终用 `GET /docx/v1/documents/{id}/blocks/{id}/children` 做内容验证，不依赖 fetch。
+
+### 保留源 XML 时的批量文本替换：sed + overwrite (2026-06-06)
+
+当需要对文档做全量文本替换（如人名/术语统一修正），且**仍持有创建时的源 XML 文件**时，最快路径：
+
+```bash
+# 1. 直接在源 XML 上替换
+sed -i 's/旧文本/新文本/g' /tmp/source.xml
+
+# 2. overwrite 回写
+cd /tmp && lark-cli docs +update --api-version v2 --doc DOC_ID \
+  --command overwrite --content @source.xml --as bot
+```
+
+**优势**：绕过了 `docs +fetch` blocks=0 的不可靠问题，也绕过了 `str_replace` 每次只替换一个匹配的限制。本次会话中用此法一次性替换了 3 篇文档共 20 处"于袁天→夏与"，每篇仅 1 次 API 调用。
+
+**前提**：源 XML 没有 `<img src="...">` 内部图片标签（否则 overwrite 会截断，见 overwrite 陷阱）。会议纪要、审议文档等纯文本+callout+table 的文档完全安全。
+
+**对比 `str_replace`**：`str_replace` 每次只替换一个匹配，20 处需 20 次调用，且中间可能因 revision 变化导致定位偏移。sed+overwrite 是一步完成的原子操作。
 
 - **触发条件**：先用 v1 `docs +create` 创建文档到云空间，再试图通过 `POST /open-apis/wiki/v2/spaces/{space_id}/nodes` 的 `origin_node_token` 将已有文档挂载到知识库
 - **后果**：API 返回成功 `code:0`，但在知识库中创建的是一个**全新的空文档**（`obj_token` 与原始文档不同），不是对已有文档的引用。原始文档仍在云空间中，内容未迁移
@@ -926,6 +1013,18 @@ cat scripts_with_s10_header.txt | lark-cli ... --content -
 - **根因**：此知识库在 2026-06-01 重组过分类结构，API 的父子关系映射可能未同步更新。飞书 UI 中的树形结构正常，仅 API 查询异常
 - **对策**：创建时直接指定正确的 `--parent-token`（CLI v2 已验证可正确归档到子分类），信任创建行为，不依赖 API `node-list` 做归档验证
 
+### 批量文本替换 → `overwrite` 优于多次 `str_replace`
+
+当需要对文档做多处相同文本替换时（如全文替换人名、地名），逐次 `str_replace` 需要 N 次 API 调用且容易遗漏。**更高效的方式：**
+
+```bash
+# 前提：你有创建该文档时使用的原始 XML 文件
+sed -i 's/旧文本/新文本/g' original.xml
+lark-cli docs +update --api-version v2 --doc DOC_ID --command overwrite --content @original.xml --as bot
+```
+
+一次 overwrite 替代 N 次 str_replace。适用于：全文人名替换、地名修正、统一术语等场景。注意 overwrite 会丢失图片/评论，仅当文档无图片时使用。
+
 ### 子分类 node_token 可能失效，须做回退 (2026-06-03)
 
 - **触发条件**：创建文档时使用子分类 node_token（如 `FB6DwZlXhijL38kz0J6cy8gznhd` 业务规范）作为 `--parent-token`，返回 `3380002: Parent node not found`
@@ -935,11 +1034,18 @@ cat scripts_with_s10_header.txt | lark-cli ... --content -
   - ✅ `XMVrw88PsijL6Ek4S2sc1B5enuh` — 内容素材（一级分类）
   - ✅ `UF7Cw5w2WiHGfjkKVvBcxj8Hnib` — 咨询洞察（一级分类）
   - ✅ `J4EewYIT2ieFuwkRWbxcgWbFnhe` — AI Native 工作流（一级分类）
+- ✅ `GI1cwlAUviHXIqk291vcjNxvnGb` — 会议纪要（子分类）— **已确认有效 (2026-06-06)**，连续两次创建成功
+- ✅ `J9h6wJgO4ij7NjkXNTCc6mNDnwf` — 文案素材（子分类）— **已确认有效 (2026-06-09)**\n- ✅ `HrJXwlne7ioywnkDpAlc6p08ngV` — 产品研发（子分类）— **已确认有效 (2026-06-08)**
+- ✅ `J9h6wJgO4ij7NjkXNTCc6mNDnwf` — 文案素材（子分类）— **已确认有效 (2026-06-09)**
+- ✅ `PAVdwkNpNiedvfkPLIec1gK7nAU` — 团队管理（子分类）— **已确认有效 (2026-06-08)**
+- ✅ `JIKCw1IXAi5ZYxkBKW0cYEuanGF` — 运营策略（子分类）— **已确认有效 (2026-06-08)**
+- ✅ `NHaQwmHNliUnSekHDOmcPPGfn8f` — 任务复盘（子分类）— **已确认有效 (2026-06-08)**
+- ✅ `J9h6wJgO4ij7NjkXNTCc6mNDnwf` — 文案素材（子分类）— **已确认有效 (2026-06-09)**
 - ❌ `FB6DwZlXhijL38kz0J6cy8gznhd` — 业务规范（子分类）— 3380002 失效
-  - ❌ `V0Lhwl7KYiWYDDk1vCncv2GhnYf` — 行业资讯（子分类）— 3380002 **已确认失效 (2026-06-04)**
-  - ❌ `EAMYw1CPoipVWtkObbtcR2oDnNc` — 竞品动态（子分类）— 3380002 **已确认失效 (2026-06-04)**
-  - ❌ `KVPTwrbOKiQMUkkUPlscaEKfnUd` — 方案计划（子分类）— 上次使用有效，本次未单独验证
-  - ⚠️ 其他子分类 token — 未逐一验证，可能部分失效
+- ❌ `V0Lhwl7KYiWYDDk1vCncv2GhnYf` — 行业资讯（子分类）— 3380002 **已确认失效 (2026-06-04)**
+- ❌ `EAMYw1CPoipVWtkObbtcR2oDnNc` — 竞品动态（子分类）— 3380002 **已确认失效 (2026-06-04)**
+- ✅ `KVPTwrbOKiQMUkkUPlscaEKfnUd` — 方案计划（子分类）— **已确认有效 (2026-06-10)**，本次会话成功创建文档
+- ⚠️ 其余子分类 token — 未逐一验证，可能部分失效
 - **回退策略**：
   1. 优先尝试子分类 token → 如返回 3380002，立即回退到对应的一级分类 token
   2. 一级分类 token（上述 4 个）已确认稳定有效，文档会创建在对应大类下
@@ -962,10 +1068,11 @@ cat scripts_with_s10_header.txt | lark-cli ... --content -
 | 文本替换（大段内容，stdin） | `cat /tmp/content.txt \| lark-cli docs +update --api-version v2 --doc DOC --command str_replace --pattern "旧" --content - --as bot` |
 | 全文覆盖 | `lark-cli docs +update --api-version v2 --doc DOC --command overwrite --content @file.xml --as bot` |
 | 插入图片 | `lark-cli docs +media-insert --doc DOC --file img.png --caption "说明" --as bot` |
-| 搜索知识库 | `lark-cli docs +search --query "关键词" --as user` |
+| 搜索知识库 | `lark-cli docs +search --query "关键词" --as user` | ⚠️ 仅 `--as user`，cron不可用 |
 | 列出知识库节点（根） | `lark-cli wiki +node-list --space-id 7643710721485753535 --page-all --as bot` |
 | 列出分类子节点 | `lark-cli wiki +node-list --space-id 7643710721485753535 --parent-node-token TOKEN --page-all --as bot` |
 | 删除知识库节点 | `lark-cli wiki +node-delete --node-token TOKEN --obj-type wiki --yes` |
+| 删除云空间文档 | `lark-cli api DELETE "/open-apis/drive/v1/files/{doc_token}" --params '{"type":"docx"}' --as bot` | ⚠️ 必须用 `--params`，URL 中 `?type=docx` 无效 |
 | 通用 API 调用 | `lark-cli api GET /open-apis/wiki/v2/spaces/7643710721485753535/nodes` |
 | 列出评论 | `feishu_drive_list_comments(file_token=DOC)` |
 | 回复评论 | `feishu_drive_reply_comment(file_token=DOC, comment_id=ID, content="...")` |

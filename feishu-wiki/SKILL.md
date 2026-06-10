@@ -52,8 +52,9 @@ lark-cli config show
 **直接使用 curl + `FEISHU_APP_ID`/`FEISHU_APP_SECRET` 获取 token**（wiki_explorer.py 的标准方式）：
 
 ```bash
-# 获取 tenant_access_token
-TOKEN=$(python3 -c "
+# ⚠️ 终端 $() 命令替换在 Hermes terminal 工具中经常失败
+# 推荐方式：两步法——先写 token 到文件，再读取
+python3 -c "
 import json, os, subprocess
 r = subprocess.run(['curl','-s','-X','POST',
   'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
@@ -62,11 +63,16 @@ r = subprocess.run(['curl','-s','-X','POST',
                     'app_secret': os.environ['FEISHU_APP_SECRET']})],
   capture_output=True, text=True, timeout=15)
 print(json.loads(r.stdout)['tenant_access_token'])
-")
+" > /tmp/feishu_token.txt
 
-# 读取文档全文
-curl -s "https://open.feishu.cn/open-apis/docx/v1/documents/{obj_token}/raw_content" \
-  -H "Authorization: Bearer $TOKEN"
+# 方式 A：直接用 Python 内联完成整个 curl 调用（避免 shell 变量拼接）
+python3 -c "
+import json, os, subprocess
+tok = open('/tmp/feishu_token.txt').read().strip()
+r = subprocess.run(['curl','-s',
+  'https://open.feishu.cn/open-apis/docx/v1/documents/LutZdKoNjoaWbgxiItAcMp4YnEe/raw_content',
+  '-H', 'Authorization: Bearer '+tok... '...')
+"
 
 # 列出空间子节点（✅ curl + token 正确转发 parent_node_token）
 curl -s "https://open.feishu.cn/open-apis/wiki/v2/spaces/{space_id}/nodes?parent_node_token={token}&page_size=50" \
@@ -77,7 +83,7 @@ curl -s "https://open.feishu.cn/open-apis/wiki/v2/spaces/get_node?token={node_to
   -H "Authorization: Bearer $TOKEN"
 ```
 
-> **分层说明**：`lark-cli api` 底层使用的是 Lark CLI 应用的 credential（`YOUR_FEISHU_APP_ID`），不是标准内部应用，它的 `tenant_access_token/internal` 返回 9499。但 `wiki_explorer.py` 脚本使用的是环境变量 `FEISHU_APP_ID`/`FEISHU_APP_SECRET`（标准内部应用），token 获取和 curl 调用均正常工作。**对需要 query 参数的端点，统一用 curl + 标准内部应用 token。**
+> **分层说明**：`lark-cli api` 底层使用的是 Lark CLI 应用的 credential（`cli_aa9ead14c2641cc3`），不是标准内部应用，它的 `tenant_access_token/internal` 返回 9499。但 `wiki_explorer.py` 脚本使用的是环境变量 `FEISHU_APP_ID`/`FEISHU_APP_SECRET`（标准内部应用），token 获取和 curl 调用均正常工作。**对需要 query 参数的端点，统一用 curl + 标准内部应用 token。**
 
 ---
 
@@ -551,6 +557,15 @@ Move API 本身可用，但需严格遵循安全机制：
 - **正确做法**：先用 `write_file` 将 Python 脚本写入 `.py` 文件，再通过 `terminal("python3 script.py")` 执行
 - 示例：将合并变更日志的 Python 逻辑写入 `/tmp/merge_changelog.py`，再 `cd /tmp && python3 merge_changelog.py`
 
+### write_file 中文引号被规范化为 ASCII 引号导致 Python 语法错误 (2026-06-07)
+
+- 当通过 `write_file` 写入包含中文弯引号 `\u201c\u201d`（即 `""`）的 Python 脚本时，传输层可能将弯引号规范化为 ASCII 直引号 `"`，导致 Python 字符串分隔符冲突
+- **症状**：`write_file` 的 lint 返回 `SyntaxError: invalid syntax`，定位在包含 `"...核心共识为"先做销售再谈品牌"。..."` 的行
+- **根因**：中文弯引号 `\u201c`/`\u201d` 被降级为 ASCII `"`，与 Python 字符串外层的 `"` 冲突
+- **正确做法**：将中文引号替换为 `「」`（U+300C/U+300D 角括号），这些字符不会被规范化
+- 示例：`"核心共识为「先做销售再谈品牌」。"` ✅ 替代 `"核心共识为"先做销售再谈品牌"。"` ❌
+- 此问题在 2026-06-07 巡检中触发，用 `「」` 替换后 `write_file` lint 通过
+
 ### 变更日志合并时避免内联 fetch 内容 (2026-05-31)
 - 合并变更日志时，不要将 `lark-cli docs +fetch` 的完整输出内联到 Python 脚本字符串中——输出含大量 emoji 且体积大
 - **正确做法**：Python 脚本内通过 `subprocess.run(['lark-cli', 'docs', '+fetch', ...])` 动态获取当前内容，避免静态嵌入
@@ -599,6 +614,46 @@ curl -s "https://open.feishu.cn/open-apis/wiki/v2/spaces/{space_id}/nodes?parent
 - ❌ **错误**：先在 href 中搜索 obj_token 做匹配 → 永远匹配不上，总结为空
 - ❌ **错误**：先 `re.sub` 删除所有注释 → 再用标题去 `<a>` 标签中匹配 → 两步法复杂且标题含特殊字符时脆弱
 - ✅ **正确**：用 `##SUMMARY:TOKEN##` 注释本身作为 re.sub 的匹配锚点，替换函数中查缓存 → 一步完成。代码模板见 `references/summary-insertion.md`
+
+### 部分分类节点拒收 Move API 的 target_parent_token (2026-06-06)
+
+**现象**：节点出现在 `list nodes?parent_node_token=` 子节点列表中（如「业务规范」），但：
+- `get_node?token=` 返回 131005 "not found"
+- Move API 的 `target_parent_token` 返回 131005 "target_parent_token <nil>"——即使 JSON body 通过 `json.dumps` 正确编码
+
+**根因推测**：某些 Wiki 文件夹/分类节点是通过飞书 UI 手动创建的，其内部 token 结构与 API 创建的节点不同，导致 GET 和 Move 端点无法解析。
+
+**绕过方案**：
+1. 优先使用 `wiki_explorer.py --move` 脚本——它内置遍历+逐个移动机制，对单个节点失败会跳过不中断
+2. 如果脚本也失败，手动在飞书 Wiki UI 中拖拽移动
+3. 该节点仍可正常接收 `docs +create` 请求（已验证 3380002 不影响 create），但 doc create 后需单独处理节点关联
+
+### 流程〇：更新已有 Wiki 文档内容（in-place 更新）
+
+当文档已在知识库中有 wiki 节点时，**不要走 create-new-doc → create-wiki-node → move 链路**。直接用 `overwrite` 更新已有 docx 内容：
+
+```bash
+# 1. 找到 wiki 节点的 obj_token
+#    方法 A：从 wiki_explorer.py 扫描结果中查
+#    方法 B：curl get_node API
+TOK=*** /tmp/tok.txt)
+curl -s "https://open.feishu.cn/open-apis/wiki/v2/spaces/get_node?token=<node_token>" \
+  -H "Authorization: Bearer $TOK"
+
+# 2. 用 XML 内容覆盖已有 docx
+lark-cli docs +update --api-version v2 \
+  --doc <obj_token> \
+  --command overwrite \
+  --content @/tmp/content.xml \
+  --as bot
+
+# 3. 如需移动分类，用 wiki_explorer.py --move 或手动拖拽
+```
+
+**优势**：
+- 跳过 create-wiki-node 步骤（避免 token 映射问题、空标题节点）
+- 跳过 Move API（如果文档已在正确位置则完全不需要）
+- 文档 URL 不变，已有的引用和链接不会断裂
 
 ### 知识库递归遍历 (v5, 2026-06-01)
 - `explore_space()` 已支持两级递归遍历（通过 `_fetch_children()` 辅助函数，`max_depth=2`）

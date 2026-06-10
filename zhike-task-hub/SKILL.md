@@ -94,6 +94,8 @@ chat_id: "oc_40570cc921ca1f645f8667151c1e85e6"  # 贵州之客群
 
 **关键技巧**：agent 模式 cron 的 `script` 只做数据收集（输出 JSON），`prompt` 定义分析任务。脚本的 stdout 自动注入为上下文，无需手动传参。
 
+**⚠️ agent 模式坑**：避免加载大技能（如 `feishu-doc` 1575+ 行）到 agent cron job——会导致 context 膨胀到 ~31K tokens，DeepSeek-V4-Pro 流式超时 180s 后断连（`[Errno 32] Broken pipe`）。把文档创建命令直接嵌入 prompt 替代加载大技能。详见 `references/cron-agent-pattern.md`。
+
 **tasklist_guid**：`c900dbc8-fa00-4154-a6a7-059669427b0f`
 
 **重构命令参考**（非当前状态）：
