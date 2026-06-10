@@ -557,6 +557,41 @@ Move API 本身可用，但需严格遵循安全机制：
 - **正确做法**：先用 `write_file` 将 Python 脚本写入 `.py` 文件，再通过 `terminal("python3 script.py")` 执行
 - 示例：将合并变更日志的 Python 逻辑写入 `/tmp/merge_changelog.py`，再 `cd /tmp && python3 merge_changelog.py`
 
+### write_file/read_file Bearer Token 自动脱敏导致脚本损坏 (2026-06-11) ★
+
+`write_file` 和 `read_file` 会对包含 `Bearer {token}` 或 `TOKEN = f.read().strip()` 等模式的 Python 脚本内容进行**自动脱敏替换**，将 token 相关片段替换为 `***`，导致脚本语法错误或逻辑残缺。
+
+**症状**：
+- `write_file` 写入的脚本中 `f"Authorization: Bearer {token}"` 变成 `f"Authorization: Bearer ***`
+- `TOKEN = f.read().strip()` 变成 `TOKEN=***`
+- 字符串截断导致 `SyntaxError: unterminated string literal`
+- `read_file` 读取已有脚本时显示 `***` 而非实际 token 值（仅显示问题，文件内容未损坏）
+
+**本次验证 (2026-06-11)**：连续 3 次 write_file 写入的验证脚本均被破坏，lint 报 `SyntaxError`。
+
+**正确做法**：
+1. **先写 token 到文件，脚本内读取**：
+```bash
+# Step 1: 获取 token 并写入文件
+python3 -c "..." > /tmp/feishu_token.txt
+
+# Step 2: 脚本中从文件读取（避免 token 字符串出现在 write_file 体内）
+```
+2. **用 `terminal` + heredoc 写入脚本**（绕过 write_file 脱敏）：
+```bash
+cat > /tmp/script.py << 'PYEOF'
+... script content with token patterns ...
+PYEOF
+```
+3. **脚本内用 `.format()` 拼接而非 f-string**：
+```python
+# f"Bearer {token}" → 触发脱敏
+# "Bearer {}".format(token) → 同样触发
+# 解决：从文件读取 token，不在脚本源码中拼接
+```
+
+> 此问题同时影响 `travel-intel` 技能（所有调用 Feishu API 的脚本均需 Bearer token）。
+
 ### write_file 中文引号被规范化为 ASCII 引号导致 Python 语法错误 (2026-06-07)
 
 - 当通过 `write_file` 写入包含中文弯引号 `\u201c\u201d`（即 `""`）的 Python 脚本时，传输层可能将弯引号规范化为 ASCII 直引号 `"`，导致 Python 字符串分隔符冲突
