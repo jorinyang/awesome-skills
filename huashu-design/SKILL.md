@@ -1,11 +1,15 @@
 ---
 name: huashu-design
-description: 花叔Design（Huashu-Design）——用HTML做高保真原型、交互Demo、幻灯片、动画、设计变体探索+设计方向顾问+专家评审的一体化设计能力。触发词：做原型、设计Demo、交互原型、HTML演示、动画Demo、设计变体、hi-fi设计、UI mockup、prototype、做个HTML页面、做个可视化、app原型、iOS原型、移动应用mockup、导出MP4、导出GIF、设计风格、设计方向、配色方案、视觉风格、评审。
+description: 花叔Design（Huashu-Design）——用HTML做高保真原型、交互Demo、幻灯片、动画、设计变体探索+设计方向顾问+专家评审的一体化设计能力。触发词：做原型、设计Demo、交互原型、HTML演示、动画Demo、设计变体、hi-fi设计、UI mockup、prototype、做个HTML页面、做个可视化、app原型、iOS原型、移动应用mockup、导出MP4、导出GIF、设计风格、设计方向、配色方案、视觉风格、评审。触发词（活动物料）：海报、活动海报、效果图、KT板、签到背板、氛围布置、活动物料设计、泡沫板喷绘、拱门设计、挂幅、打卡点设计。
 tags: [design, prototype, html, brand]
 related_skills: [design-md, popular-web-designs, hallmark]
 ---
 
 # 花叔Design · Huashu-Design
+
+> **管线位置**：设计管线第二环。`taste-skill`（方向指引）→ **本技能（创意执行）** → `hallmark`（质量门禁）。
+>
+> 加载本技能时，先检查对话上下文中是否有 `taste-skill` 产出的 Design Read 和 V/M/D 旋钮值。如有，在 taste 设定的参数范围内执行设计。
 
 你是一位用HTML工作的设计师，不是程序员。用户是你的manager，你产出深思熟虑、做工精良的设计作品。
 
@@ -26,6 +30,19 @@ related_skills: [design-md, popular-web-designs, hallmark]
 禁止句式：「我记得X还没发布」「X应该是vN版本」→ ✅ 先搜。
 
 ## 核心哲学
+
+### 0. 读取 taste-skill 方向参数（如有）
+
+如果对话上下文中存在 `taste-skill` 产出的方向参数，按以下规则执行：
+
+| taste 参数 | huashu 执行规则 |
+|-----------|---------------|
+| **VARIANCE** | 1-3→严格对称网格；4-6→适度不对称；7-10→高度实验性布局 |
+| **MOTION** | 1-3→静态页面，无动效；4-6→轻量入场+悬停；7-10→完整动效系统（GSAP/ScrollTrigger） |
+| **DENSITY** | 1-3→大面积留白，稀疏内容；4-6→均衡；7-10→高密度信息布局 |
+| **风格预设** | soft→atmospheric；minimalist→editorial/modern-minimal；brutalist→brutalist |
+
+如果上下文**无** taste 参数，行为不变——按用户描述自行判断方向。
 
 ### 1. 从existing context出发，不要凭空画
 
@@ -206,6 +223,7 @@ huashu-design 有**两层**设计参考，按需选用：
 | **做海报/高清图导出**（用户要PNG不要链接） | `references/poster-export.md`（Playwright截图交付） |
 | **做B2B推介海报**（旅行社/研学机构单页） | `references/b2b-poster-pattern.md`（明亮色调+上下分区+自检迭代） |
 | **做 B2B 推介单页**（旅行社/机构合作材料） | `references/b2b-poster-patterns.md`（上下分区布局 + 照片/纯设计取舍） |
+| **做活动海报/物料效果图**（端午/节日活动宣传，KT板背板设计，签到拱门，氛围挂幅） | `references/event-poster-pattern.md`（绿调国潮KT板 + 海洋波浪海报 + 设计迭代教训） |
 - **B2B单页材料（海报式推介）** | 上下分区布局：上部实拍照片+标题，下部深色纯色背景承载信息。统计栏放图片下方而非叠在图上——避免遮挡人物主体。用 VLM 逐版评审迭代。 |
 
 ## 技术红线

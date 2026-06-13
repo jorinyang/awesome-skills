@@ -22,9 +22,26 @@ metadata:
 
 # Hallmark · Anti-AI-Slop 设计质量门禁
 
-Hallmark 是设计产出在交付前的最后一道质量关卡。它不负责"怎么设计"（那是 huashu-design 的职责），它负责"设计完之后检查什么"——确保页面不像 AI 生成的。
+> **管线位置**：设计管线第三环。`taste-skill`（方向指引）→ `huashu-design`（创意执行）→ **本技能（质量门禁）**。
+>
+> Hallmark 是设计产出在交付前的最后一道质量关卡。它不负责"怎么设计"（那是 huashu-design 的职责），它负责"设计完之后检查什么"——确保页面不像 AI 生成的。
 
 **定位**：在 huashu-design（创意）→ feishu-html（部署）之间，Hallmark 作为质量门禁层运行。
+
+---
+
+## ⚠️ 与 taste-skill 的规则重叠处理
+
+当 taste-skill 在生成前做出了方向性 override（如"本次允许 Inter 字体"或"本次 MOTION=3，不需要动效检查"），hallmark 的对应关卡**自动放行**。
+
+| taste override 示例 | hallmark 放行的关卡 |
+|---------------------|-------------------|
+| "本次允许 Inter 做 display" | V1（展示字体检查）跳过 |
+| "MOTION=3，静态页面" | I1-I8（动效相关关卡）全部跳过 |
+| "本次允许纯白纸" | V7（纯黑纯白检查）跳过 |
+| "风格=brutalist" | 排版/间距的柔化检查放宽 |
+
+**裁决原则**：taste 的 override 是用户意图的直接表达，优先级高于 hallmark 的通用规则。如果 taste 没有 override，hallmark 正常执行全部关卡。
 
 ## 触发条件
 
@@ -211,6 +228,7 @@ Hallmark 是设计产出在交付前的最后一道质量关卡。它不负责"�
 - **本技能** 是对上游中适用于 Hermes（HTML 产出审查）的核心规则的精简适配
 - **不与 humanizer 冲突**：humanizer 管文案反 AI 味，Hallmark 管 UI 反 AI 味
 - **不与 huashu-design 冲突**：huashu 是创意工具（怎么设计），Hallmark 是品控工具（检查设计）
+- **实战案例**：`references/audit-example-workshop-voting.md` — 对 workshop-voting SPA 的完整 audit（14/17 通过 + 3 项修复建议 + 六轴评分）
 - **实战审计案例**：见 [references/worked-audit-workshop-voting.md](references/worked-audit-workshop-voting.md) — 包含 `transition:all` 修复模板、`:focus-visible` 补全、`overflow-x: clip` 标准写法
 
 ---

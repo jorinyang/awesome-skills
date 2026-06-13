@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-48-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-49-blue)](.)
 
 ---
 
@@ -62,6 +62,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [pretext](pretext/SKILL.md) | 创意浏览器demo | @chenglou/pretext 创意 Demo |
 | [requesting-code-review](requesting-code-review/SKILL.md) | 帮我review/代码审查 | 预提交审查——安全/质量/自动修复 |
 | [sketch](sketch/SKILL.md) | 快速mockup/设计变体对比 | 一次性 HTML——2-3变体对比 |
+| [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 
 ### 🔧 开发工程 (8)
@@ -294,6 +295,28 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ---
 
+---
+
+## 🎨 设计管线（三环联动）
+
+```
+taste-skill 🔮          → huashu-design 🎨        → hallmark 🛡️
+（方向指引+预检）          （创意执行）               （质量门禁）
+    ↓                        ↓                        ↓
+Brief推断+三旋钮            20种设计哲学              58道关卡
+风格预设+Design Read        品牌资产协议              六轴自评
+```
+
+| 技能 | 环节 | 回答的问题 |
+|------|:--:|------|
+| [taste-skill](taste-skill/SKILL.md) | 方向指引 | "往哪个方向做？" |
+| [huashu-design](huashu-design/SKILL.md) | 创意执行 | "怎么做好？" |
+| [hallmark](hallmark/SKILL.md) | 质量门禁 | "做得对不对？" |
+
+三者在 `SKILL.md` 中维护了明确的边界协议——taste 的 V/M/D 旋钮是 huashu 的硬约束，taste 的 override 对 hallmark 自动放行。
+
+---
+
 ## 🔗 使用场景
 
 ### 场景1：从零构建新业务方案
@@ -371,7 +394,7 @@ for dir in */; do
     answer|answer-standalone|blue-team) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-landing) category="travel" ;;
-    huashu-design|claude-design|hallmark|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike) category="software-development" ;;
     supabase-backend|dingtalk-cli|kanban) category="devops" ;;
@@ -399,6 +422,18 @@ done
 2. 必须包含 frontmatter（name / description / version / author / license）
 3. 触发条件明确——新手 Agent 仅凭此文档即可独立完成任务
 4. 提交 PR 前验证：`python3 -c "import yaml; yaml.safe_load(open('SKILL.md').read().split('---')[1])"`
+
+---
+
+---
+
+## 📝 版本历史
+
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| v2.1.0 | 2026-06-13 | 49技能（+1 taste-skill 设计方向指引；huashu-design/hallmark 三环联动协议） |
+| v2.0.0 | 2026-06-11 | 48技能（自建核心+三方吸收+方法论开发） |
+| v1.0.0 | 2026-06-05 | 首次发布：16技能 |
 
 ---
 
