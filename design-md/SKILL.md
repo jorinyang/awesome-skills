@@ -78,9 +78,40 @@ metadata:
 - 不复制受保护的品牌资产（logo、商标）
 - 标注「品牌风格启发设计，非官方关联」
 
+## 反 AI-Slop 通用规则（吸收自 taste-skill/stitch-skill）
+
+以下规则应在所有品牌设计中默认执行，不仅是 design-md 参考场景：
+
+### 禁止项（NEVER DO）
+- ❌ 不使用 emoji（图标用 SVG/图标库）
+- ❌ 不使用 Inter 字体（高级/创意场景）
+- ❌ 不使用纯黑 `#000000`
+- ❌ 不使用霓虹/外发光阴影
+- ❌ 不使用过饱和 accent（饱和度<80%）
+- ❌ 不用于大标题使用过度渐变文字
+- ❌ 不使用自定义鼠标光标
+- ❌ 不使用重叠元素——每个元素占据自己清晰的空间区域
+- ❌ 不使用 3 列等宽卡片布局
+- ❌ 不使用通用占位名（"John Doe" "Acme" "Nexus"）
+- ❌ 不使用假整数数据（99.99%、50%）
+- ❌ 不使用 AI 文案 cliché（"Elevate" "Seamless" "Unleash" "Next-Gen"）
+- ❌ 不使用填充文本："Scroll to explore" "Swipe down" 滚动箭头
+- ❌ 不使用死图片链接——用 picsum.photos 或 SVG avatars
+- ❌ 高 VARIANCE 项目不使用居中 Hero section
+
+### 必须项（ALWAYS DO）
+- ✅ 所有交互元素 hover + active 反馈
+- ✅ 骨架屏 loading 态（不用圆形 spinner）
+- ✅ 移动端全部塌缩为单列（< 768px）
+- ✅ 所有交互元素最小 44px 触摸目标
+- ✅ `min-h-[100dvh]` 代替 `h-screen`
+- ✅ 动画只用 `transform` + `opacity`
+
 ## 与设计技能的配合
 
 | 设计技能 | 定位 | design-md 角色 |
 |----------|------|---------------|
 | `claude-design` | 快速 HTML 原型、landing page | 提供品牌 token 作为风格参照 |
 | `huashu-design` | 高保真原型、动画、幻灯片、品牌全案 | 作为其内置双轨体系（设计哲学+品牌Token）的品牌Token层 |
+| `brandkit` | 品牌策略+Logo设计方法论 | 品牌 token 参考库——做新品牌时加载参考竞品 |
+| `redesign-skill` | 页面系统性升级 | 升级后验证品牌 token 一致性 |

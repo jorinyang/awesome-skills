@@ -223,6 +223,11 @@ huashu-design 有**两层**设计参考，按需选用：
 | **做海报/高清图导出**（用户要PNG不要链接） | `references/poster-export.md`（Playwright截图交付） |
 | **做B2B推介海报**（旅行社/研学机构单页） | `references/b2b-poster-pattern.md`（明亮色调+上下分区+自检迭代） |
 | **做 B2B 推介单页**（旅行社/机构合作材料） | `references/b2b-poster-patterns.md`（上下分区布局 + 照片/纯设计取舍） |
+| **做高端UI（soft-skill风格）** — Double-Bezel/嵌套CTA/空间节奏/运动编排 | `references/premium-component-patterns.md`（吸收自 taste-skill/soft-skill） |
+| **做极简UI（minimalist风格）** — 暖单色+淡彩accent/隐形动效/bento网格规范 | `references/warm-minimalist-system.md`（吸收自 taste-skill/minimalist-skill） |
+| **做粗野UI（brutalist风格）** — Swiss Print / CRT Terminal 双亚型精确参数 | `references/brutalist-dual-archetypes.md`（吸收自 taste-skill/brutalist-skill） |
+| **设计Hero Section** — 9种构图变体+分节多样性规则（打破"左文右图"默认） | `references/hero-composition-variants.md`（吸收自 taste-skill/imagegen-frontend-web） |
+| **做Bento网格布局** — 无缝Bento规则/2行Hero铁律/AIDA页面结构 | `references/bento-grid-mastery.md`（吸收自 taste-skill/gpt-tasteskill） |
 | **做活动海报/物料效果图**（端午/节日活动宣传，KT板背板设计，签到拱门，氛围挂幅） | `references/event-poster-pattern.md`（绿调国潮KT板 + 海洋波浪海报 + 设计迭代教训） |
 - **B2B单页材料（海报式推介）** | 上下分区布局：上部实拍照片+标题，下部深色纯色背景承载信息。统计栏放图片下方而非叠在图上——避免遮挡人物主体。用 VLM 逐版评审迭代。 |
 

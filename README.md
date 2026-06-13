@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-49-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-52-blue)](.)
 
 ---
 
@@ -44,13 +44,14 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [editorial-review-prose](editorial-review-prose/SKILL.md) | 审一下文案/文本审查 | 微软基线 × 7维审查 × 三列表格修订 |
 | [editorial-review-structure](editorial-review-structure/SKILL.md) | 结构审查/逻辑重排 | 5种结构模型 × 6类重组建议 |
 
-### 🏗️ 构建与设计 (15)
+### 🏗️ 构建与设计 (18)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [answer](answer/SKILL.md) | answer/从零开始/帮我规划 | 7阶段工作流编排器 |
 | [answer-standalone](answer-standalone/SKILL.md) | answer/从零开始 | 同上，独立部署版（非Wiki集成） |
 | [architecture-diagram](architecture-diagram/SKILL.md) | 架构图/系统架构/云架构 | 白底黑字+蓝红强调 SVG 架构图 16:9 |
+| [brandkit](brandkit/SKILL.md) | 品牌设计/Logo设计/品牌视觉 | 品牌策略+5种Logo手法+8种视觉模式——设计决策层 |
 | [claude-design](claude-design/SKILL.md) | 做个页面/设计一个landing | 一次性 HTML 制品设计 |
 | [design-md](design-md/SKILL.md) | 参考Apple/Stripe风格 | 71品牌 DESIGN.md token 参考库 |
 | [feishu-html](feishu-html/SKILL.md) | 做个网页/发布到线上/部署 | 飞书文档 → WEB SPA 制作 + OSS 部署 |
@@ -60,6 +61,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo/高保真UI | HTML高保真原型/动画/幻灯片/品牌设计 |
 | [humanizer](humanizer/SKILL.md) | 去AI味/润色文案 | 29种文本模式去除AI写作痕迹 |
 | [pretext](pretext/SKILL.md) | 创意浏览器demo | @chenglou/pretext 创意 Demo |
+| [redesign-skill](redesign-skill/SKILL.md) | redesign/升级设计/翻新页面 | 7维60+项审计→诊断→修复——页面系统性升级 |
 | [requesting-code-review](requesting-code-review/SKILL.md) | 帮我review/代码审查 | 预提交审查——安全/质量/自动修复 |
 | [sketch](sketch/SKILL.md) | 快速mockup/设计变体对比 | 一次性 HTML——2-3变体对比 |
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
@@ -88,11 +90,12 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
 
-### 🏔️ 贵州之客 (9)
+### 🏔️ 贵州之客 (10)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [amap-lbs](amap-lbs/SKILL.md) | 搜索景点/路径规划/周边 | 高德 LBS——POI/路径/旅游/热力图 |
+| [brandkit](brandkit/SKILL.md) | 品牌设计/Logo设计 | 品牌策略+Logo方法论——子品牌和新业务视觉系统 |
 | [dingtalk-cli](dingtalk-cli/SKILL.md) | 钉钉/dingtalk | 企业内外协作工具链 |
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo | B2B海报/方案页/品牌视觉 |
 | [jimeng-video](jimeng-video/SKILL.md) | 生成视频/即梦/CapCut | AI视频与图片生成 |
@@ -297,23 +300,29 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ---
 
-## 🎨 设计管线（三环联动）
+## 🎨 设计管线（五环联动）
 
 ```
-taste-skill 🔮          → huashu-design 🎨        → hallmark 🛡️
-（方向指引+预检）          （创意执行）               （质量门禁）
-    ↓                        ↓                        ↓
-Brief推断+三旋钮            20种设计哲学              58道关卡
-风格预设+Design Read        品牌资产协议              六轴自评
+brandkit 🔮              → taste-skill 🔮          → redesign-skill 🔧
+（品牌策略+Logo方法论）      （方向指引+预检）           （页面升级审计）
+
+        ↓                        ↓                        ↓
+        ↓               huashu-design 🎨           hallmark 🛡️
+        ↓               （创意执行）                （质量门禁）
+        ↓                        ↓                        ↓
+  委派jimeng/ComfyUI        20种设计哲学              58道关卡
+  生成品牌视觉              品牌资产协议              六轴自评
 ```
 
 | 技能 | 环节 | 回答的问题 |
 |------|:--:|------|
+| [brandkit](brandkit/SKILL.md) | 品牌策略 | "品牌为什么存在？Logo如何表达？" |
 | [taste-skill](taste-skill/SKILL.md) | 方向指引 | "往哪个方向做？" |
+| [redesign-skill](redesign-skill/SKILL.md) | 升级审计 | "现有页面怎么系统性升级？" |
 | [huashu-design](huashu-design/SKILL.md) | 创意执行 | "怎么做好？" |
 | [hallmark](hallmark/SKILL.md) | 质量门禁 | "做得对不对？" |
 
-三者在 `SKILL.md` 中维护了明确的边界协议——taste 的 V/M/D 旋钮是 huashu 的硬约束，taste 的 override 对 hallmark 自动放行。
+**边界协议**：taste 的 V/M/D 旋钮是 huashu 的硬约束，brandkit 的策略决定 taste 的方向参数（如文旅品牌→Dark Nature模式→V6/M4/D3），redesign-skill 的审计报告可被 taste 读取来决定升级方向。
 
 ---
 
@@ -394,7 +403,7 @@ for dir in */; do
     answer|answer-standalone|blue-team) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-landing) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike) category="software-development" ;;
     supabase-backend|dingtalk-cli|kanban) category="devops" ;;
@@ -431,6 +440,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v3.0.0 | 2026-06-14 | 52技能（+2 brandkit/redesign-skill；+5 huashu-design reference吸收；design-md反模式扩展；设计管线三环→五环） |
 | v2.1.0 | 2026-06-13 | 49技能（+1 taste-skill 设计方向指引；huashu-design/hallmark 三环联动协议） |
 | v2.0.0 | 2026-06-11 | 48技能（自建核心+三方吸收+方法论开发） |
 | v1.0.0 | 2026-06-05 | 首次发布：16技能 |
