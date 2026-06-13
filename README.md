@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-52-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-55-blue)](.)
 
 ---
 
@@ -114,13 +114,16 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [ara-rigor-reviewer](ara-rigor-reviewer/SKILL.md) | 审查论文/审稿 | 六维认识论审查 |
 | [systematic-debugging](systematic-debugging/SKILL.md) | 帮我debug/排查bug | 4阶段根因调试 |
 
-### 🎨 创意内容 (3)
+### 🎨 创意内容 (6)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [baoyu-article-illustrator](baoyu-article-illustrator/SKILL.md) | 文章配图/插图生成 | 文章插图——类型×风格×调色板 |
 | [baoyu-comic](baoyu-comic/SKILL.md) | 知识漫画/科普漫画 | 知识漫画（科普/教育/传记） |
+| [baoyu-cover-image](baoyu-cover-image/SKILL.md) | 封面图/文章封面 | 5D封面图系统——类型×配色×渲染×文字×情绪 |
 | [baoyu-infographic](baoyu-infographic/SKILL.md) | 信息图/可视化 | 信息图——21布局×21风格 |
+| [baoyu-translate](baoyu-translate/SKILL.md) | 翻译/精翻/快翻 | 三模式翻译——快翻/标准/精翻 + 受众×风格参数化 |
+| [youtube-content](youtube-content/SKILL.md) | YouTube字幕/视频摘要 | YouTube字幕提取+缓存+封面图+多格式输出 |
 
 ---
 
@@ -403,7 +406,7 @@ for dir in */; do
     answer|answer-standalone|blue-team) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-landing) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|youtube-content) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike) category="software-development" ;;
     supabase-backend|dingtalk-cli|kanban) category="devops" ;;
@@ -440,6 +443,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v3.1.0 | 2026-06-14 | 55技能（+3 baoyu-cover-image/baoyu-translate/youtube-content；architecture-diagram v1.1 扩展7种图表类型） |
 | v3.0.0 | 2026-06-14 | 52技能（+2 brandkit/redesign-skill；+5 huashu-design reference吸收；design-md反模式扩展；设计管线三环→五环） |
 | v2.1.0 | 2026-06-13 | 49技能（+1 taste-skill 设计方向指引；huashu-design/hallmark 三环联动协议） |
 | v2.0.0 | 2026-06-11 | 48技能（自建核心+三方吸收+方法论开发） |
