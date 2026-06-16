@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-63-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-68-blue)](.)
 
 ---
 
@@ -52,12 +52,13 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [qa-extract](qa-extract/SKILL.md) | 问答/Q&A/QA/抽取问题 | 信息提问机——核心观点抽成Q-A链，Q切要害A有形式化收口 |
 | [relationship-analysis](relationship-analysis/SKILL.md) | 关系分析/分析关系/为什么总是 | 五层结构诊断+精神分析，不给建议只提问 |
 
-### 🏗️ 构建与设计 (18)
+### 🏗️ 构建与设计 (20)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [answer](answer/SKILL.md) | answer/从零开始/帮我规划 | 7阶段工作流编排器 |
 | [answer-standalone](answer-standalone/SKILL.md) | answer/从零开始 | 同上，独立部署版（非Wiki集成） |
+| [dynamic-workflow](dynamic-workflow/SKILL.md) | 编排多Agent/并行工作流 | 自动构建并执行动态多Agent工作流 |
 | [architecture-diagram](architecture-diagram/SKILL.md) | 架构图/系统架构/云架构 | 白底黑字+蓝红强调 SVG 架构图 16:9 |
 | [brandkit](brandkit/SKILL.md) | 品牌设计/Logo设计/品牌视觉 | 品牌策略+5种Logo手法+8种视觉模式——设计决策层 |
 | [claude-design](claude-design/SKILL.md) | 做个页面/设计一个landing | 一次性 HTML 制品设计 |
@@ -72,17 +73,20 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [redesign-skill](redesign-skill/SKILL.md) | redesign/升级设计/翻新页面 | 7维60+项审计→诊断→修复——页面系统性升级 |
 | [requesting-code-review](requesting-code-review/SKILL.md) | 帮我review/代码审查 | 预提交审查——安全/质量/自动修复 |
 | [sketch](sketch/SKILL.md) | 快速mockup/设计变体对比 | 一次性 HTML——2-3变体对比 |
+| [strategy-plan-writing](strategy-plan-writing/SKILL.md) | 写战略/写方案/商业计划 | 商业战略、运营规划、市场分析方案写作 |
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 
-### 🔧 开发工程 (8)
+### 🔧 开发工程 (10)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [agent-native-cli-design](agent-native-cli-design/SKILL.md) | 设计CLI/agent-native工具 | Agent-Native CLI 四范式决策树 |
+| [cross-project-adaptation](cross-project-adaptation/SKILL.md) | 跨项目借鉴/模式迁移 | 跨项目适配——概念/模式/算法迁移 |
 | [coding-agents](coding-agents/SKILL.md) | 派Agent干活/并行开发 | 自主AI编码Agent编排 |
 | [dingtalk-cli](dingtalk-cli/SKILL.md) | 钉钉/dingtalk/dws | 钉钉 CLI——19服务+PAT授权 |
 | [kanban](kanban/SKILL.md) | 看板/任务分解/并行工作 | Hermes Kanban——任务分解+worker编排 |
+| [plan](plan/SKILL.md) | 先计划/Plan模式 | Plan模式——写可执行markdown计划 |
 | [spike](spike/SKILL.md) | 快速验证/做个实验 | 一次性验证实验——验证想法可行性 |
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
@@ -440,14 +444,14 @@ cd awesome-skills
 for dir in */; do
   name=$(basename "$dir")
   case "$name" in
-    advanced-elicitation|edge-case-hunter|systematic-debugging|darwin-skill|creative-ideation) category="methodology" ;;
+    advanced-elicitation|edge-case-hunter|systematic-debugging|darwin-skill|creative-ideation|dynamic-workflow) category="methodology" ;;
     editorial-review-prose|editorial-review-structure) category="productivity" ;;
-    answer|answer-standalone|blue-team) category="productivity" ;;
+    answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-landing) category="travel" ;;
     huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|youtube-content) category="creative" ;;
     ara-*) category="research" ;;
-    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike) category="software-development" ;;
+    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike|plan|cross-project-adaptation) category="software-development" ;;
     supabase-backend|dingtalk-cli|kanban) category="devops" ;;
     amap-lbs|jimeng-video) category="mapping" ;;
     *) continue ;;
@@ -482,6 +486,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.2.0 | 2026-06-17 | 68技能（+4 新增：dynamic-workflow/cross-project-adaptation/plan/strategy-plan-writing；15技能触发场景全面扩展为通用领域覆盖） |
 | v4.1.0 | 2026-06-16 | 63技能（+3 ljg增强companion技能：writing-voice/elicitation-modes/infographic-design；5核心技能触发场景全面细化；方法论12→15） |
 | v4.0.0 | 2026-06-16 | 60技能（+5 吸收 ljg-skills 方法论引擎：domain-decompose/book-deconstruct/deep-think/qa-extract/relationship-analysis；方法论 7→12，跨技能调用网络） |
 | v3.1.0 | 2026-06-14 | 55技能（+3 baoyu-cover-image/baoyu-translate/youtube-content；architecture-diagram v1.1 扩展7种图表类型） |

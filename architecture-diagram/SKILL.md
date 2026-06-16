@@ -16,6 +16,49 @@ metadata:
 
 Generate professional, dark-themed technical architecture diagrams as standalone HTML files with inline SVG graphics. No external tools, no API keys, no rendering libraries — just write the HTML file and open it in a browser.
 
+## 触发条件
+
+### 通用领域触发矩阵
+
+架构图覆盖7大领域，25个子场景。
+
+| 领域 | 场景 | 触发信号 | 示例 |
+|------|------|---------|------|
+| **AI/ML** | RAG架构图 | 用户需要RAG系统架构图 | "画一个RAG pipeline的架构图" |
+| AI/ML | Agent系统图 | 用户需要Multi-Agent拓扑图 | "画这个Agent系统的架构图" |
+| AI/ML | 模型服务架构 | 用户需要推理服务架构图 | "画LLM serving的架构图" |
+| **Web/后端** | 微服务架构 | 用户需要微服务拓扑图 | "画这个微服务系统的架构图" |
+| Web/后端 | API网关架构 | 用户需要API网关图 | "画API gateway的架构" |
+| Web/后端 | 数据库架构 | 用户需要数据库拓扑图 | "画主从读写分离的架构" |
+| Web/后端 | 事件驱动架构 | 用户需要消息系统架构图 | "画event-driven架构的消息流" |
+| **前端** | 前端架构 | 用户需要前端技术栈图 | "画前端monorepo的架构" |
+| 前端 | SSR/CSR架构 | 用户需要渲染策略图 | "画SSR hydration的架构" |
+| 前端 | 组件系统 | 用户需要组件依赖图 | "画design system的依赖关系" |
+| **云/基础设施** | VPC网络 | 用户需要云网络拓扑图 | "画AWS VPC的子网和路由" |
+| 云/基础设施 | K8s集群 | 用户需要K8s架构图 | "画k8s集群的node/pod/service" |
+| 云/基础设施 | CI/CD Pipeline | 用户需要CI/CD流程图 | "画CI/CD pipeline的stages" |
+| 云/基础设施 | 灾备架构 | 用户需要DR架构图 | "画multi-region failover" |
+| **数据工程** | 数据管道 | 用户需要ETL架构图 | "画data pipeline的数据流" |
+| 数据工程 | 数据湖/仓 | 用户需要数据平台架构图 | "画lakehouse的分层架构" |
+| 数据工程 | 实时流处理 | 用户需要流处理拓扑图 | "画Kafka Streams的topology" |
+| **安全** | 安全架构 | 用户需要安全边界图 | "画零信任安全架构的信任域" |
+| 安全 | 认证流程 | 用户需要OAuth/SSO流程图 | "画OAuth2的授权流程" |
+| 安全 | 网络分段 | 用户需要网络隔离图 | "画DMZ/内网/管理网的分段" |
+| **产品/商业** | 业务架构 | 用户需要业务系统架构图 | "画业务中台的系统架构" |
+| 产品/商业 | 用户流程 | 用户需要用户旅程图 | "画用户注册→下单→支付的流程" |
+| 产品/商业 | 技术方案 | 用户需要技术方案图 | "画这个技术方案的整体架构" |
+| 产品/商业 | 决策流 | 用户需要决策流程图 | "画这个审批流程的决策树" |
+| 产品/商业 | 对比架构 | 用户需要对比两个架构方案 | "画现架构vs目标架构的对比" |
+
+### 手动触发
+- "画架构图"
+- "architecture diagram"
+- "系统架构图"
+- "画一个XX的图"
+- "流程图"
+- "拓扑图"
+- "deployment diagram"
+
 ## Scope
 
 **Best suited for:**

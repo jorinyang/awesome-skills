@@ -1,53 +1,104 @@
 ---
-name: writing-plans
-description: "Write implementation plans: bite-sized tasks, paths, code."
-version: 1.1.0
-author: Hermes Agent (adapted from obra/superpowers)
+name: plan
+description: "Plan mode: write an actionable markdown plan to .hermes/plans/, no execution. Bite-sized tasks, exact paths, complete code."
+version: 2.0.0
+author: Hermes Agent (writing-craft adapted from obra/superpowers)
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [planning, design, implementation, workflow, documentation]
+    tags: [planning, plan-mode, implementation, workflow, design, documentation]
     related_skills: [subagent-driven-development, test-driven-development, requesting-code-review]
 ---
 
-# Writing Plans
+# Plan Mode
 
 ## 触发条件
 
 ### 通用领域触发矩阵
 
-实现计划撰写覆盖7大领域，21个子场景。
+纯规划模式（不执行）覆盖7大领域，21个子场景。
 
 | 领域 | 场景 | 触发信号 | 示例 |
 |------|------|---------|------|
-| **AI/ML** | 模型部署方案 | 用户需要模型上线的实施计划 | "写一个模型serving的implementation plan" |
-| AI/ML | RAG系统搭建 | 用户需要RAG系统的构建计划 | "给这个RAG项目写个plan" |
-| AI/ML | Fine-tuning方案 | 用户需要微调的实施计划 | "LoRA微调的计划写一下" |
-| **Web/后端** | 新功能开发 | 用户需要新功能的实施计划 | "这个payment集成的plan" |
-| Web/后端 | 重构方案 | 用户需要重构的实施计划 | "monolith拆微服务的plan写一下" |
-| Web/后端 | 性能优化 | 用户需要性能优化的计划 | "这个API性能优化的implementation plan" |
-| **前端** | 新页面开发 | 用户需要前端的实施计划 | "dashboard页面的plan写一下" |
-| 前端 | 组件库搭建 | 用户需要组件系统的构建计划 | "design system的implementation plan" |
-| 前端 | 迁移方案 | 用户需要前端框架迁移计划 | "Vue到React迁移的plan" |
-| **数据工程** | 数据管道建设 | 用户需要数据管道的实施计划 | "real-time data pipeline的plan" |
-| 数据工程 | 数据湖建设 | 用户需要数据平台的建设计划 | "data lake的implementation plan" |
-| 数据工程 | BI搭建 | 用户需要BI系统的构建计划 | "这个BI dashboard的plan写一下" |
-| **基础设施** | 云迁移 | 用户需要云迁移的实施计划 | "AWS到GCP迁移的plan" |
-| 基础设施 | K8s部署 | 用户需要容器化的实施计划 | "app containerize的plan" |
-| 基础设施 | 监控搭建 | 用户需要可观测性的计划 | "observability stack的plan" |
-| **安全** | 安全加固 | 用户需要安全加固的实施计划 | "security hardening的plan" |
-| 安全 | 合规改造 | 用户需要合规改造的计划 | "SOC2 compliance的implementation plan" |
-| 安全 | 零信任 | 用户需要零信任架构的计划 | "zero trust migration plan" |
-| **移动** | App开发 | 用户需要移动App的实施计划 | "这个RN app的plan写一下" |
-| 移动 | 跨平台方案 | 用户需要跨平台方案的计划 | "Flutter unified app plan" |
-| 移动 | App发布 | 用户需要App发布的计划 | "iOS/Android release plan" |
+| **AI/ML** | 模型选型规划 | 用户需要规划但不要执行 | "plan一下用哪个embedding模型，别执行" |
+| AI/ML | Agent架构规划 | 用户需要Agent系统架构规划 | "plan这个multi-agent系统的架构" |
+| AI/ML | 推理优化规划 | 用户需要推理加速方案规划 | "plan一下怎么优化这个推理pipeline" |
+| **Web/后端** | 新系统设计 | 用户需要系统设计规划 | "plan这个用户系统的数据库设计" |
+| Web/后端 | API设计规划 | 用户需要API架构规划 | "plan这个REST API的版本策略" |
+| Web/后端 | 重构规划 | 用户需要重构路线图 | "plan这个legacy code的重构路径" |
+| **前端** | 页面架构规划 | 用户需要前端架构规划 | "plan这个SPA的组件树和数据流" |
+| 前端 | 性能优化规划 | 用户需要前端性能优化规划 | "plan这个页面的性能优化策略" |
+| 前端 | 状态架构规划 | 用户需要状态管理架构规划 | "plan全局状态管理方案" |
+| **数据工程** | 数据架构规划 | 用户需要数据平台架构规划 | "plan data warehouse的分层设计" |
+| 数据工程 | 管道架构规划 | 用户需要ETL架构规划 | "plan这个数据管道的架构和容错" |
+| 数据工程 | Schema设计 | 用户需要数据模型规划 | "plan这个业务的数据模型" |
+| **基础设施** | 架构设计 | 用户需要基础设施架构规划 | "plan这个k8s集群的拓扑和网络" |
+| 基础设施 | CI/CD规划 | 用户需要CI/CD流程规划 | "plan CI/CD pipeline for monorepo" |
+| 基础设施 | 灾备规划 | 用户需要灾备恢复规划 | "plan disaster recovery strategy" |
+| **安全** | 安全架构规划 | 用户需要安全架构规划 | "plan这个系统的安全边界和信任域" |
+| 安全 | 权限模型规划 | 用户需要权限模型规划 | "plan multi-tenant RBAC model" |
+| 安全 | 密钥管理规划 | 用户需要密钥管理方案规划 | "plan secrets management strategy" |
+| **移动** | App架构规划 | 用户需要移动架构规划 | "plan这个app的模块分层和数据流" |
+| 移动 | 离线策略规划 | 用户需要离线方案规划 | "plan offline-first sync strategy" |
+| 移动 | 推送架构规划 | 用户需要推送架构规划 | "plan push notification architecture" |
 
 ### 手动触发
-- "写一个plan"
-- "implementation plan"
-- "write a plan"
-- "实施计划"
+- "plan this"
+- "先做plan不做执行"
+- "write a plan, don't execute"
+- "帮我规划一下"
+- "just the plan"
+
+Use this skill when the user wants a plan instead of execution.
+
+## Core behavior
+
+For this turn, you are planning only.
+
+- Do not implement code.
+- Do not edit project files except the plan markdown file.
+- Do not run mutating terminal commands, commit, push, or perform external actions.
+- You may inspect the repo or other context with read-only commands/tools when needed.
+- Your deliverable is a markdown plan saved inside the active workspace under `.hermes/plans/`.
+
+## Output requirements
+
+Write a markdown plan that is concrete and actionable.
+
+Include, when relevant:
+- Goal
+- Current context / assumptions
+- Proposed approach
+- Step-by-step plan
+- Files likely to change
+- Tests / validation
+- Risks, tradeoffs, and open questions
+
+If the task is code-related, include exact file paths, likely test targets, and verification steps.
+
+## Save location
+
+Save the plan with `write_file` under:
+- `.hermes/plans/YYYY-MM-DD_HHMMSS-<slug>.md`
+
+Treat that as relative to the active working directory / backend workspace. Hermes file tools are backend-aware, so using this relative path keeps the plan with the workspace on local, docker, ssh, modal, and daytona backends.
+
+If the runtime provides a specific target path, use that exact path.
+If not, create a sensible timestamped filename yourself under `.hermes/plans/`.
+
+## Interaction style
+
+- If the request is clear enough, write the plan directly.
+- If no explicit instruction accompanies `/plan`, infer the task from the current conversation context.
+- If it is genuinely underspecified, ask a brief clarifying question instead of guessing.
+- After saving the plan, reply briefly with what you planned and the saved path.
+
+---
+
+# Writing the Plan Well
+
+The rest of this skill is the craft of authoring a *good* implementation plan — the content that goes inside the markdown file above.
 
 ## Overview
 
@@ -57,7 +108,7 @@ Assume the implementer is a skilled developer but knows almost nothing about the
 
 **Core principle:** A good plan makes implementation obvious. If someone has to guess, the plan is incomplete.
 
-## When to Use
+## When a Full Implementation Plan Helps
 
 **Always use before:**
 - Implementing multi-step features
@@ -229,60 +280,6 @@ Check:
 - [ ] No missing context
 - [ ] DRY, YAGNI, TDD principles applied
 
-### Step 7: Save the Plan
-
-```bash
-mkdir -p docs/plans
-# Save plan to docs/plans/YYYY-MM-DD-feature-name.md
-git add docs/plans/
-git commit -m "docs: add implementation plan for [feature]"
-```
-
-## Critical Workflow: Plan → Confirm → Execute (Never Skip)
-
-**This user requires explicit plan confirmation before touching any code** (non-negotiable):
-
-1. **Plan first** — Full implementation plan (complete tasks, approach, open questions)
-2. **User reviews** — They correct scope, priority, or approach (typically 2-3 rounds)
-3. **Revise if needed** — Align before writing code
-4. **Only then execute** — After user says "confirmed"
-
-**Do NOT skip to implementation because the plan looks obvious.** The user's corrections at the plan stage prevent hours of wasted work.
-
-### What a Complete Plan Looks Like (for this user)
-
-- **4-item framework** if user gave specific scope (e.g., "only items 1,2,3,4")
-- **Real calendar dates** not abstract days ("May 21 - June 30" not "D1-D40")
-- **Key milestone anchoring** — explicitly call out fixed dates user mentioned
-- **Feature specs** for every new capability (not just bug fixes)
-- **Verification method** for every feature — "CDP screenshot", "API call returns X"
-
-### Open Questions Required
-
-At the end of every plan, ALWAYS list:
-
-```markdown
-## Open Questions (Pending Your Confirmation)
-1. [Specific question about scope]
-2. [Specific question about a missing field/behavior]
-```
-
-
-**CRITICAL:** When adding new modules to an existing system, every plan MUST include an explicit "Integration Wiring" phase AFTER implementation and BEFORE shipping.
-
-```
-WRONG plan order:  implement → test → ship
-RIGHT plan order:  implement → unit test → wire into existing → integration test → ship
-```
-
-For each new module, the plan MUST answer:
-1. **Who calls this?** — Which existing file/function will import and invoke it?
-2. **When does it fire?** — On heartbeat? On event? On API call? On startup?
-3. **What if it fails?** — Does the host system break? (Must be try/except guarded)
-4. **How do we prove it?** — Integration test that verifies end-to-end data flow
-
-Create `tests/test_integration_<module>.py` for every new module that proves it's actually wired into the system, not just importable.
-
 ## Principles
 
 ### DRY (Don't Repeat Yourself)
@@ -362,10 +359,6 @@ When executing, use the `subagent-driven-development` skill:
 - Spec compliance review after each task
 - Code quality review after spec passes
 - Proceed only when both reviews approve
-
-## Further reading (load when relevant)
-
-- **`references/cross-project-adaptation.md`** — Workflow for analyzing an external project and adapting its patterns/modules into your own codebase. Load when the task involves "borrow from X", "adapt Y's architecture", "port Z to our stack".
 
 ## Remember
 

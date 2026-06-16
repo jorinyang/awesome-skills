@@ -13,6 +13,45 @@ metadata:
 
 # Systematic Debugging
 
+## 触发条件
+
+### 通用领域触发矩阵
+
+4阶段根因调试覆盖7大领域，21个子场景。
+
+| 领域 | 场景 | 触发信号 | 示例 |
+|------|------|---------|------|
+| **AI/ML** | 模型效果异常 | 用户有模型输出不符合预期 | "为什么这个prompt有时返回正确有时乱说" |
+| AI/ML | 推理性能下降 | 用户有推理延迟/吞吐异常 | "为什么同样的模型今天慢了3倍" |
+| AI/ML | Agent行为异常 | 用户有Agent执行路径不符合预期 | "Agent为什么有时候跳过这个tool调用" |
+| **Web/后端** | API异常 | 用户有接口返回不符合预期 | "为什么这个API间歇性500" |
+| Web/后端 | 数据库慢查询 | 用户有查询性能问题 | "这个查询为什么偶尔超过10秒" |
+| Web/后端 | 内存泄漏 | 用户有内存持续增长问题 | "为什么服务跑了两天内存就满了" |
+| **前端** | 渲染异常 | 用户有UI渲染不符合预期 | "为什么这个组件有时候白屏" |
+| 前端 | 状态异常 | 用户有状态管理问题 | "为什么用户登录后sidebar还是旧状态" |
+| 前端 | 性能问题 | 用户有前端性能瓶颈 | "为什么这个页面首次加载要5秒" |
+| **数据工程** | 数据不一致 | 用户有数据质量/一致性问题 | "为什么昨天的ETL跑出来的数对不上" |
+| 数据工程 | 管道中断 | 用户有数据处理流水线失败 | "为什么这个spark job随机OOM" |
+| 数据工程 | 延迟异常 | 用户有数据延迟问题 | "为什么实时数据延迟从3秒变成了3分钟" |
+| **基础设施** | 部署失败 | 用户有CI/CD失败 | "为什么这个deploy之前还能跑现在报错" |
+| 基础设施 | 网络异常 | 用户有网络连接问题 | "为什么A服务调B服务间歇超时" |
+| 基础设施 | 资源异常 | 用户有CPU/内存/磁盘异常 | "为什么k8s node突然pressure" |
+| **安全** | 权限异常 | 用户有auth/authz不符合预期 | "为什么这个用户能访问他无权访问的资源" |
+| 安全 | 日志异常 | 用户有审计日志问题 | "为什么审计日志漏了这几条操作" |
+| 安全 | 证书问题 | 用户有TLS/证书异常 | "为什么这个证书在Chrome正常Firefox报错" |
+| **移动** | 崩溃问题 | 用户有App崩溃 | "为什么这个crash只在iOS15上出现" |
+| 移动 | 推送问题 | 用户有推送送达异常 | "为什么推送在Android收到iOS收不到" |
+| 移动 | 电量异常 | 用户有电池消耗问题 | "为什么后台定位耗电突然翻倍" |
+
+### 手动触发
+- "debug this"
+- "为什么会出现这个bug"
+- "排查一下"
+- "这是什么原因"
+- "找根因"
+- "systematic debug"
+- "root cause"
+
 ## Overview
 
 Random fixes waste time and create new bugs. Quick patches mask underlying issues.
@@ -148,8 +187,6 @@ search_files("variable_name\\s*=", path="src/", file_glob="*.py")
 - [ ] Recent changes identified and reviewed
 - [ ] Evidence gathered (logs, state, data flow)
 - [ ] Problem isolated to specific component/code
-- [ ] Evidence gathered (logs, state, data flow)
-- [ ] **每条证据附可复现的 command + output snippet**（借鉴 execplan 的 Surprises 证据标准）
 - [ ] Root cause hypothesis formed
 
 **STOP:** Do not proceed to Phase 2 until you understand WHY it's happening.
@@ -274,6 +311,10 @@ pytest tests/ -q
 
 This is NOT a failed hypothesis — this is a wrong architecture.
 
+## Reference Files
+
+- **`references/bootstrap-modal-debugging.md`** — Bootstrap 5 Modal Manager lock, DOM-manipulation workaround, browser_click vs .click() discrepancy patterns. Load when debugging multi-modal UI flows.
+
 ---
 
 ## Red Flags — STOP and Follow Process
@@ -288,6 +329,7 @@ If you catch yourself thinking:
 - "Pattern says X but I'll adapt it differently"
 - "Here are the main problems: [lists fixes without investigation]"
 - Proposing solutions before tracing data flow
+- **Browser-testing loop** — repeatedly calling `browser_click` on the same button, checking the result, failing, and trying again with a slightly different approach, without ever verifying the code EXISTS. Before the third click attempt, STOP and run `grep -n "functionName" file.html` or check `typeof functionName` in `browser_console`. If the function literally does not exist in the file (e.g., overwritten by a sibling subagent), no amount of clicking will make it work. This is the single most wasteful debugging pattern in browser-based work.
 - **"One more fix attempt" (when already tried 2+)**
 - **Each fix reveals a new problem in a different place**
 

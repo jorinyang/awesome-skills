@@ -21,6 +21,73 @@ Identify and remove signs of AI-generated text to make writing sound natural and
 
 ## When to use this skill
 
+### 通用领域触发矩阵
+
+29种AI写作模式检测覆盖7大领域，35个子场景。
+
+#### 技术写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| PR Description | 用户提交PR描述需要去AI味 | "这个PR的description帮我humanize一下" |
+| 技术文档 | 用户有API文档/README需要自然化 | "这份API文档读起来太AI了，改一下" |
+| Release Notes | 用户有发版说明需要接地气 | "release notes帮我写成人类写的" |
+| 代码注释 | 用户有AI生成的注释需要重写 | "这些docstring有AI味，重写成自然语言" |
+| 技术博客 | 用户有技术博客草稿需要去slop | "这篇技术博客帮我humanize" |
+
+#### 商业写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| 商业提案 | 用户有商业提案需要自然化 | "这个proposal读起来像AI写的，改一下" |
+| 内部备忘录 | 用户有公司内部memo需要去AI味 | "这个公司全员邮件改得自然一点" |
+| 策略文档 | 用户有策略文档需要接地气 | "这个战略文档humanize，不要那么官腔" |
+| 投资人更新 | 用户有投资人通讯需要真诚感 | "这封investor update写得像AI，帮我humanize" |
+| 销售邮件 | 用户有销售邮件需要个性化 | "这个cold email去AI化，加真实感" |
+
+#### 创意写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| 个人博客 | 用户有个人博客需要去AI味 | "这篇博客帮我humanize，要有我自己的声音" |
+| 散文/随笔 | 用户有散文草稿需要注入灵魂 | "这读起来像ChatGPT写的，帮我改" |
+| 社交媒体 | 用户有推文/帖子需要真实感 | "这个thread太AI了，帮我humanize" |
+| 演讲稿 | 用户有演讲稿需要口语化 | "这个演讲草稿不像人说的，改一下" |
+| 个人简介 | 用户有bio/about需要真实声音 | "这个自我介绍一眼AI，帮我改" |
+
+#### 学术写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| 论文摘要 | 用户有论文abstract需要去AI味 | "这个abstract有AI味，帮我humanize" |
+| 研究报告 | 用户有研究报告需要自然化 | "这个研究报告的结论部分改自然" |
+| 文献综述 | 用户有文献综述需要去slop | "这个literature review太AI了" |
+| 学术博客 | 用户有学术科普文章需要接地气 | "这个学术博客写得像论文摘要，改通俗" |
+| 基金申请 | 用户有grant proposal需要真诚感 | "这个基金申请的叙事部分humanize" |
+
+#### 营销写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| Landing Page | 用户有落地页文案需要去promotional | "这个landing page文案太用力了，humanize" |
+| 广告文案 | 用户有广告文案需要真实感 | "这个广告文案写得像AI，去slop" |
+| Email营销 | 用户有营销邮件需要去AI味 | "这封newsletter改得人味重一些" |
+| 产品描述 | 用户有产品描述需要自然化 | "这些产品描述humanize，不要太浮夸" |
+| 案例研究 | 用户有case study需要叙事感 | "这个case study像AI拼的，改成有故事感" |
+
+#### 管理写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| OKR/目标 | 用户有OKR文档需要去buzzword | "这些OKR写得像管理咨询报告，改自然" |
+| 复盘报告 | 用户有项目复盘需要真实反思 | "这个postmortem改得有真实反思感" |
+| 绩效考核 | 用户有绩效评估需要真诚 | "这些绩效评语humanize，不要太模版" |
+| 会议纪要 | 用户有会议纪要去AI味 | "这个会议纪要太工整了不像人写的" |
+| 政策文档 | 用户有政策文档需要可读性 | "这个政策文档humanize，别那么官腔" |
+
+#### 个人写作
+| 场景 | 触发信号 | 示例 |
+|------|---------|------|
+| 简历 | 用户有简历需要真实个性 | "这份简历的描述太AI了，humanize" |
+| 个人网站 | 用户有个人网站about需要真实声音 | "这个about page去AI化" |
+| 社交bio | 用户有社交媒体简介需要个性 | "这个bio太模板了，改" |
+| 求职信 | 用户有cover letter需要真诚 | "这封cover letter像AI写的，帮我humanize" |
+| 日记/反思 | 用户有个人反思需要去装饰感 | "这篇反思读起来像给外人看的，改真诚" |
+
 Load this skill whenever the user asks to:
 - "humanize", "de-AI", "de-slop", or "un-ChatGPT" a piece of text
 - rewrite something so it doesn't sound like it was written by an LLM

@@ -13,6 +13,46 @@ metadata:
 
 # Spike
 
+## 触发条件
+
+### 通用领域触发矩阵
+
+快速验证实验覆盖7大领域，21个子场景。
+
+| 领域 | 场景 | 触发信号 | 示例 |
+|------|------|---------|------|
+| **AI/ML** | 模型推理测试 | 用户想在真实环境测试模型效果 | "spike一下这个embedding模型在我们的数据上效果怎么样" |
+| AI/ML | Agent框架 | 用户想快速验证Agent框架可行性 | "试试CrewAI能不能处理我们的workflow" |
+| AI/ML | Fine-tuning | 用户想测试微调方案的可行性 | "quick prototype一下LoRA在我们数据上的效果" |
+| **Web/后端** | 新框架评估 | 用户想在用框架前先试试 | "before I commit to FastAPI, spike一个小接口" |
+| Web/后端 | 性能对比 | 用户想对比两个方案的性能 | "compare Redis vs Dragonfly for our use case" |
+| Web/后端 | 数据库选型 | 用户想测试数据库方案 | "spike PostgreSQL vs TimescaleDB for time-series" |
+| **前端** | 组件方案 | 用户想测试组件库可行性 | "试试用Shadcn UI做我们的dashboard" |
+| 前端 | 状态管理 | 用户想对比状态管理方案 | "spike Zustand vs Jotai for our form state" |
+| 前端 | 动画/交互 | 用户想验证复杂交互可行性 | "is this animation even possible with Framer Motion" |
+| **数据工程** | 数据处理方案 | 用户想测试ETL工具 | "试试用DuckDB代替Spark做我们这步计算" |
+| 数据工程 | 流处理 | 用户想验证流式方案 | "spike一下Kafka Streams能不能处理我们的延迟要求" |
+| 数据工程 | 可视化方案 | 用户想测试图表库 | "quick prototype用Observable Plot做我们的dashboard" |
+| **基础设施** | 部署方案 | 用户想测试部署策略 | "spike用Fly.io部署我们的Next.js app" |
+| 基础设施 | 容器化 | 用户想测试容器方案 | "try Docker Compose vs Podman for our stack" |
+| 基础设施 | 监控配置 | 用户想测试监控方案 | "spike Prometheus + Grafana for our metrics pipeline" |
+| **安全** | 认证方案 | 用户想测试auth方案 | "spike Clerk vs Auth0 for our multi-tenant app" |
+| 安全 | 加密库 | 用户想对比加密实现 | "compare rust-crypto vs ring for our TLS termination" |
+| 安全 | 渗透测试 | 用户想快速测试漏洞 | "quick test: is this endpoint vulnerable to SQL injection" |
+| **移动** | 跨平台方案 | 用户想测试跨平台框架 | "spike React Native vs Flutter for our real-time chat" |
+| 移动 | 推送方案 | 用户想测试推送服务 | "try OneSignal vs Firebase for push reliability" |
+| 移动 | 离线方案 | 用户想测试离线存储 | "spike SQLite vs WatermelonDB for offline-first" |
+
+### 手动触发
+- "spike this out"
+- "quick prototype"
+- "试试看能不能work"
+- "let me try this"
+- "is this even possible?"
+- "compare A vs B quickly"
+- "quick test"
+- "验证一下可行性"
+
 Use this skill when the user wants to **feel out an idea** before committing to a real build — validating feasibility, comparing approaches, or surfacing unknowns that no amount of research will answer. Spikes are disposable by design. Throw them away once they've paid their debt.
 
 Load this when the user says things like "let me try this", "I want to see if X works", "spike this out", "before I commit to Y", "quick prototype of Z", "is this even possible?", or "compare A vs B".
@@ -147,9 +187,7 @@ Each spike's `README.md` closes with:
 - ...
 
 ### Surprises
-- {描述}。_**证据：{复现步骤或输出摘要}。**_
-
-> 借鉴 execplan 的 Surprises & Discoveries 方法论——每条发现附可验证的证据。
+- ...
 
 ### Recommendation for the real build
 - ...
@@ -174,8 +212,6 @@ When two approaches answer the same question (002a / 002b), build them **back to
 | Handles rotated text | no | yes |
 
 **Winner:** pdfjs for our use case. Camelot if we need table-first extraction later.
-
-> **与 answer / writing-plans 的桥接**：当 spike 作为更大计划的一部分被调用时（如 answer Phase 5 的 Spike 任务或 writing-plans 的 Prototyping Milestone），verdict 应同时回写到父计划的 Decision Log（如 spike 推翻了某个假设）或 Surprises（如发现非预期行为）中。
 ```
 
 ## Frontier mode (picking what to spike next)
@@ -189,16 +225,19 @@ If spikes already exist and the user says "what should I spike next?", walk the 
 
 Propose 2-4 candidates as Given/When/Then. Let the user pick.
 
-## Reference files
-
-- `references/minimax-vision-api.md` — MiniMax CN API vision capability verification: reproduce script, test results, conclusion. Use when spiking any MiniMax vision capability claim.
-
 ## Output
 
 - Create `spikes/` (or `.planning/spikes/` if the user is using GSD conventions) in the repo root
 - One dir per spike: `NNN-descriptive-name/`
 - `README.md` per spike captures question, approach, results, verdict
 - Keep the code throwaway — a spike that takes 2 days to "clean up for production" was a bad spike
+
+## Pitfalls
+
+1. **Declaring victory after one happy-path run.** Spikes fail when you only test the easy case. Follow surprising findings. An honest verdict requires testing edge cases.
+2. **Over-engineering a throwaway.** A spike that takes 2 days to "clean up for production" was a bad spike. Hardcode everything.
+3. **Patch stacking in the spike file.** If you iterate on the spike HTML/JS across multiple patch calls, check for duplicate `const VAR` declarations — same failure mode as production HTML SPA development. See `html-spa-development` skill for the surgical cleanup recipe.
+4. **Research-free spikes.** Spikes are not research-free — research enough to pick the right approach, then build. Spikes that take the first library without surveying alternatives often produce misleading verdicts.
 
 ## Attribution
 

@@ -8,10 +8,48 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [testing, tdd, development, quality, red-green-refactor]
-    related_skills: [systematic-debugging, writing-plans, subagent-driven-development]
+    related_skills: [systematic-debugging, plan, subagent-driven-development]
 ---
 
-# Test-Driven Development (TDD)
+# Test-Driven Development
+
+## 触发条件
+
+### 通用领域触发矩阵
+
+RED-GREEN-REFACTOR覆盖7大开发领域，21个子场景。
+
+| 领域 | 场景 | 触发信号 | 示例 |
+|------|------|---------|------|
+| **AI/ML** | 模型服务 | 用户要为推理API写测试 | "先写test再写inference endpoint" |
+| AI/ML | 数据处理 | 用户要测试数据预处理逻辑 | "TDD写这个tokenizer的test" |
+| AI/ML | 评估指标 | 用户要测试模型评估逻辑 | "先写test定义accuracy计算" |
+| **Web/后端** | API开发 | 用户要开发REST/GraphQL接口 | "TDD这个新endpoint" |
+| Web/后端 | 业务逻辑 | 用户要实现核心业务规则 | "先写test再写这个订单逻辑" |
+| Web/后端 | 数据访问 | 用户要实现数据库操作 | "TDD这个repository方法" |
+| **前端** | 组件开发 | 用户要开发React/Vue组件 | "先写test再写这个form组件" |
+| 前端 | Hook/Composable | 用户要开发自定义hook | "TDD这个useAuth hook" |
+| 前端 | 工具函数 | 用户要写纯函数工具 | "先写test再写这个formatter" |
+| **数据工程** | ETL逻辑 | 用户要实现数据转换 | "TDD这个数据清洗函数" |
+| 数据工程 | 聚合计算 | 用户要实现统计逻辑 | "先写test再写聚合逻辑" |
+| 数据工程 | Schema迁移 | 用户要实现数据迁移 | "TDD migration的up/down" |
+| **基础设施** | IaC配置 | 用户要写基础设施代码 | "TDD这个Terraform module" |
+| 基础设施 | 部署脚本 | 用户要写部署逻辑 | "先写test再写deploy script" |
+| 基础设施 | 监控规则 | 用户要写告警规则 | "TDD alert rule的逻辑" |
+| **安全** | 输入校验 | 用户要实现输入校验逻辑 | "TDD这个sanitizer" |
+| 安全 | 加密逻辑 | 用户要实现加密/解密 | "先写test再写加密实现" |
+| 安全 | 权限检查 | 用户要实现权限中间件 | "TDD这个RBAC guard" |
+| **移动** | 功能开发 | 用户要开发App功能 | "TDD这个feature" |
+| 移动 | 状态管理 | 用户要实现状态逻辑 | "先写test再写ViewModel" |
+| 移动 | 数据持久化 | 用户要实现存储逻辑 | "TDD这个local storage封装" |
+
+### 手动触发
+- "TDD"
+- "先写测试"
+- "test first"
+- "RED GREEN REFACTOR"
+- "TDD这个"
+- "先写test"
 
 ## Overview
 
