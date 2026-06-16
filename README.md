@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-60-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-63-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (12)
+### 🧠 方法论 (15)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -46,6 +46,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [edge-case-hunter](edge-case-hunter/SKILL.md) | 边界检查/edge case/穷举测试 | 穷举7维边界条件，纯JSON输出 |
 | [editorial-review-prose](editorial-review-prose/SKILL.md) | 审一下文案/文本审查 | 微软基线 × 7维审查 × 三列表格修订 |
 | [editorial-review-structure](editorial-review-structure/SKILL.md) | 结构审查/逻辑重排 | 5种结构模型 × 6类重组建议 |
+| [ljg-elicitation-modes](ljg-elicitation-modes/SKILL.md) | 解剖概念/圆桌讨论/降秩审视 | advanced-elicitation增强——八维解剖+圆桌+降秩审视三种模式 |
+| [ljg-infographic-design](ljg-infographic-design/SKILL.md) | 信息图设计判断 | baoyu-infographic增强——密度×结构×情绪三维诊断 |
+| [ljg-writing-voice](ljg-writing-voice/SKILL.md) | 写作声音/写作哲学 | humanizer增强——ljg-writes最高法则+语言铁律 |
 | [qa-extract](qa-extract/SKILL.md) | 问答/Q&A/QA/抽取问题 | 信息提问机——核心观点抽成Q-A链，Q切要害A有形式化收口 |
 | [relationship-analysis](relationship-analysis/SKILL.md) | 关系分析/分析关系/为什么总是 | 五层结构诊断+精神分析，不给建议只提问 |
 
@@ -138,19 +141,31 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 #### 🆕 方法论引擎（吸收 ljg-skills）
 
-吸收 [lijigang/ljg-skills](https://github.com/lijigang/ljg-skills) 认知哲学和方法论框架，本地化适配 Hermes + 飞书生态，建立完整的跨技能调用网络：
+吸收 [lijigang/ljg-skills](https://github.com/lijigang/ljg-skills) 认知哲学和方法论框架，本地化适配 Hermes + 飞书生态。
 
+**核心引擎（5个）**：
 ```
-domain-decompose (P0) ← ljg-rank    降秩引擎：找不可约生成器
-       ├── 调用 deep-think
-       └── 调用 qa-extract
-book-deconstruct (P1) ← ljg-book    拆书：五件事 + 认知地图
-       ├── 调用 deep-think
-       ├── 调用 domain-decompose
-       └── 调用 qa-extract
-deep-think (P1)        ← ljg-think  追本之箭：纵向深钻
+domain-decompose (P0) ← ljg-rank    降秩引擎
+book-deconstruct (P1) ← ljg-book    拆书
+deep-think (P1)        ← ljg-think  追本之箭
 qa-extract (P2)        ← ljg-qa     Q-A链提取
-relationship-analysis (P3) ← ljg-relationship  五层关系诊断
+relationship-analysis (P3) ← ljg-relationship  关系诊断
+```
+
+**系统增强层（3个companion技能）**：
+```
+ljg-writing-voice      ← ljg-writes  humanizer增强：最高法则+语言铁律
+ljg-elicitation-modes  ← ljg-learn+roundtable+rank  advanced-elicitation增强：+3种模式
+ljg-infographic-design ← ljg-card    baoyu-infographic增强：密度×结构×情绪
+```
+
+**跨技能调用网络**：
+```
+domain-decompose → deep-think, qa-extract
+book-deconstruct → deep-think, domain-decompose, qa-extract
+deep-think       → domain-decompose
+qa-extract       → deep-think
+relationship-analysis → deep-think
 ```
 
 **吸收的核心认知哲学**：差量即贡献(book) · 好解释一动就塌(rank/Deutsch) · 你会这样跟聪明的朋友说话吗(writes) · 不给建议只提问(relationship) · 样式为思想服务(card)。
@@ -467,6 +482,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.1.0 | 2026-06-16 | 63技能（+3 ljg增强companion技能：writing-voice/elicitation-modes/infographic-design；5核心技能触发场景全面细化；方法论12→15） |
 | v4.0.0 | 2026-06-16 | 60技能（+5 吸收 ljg-skills 方法论引擎：domain-decompose/book-deconstruct/deep-think/qa-extract/relationship-analysis；方法论 7→12，跨技能调用网络） |
 | v3.1.0 | 2026-06-14 | 55技能（+3 baoyu-cover-image/baoyu-translate/youtube-content；architecture-diagram v1.1 扩展7种图表类型） |
 | v3.0.0 | 2026-06-14 | 52技能（+2 brandkit/redesign-skill；+5 huashu-design reference吸收；design-md反模式扩展；设计管线三环→五环） |
