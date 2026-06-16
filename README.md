@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-55-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-60-blue)](.)
 
 ---
 
@@ -32,17 +32,22 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (7)
+### 🧠 方法论 (12)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
-| [advanced-elicitation](advanced-elicitation/SKILL.md) | 深度审视/换个角度/red team | 69种追问方法，产出后自动触发多维审视 |
+| [advanced-elicitation](advanced-elicitation/SKILL.md) | 深度审视/换个角度/red team | 69+3种追问方法，产出后自动触发多维审视 |
 | [blue-team](blue-team/SKILL.md) | 帮我看看这个方案/challenge一下 | 6阶段破坏性逻辑审查 |
+| [book-deconstruct](book-deconstruct/SKILL.md) | 拆书/拆这本/这本书在讲什么 | 五件事拆书法——问题→基线→delta→落点→内核 |
 | [creative-ideation](creative-ideation/SKILL.md) | 帮我想个idea/创意生成 | 创意约束生成器——随机约束激发项目创意 |
 | [darwin-skill](darwin-skill/SKILL.md) | 优化技能/技能质量评估 | Agent 技能质量评估与进化 |
+| [deep-think](deep-think/SKILL.md) | 想透/追本/本质是什么/深挖 | 追本之箭——纵向深钻思维，一路钻到不可再分的本质 |
+| [domain-decompose](domain-decompose/SKILL.md) | 降秩/找秩/背后是什么/底层逻辑 | 降秩引擎——找不可约独立生成器，配9种取景框 |
 | [edge-case-hunter](edge-case-hunter/SKILL.md) | 边界检查/edge case/穷举测试 | 穷举7维边界条件，纯JSON输出 |
 | [editorial-review-prose](editorial-review-prose/SKILL.md) | 审一下文案/文本审查 | 微软基线 × 7维审查 × 三列表格修订 |
 | [editorial-review-structure](editorial-review-structure/SKILL.md) | 结构审查/逻辑重排 | 5种结构模型 × 6类重组建议 |
+| [qa-extract](qa-extract/SKILL.md) | 问答/Q&A/QA/抽取问题 | 信息提问机——核心观点抽成Q-A链，Q切要害A有形式化收口 |
+| [relationship-analysis](relationship-analysis/SKILL.md) | 关系分析/分析关系/为什么总是 | 五层结构诊断+精神分析，不给建议只提问 |
 
 ### 🏗️ 构建与设计 (18)
 
@@ -130,6 +135,25 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 ## 📖 技能详解
 
 ### 🧠 方法论
+
+#### 🆕 方法论引擎（吸收 ljg-skills）
+
+吸收 [lijigang/ljg-skills](https://github.com/lijigang/ljg-skills) 认知哲学和方法论框架，本地化适配 Hermes + 飞书生态，建立完整的跨技能调用网络：
+
+```
+domain-decompose (P0) ← ljg-rank    降秩引擎：找不可约生成器
+       ├── 调用 deep-think
+       └── 调用 qa-extract
+book-deconstruct (P1) ← ljg-book    拆书：五件事 + 认知地图
+       ├── 调用 deep-think
+       ├── 调用 domain-decompose
+       └── 调用 qa-extract
+deep-think (P1)        ← ljg-think  追本之箭：纵向深钻
+qa-extract (P2)        ← ljg-qa     Q-A链提取
+relationship-analysis (P3) ← ljg-relationship  五层关系诊断
+```
+
+**吸收的核心认知哲学**：差量即贡献(book) · 好解释一动就塌(rank/Deutsch) · 你会这样跟聪明的朋友说话吗(writes) · 不给建议只提问(relationship) · 样式为思想服务(card)。
 
 #### advanced-elicitation — 结构化深度追问
 
@@ -443,6 +467,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.0.0 | 2026-06-16 | 60技能（+5 吸收 ljg-skills 方法论引擎：domain-decompose/book-deconstruct/deep-think/qa-extract/relationship-analysis；方法论 7→12，跨技能调用网络） |
 | v3.1.0 | 2026-06-14 | 55技能（+3 baoyu-cover-image/baoyu-translate/youtube-content；architecture-diagram v1.1 扩展7种图表类型） |
 | v3.0.0 | 2026-06-14 | 52技能（+2 brandkit/redesign-skill；+5 huashu-design reference吸收；design-md反模式扩展；设计管线三环→五环） |
 | v2.1.0 | 2026-06-13 | 49技能（+1 taste-skill 设计方向指引；huashu-design/hallmark 三环联动协议） |
