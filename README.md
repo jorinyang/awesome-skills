@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-70-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-73-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (16)
+### 🧠 方法论 (19)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -52,6 +52,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [ljg-writing-voice](ljg-writing-voice/SKILL.md) | 写作声音/写作哲学 | humanizer增强——ljg-writes最高法则+语言铁律 |
 | [qa-extract](qa-extract/SKILL.md) | 问答/Q&A/QA/抽取问题 | 信息提问机——核心观点抽成Q-A链，Q切要害A有形式化收口 |
 | [relationship-analysis](relationship-analysis/SKILL.md) | 关系分析/分析关系/为什么总是 | 五层结构诊断+精神分析，不给建议只提问 |
+| [pm-prioritization-frameworks](pm-prioritization-frameworks/SKILL.md) 🆕 | 优先级排序/怎么排优先级/RICE还是ICE | 9种优先级框架速查——Opportunity Score/ICE/RICE/Kano/MoSCoW等 |
+| [stakeholder-mapping](stakeholder-mapping/SKILL.md) 🆕 | 干系人分析/stakeholder map/谁会影响这个项目 | Power×Interest矩阵定位+四象限沟通策略+冲突识别 |
+| [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 
 ### 🏗️ 构建与设计 (20)
 
@@ -511,6 +514,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.4.0 | 2026-06-18 | 73技能（+3 吸收 pm-skills PM方法论：pm-prioritization-frameworks/stakeholder-mapping/opportunity-solution-tree；9种优先级框架速查+干系人矩阵+四层发现树；answer v1.5.0→v1.6.0 注入红队攻击+JTBD价值主张+产品战略画布+死亡假设Tiger分级；方法论 16→19） |
 | v4.3.0 | 2026-06-18 | 70技能（+2 吸收 canghe-skills：wechat-article-archive/author-methodology-analysis；公众号采集归档 + 21维作者方法论分析；方法论 16→16，贵州之客 11→11） |
 | v4.2.0 | 2026-06-17 | 68技能（+4 新增：dynamic-workflow/cross-project-adaptation/plan/strategy-plan-writing；15技能触发场景全面扩展为通用领域覆盖） |
 | v4.1.0 | 2026-06-16 | 63技能（+3 ljg增强companion技能：writing-voice/elicitation-modes/infographic-design；5核心技能触发场景全面细化；方法论12→15） |

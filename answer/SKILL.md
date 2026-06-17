@@ -1,12 +1,12 @@
 ---
 name: answer
 description: AI Native'S Workflow(er) — 7 阶段结构化工作流编排器。适用于任何从零开始的复杂构建任务：新业务/新产品/新技能/新方案/新流程/新系统/调研分析/策略规划/项目启动/决策支持/汇报演示/预算规划/复盘总结/运营营销/品牌策划/架构设计/迭代优化。以 design-flow 编排范式为核心，串联 clarify → brief → architect → standards → decompose → build → review。触发：answer / 梳理思路 / 从零开始 / 帮我规划 / 设计方案 / 启动项目 / 拆解问题 / 写方案 / 做BP / SOP / 做复盘 / 运营方案 / 营销计划 / from scratch / plan this 等 100+ 关键词。
-version: 1.5.0
+version: 1.6.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [workflow, design-flow, builder, orchestrator]
-    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing]
+    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree]
 triggers:
   # 显式调用
   - "answer"
@@ -465,6 +465,29 @@ lark-cli docs +fetch --api-version v2 --doc {document_id} --as bot
 2. ...
 3. ...
 
+## 价值主张（JTBD 6-part — 数字产品/服务类项目必填）
+
+> 🆕 借鉴 pm-skills `value-proposition`——用 JTBD 框架定义价值主张，替代空泛的「我们提供XX」。
+
+对每个目标用户群：
+
+| 维度 | 说明 | 示例 |
+|------|------|------|
+| **Who（谁）** | 目标用户的具体画像 | 「中型企业 IT 经理，每天处理 50+ 审批」 |
+| **Why（为什么）** | 他们的痛点/未满足需求 | 「现有工具审批慢、追溯难、跨部门协调靠微信」 |
+| **What before（现状）** | 他们现在怎么做的 | 「Excel + 微信 + 邮件三件套，平均每单 3 天」 |
+| **How（我们怎么做）** | 我们的解决方式 | 「一站式审批：自动路由 + 移动端秒批 + 全程留痕」 |
+| **What after（改善后）** | 使用后的改善结果 | 「审批时间从 3 天 → 2 小时，合规审计秒级响应」 |
+| **Alternatives（替代方案）** | 他们现在用什么替代 | 「钉钉审批（但缺乏定制化）、自研系统（维护成本高）」 |
+
+## 产品战略画布（数字产品/SaaS/AI方案类可选）
+
+> 🆕 如果产出是数字产品/SaaS/AI 产品的战略方案，可用 9-section Product Strategy Canvas 替代或补充上面的通用 Brief 模板。
+> 
+> 9-section: Vision → Market Segments → Relative Costs → Value Propositions → Trade-offs → Key Metrics → Growth → Capabilities → Can't/Won't (Defensibility)
+> 
+> 详见 `references/product-strategy-canvas.md`。
+
 ## 领域约束
 - 平台/环境：{已有技能、工具、平台限制}
 - 时间/资源：{截止日期、预算、团队}
@@ -785,7 +808,7 @@ Task 1 → Task 2 → Task 3 (可与 4 并行)
 
 ### Phase 7: Review（质量审查）
 
-**来源**：design-review（对照性审查）+ blue-team（压力测试）
+**来源**：design-review（对照性审查）+ blue-team（压力测试）+ strategy-red-team（红队攻击）+ pre-mortem（风险分级）
 
 **目标**：对照 Brief 和 Standards，检查所有产出物的质量，暴露逻辑断层和实现偏差。
 
@@ -809,6 +832,77 @@ Task 1 → Task 2 → Task 3 (可与 4 并行)
 - 本质还原：核心价值主张是什么？
 - 死亡假设：如果失败，最可能的死因？
 - 苏格拉底追问：未被验证的前提假设？
+
+#### 7.2a 红队攻击（strategy-red-team 方法论 — 战略级方案必用）
+
+> 🆕 借鉴 pm-skills `strategy-red-team` —— 攻击 Load-bearing Assumptions，不是泛泛的风险列表。
+
+适用于：战略方案、PRD、商业计划书、架构决策等**关键决策**文档。对日常方案（活动策划、简单流程 SOP）可选。
+
+**红队审查规则**（与 blue-team 的差异化定位）：
+
+| 维度 | blue-team | strategy-red-team |
+|------|-----------|-------------------|
+| **审查对象** | 方案整体逻辑 | **Load-bearing Assumptions**（承受性假设） |
+| **方法** | 死亡假设 + 苏格拉底追问 | **Steelman-then-Attack**（先建钢人再攻击） |
+| **输出** | 问题分级（Must/Should/Could Fix） | **Fail-if + Cheapest Test + Kill Criterion** |
+| **目标** | 提升方案质量 | **防止自信地押错注**——找到最便宜的证据来验证或推翻核心假设 |
+
+**红队流程**：
+
+1. **提取每个 claim**：列出方案断言为真的每件事——关于用户、市场、约束、机制、时间线。区分 **Load-bearing claims**（如果假，方案崩溃）和装饰性 claims。只攻击 Load-bearing 的。
+
+2. **Steelman, then Attack**：对每个 Load-bearing claim，先陈述它为真的最强版本，然后攻击那个版本——不是稻草人。攻击弱版本毫无价值。
+
+3. **每个失效模式写成「Fails if ___」**：具体、可证伪。「Fails if 激活率不是真正的瓶颈」优于「执行风险」。
+
+4. **按 (Impact if wrong) × (Likelihood wrong) × (Cheapness to test) 排序**：列表顶部是本周就该测的——高影响、可能出错、测试便宜。
+
+5. **自我反驳，不编造**：默认「这个风险是真的」，除非方案已引用证据反驳。但如果一个 claim 确实有理有据，直接说——红队编造疑虑和橡皮图章一样没用。
+
+6. **每个存活下来的 kill-assumption 给三个动作**：
+   - **Fails if**：精确地，什么条件会让方案崩溃
+   - **Evidence to get this week**：本周能拿到的具体数据/查询/对话
+   - **Kill criterion**：到什么阈值你该停下来或改变方向
+   - **Cheapest test**：最小的验证实验
+
+**红队输出模板**：
+
+```
+## 红队审查: {方案名}
+
+### Top Kill-Assumptions（按测试便宜度排序，最多5条）
+对每条：
+- **Claim**: {承受性断言}
+- **Fails if**: {具体、可证伪的崩溃条件}
+- **Evidence to get this week**: {具体数据来源}
+- **Kill criterion**: {停止/转向阈值}
+- **Cheapest test**: {最小验证实验}
+
+### 什么站得住脚
+{明确说哪些部分理由充分——不编造疑虑}
+
+### 无法评估的部分
+{方案未给出足够信息的盲区}
+```
+
+**红队纪律**：
+- 不稻草人——攻击钢人或别攻击。
+- 不泛化风险列表——每一条都针对**这个**方案。
+- 不编造——如果站得住，就说站得住。
+- 无情排序——最便宜的、影响最大的测试才是整个红队的意义。
+
+#### 7.2b 死亡假设风险分级（pre-mortem Tiger 分级）
+
+> 🆕 对 blue-team 的死亡假设增加 Tigers / Paper Tigers / Elephants 三级分类。
+
+| 级别 | 含义 | 应对 |
+|------|------|------|
+| **🐯 Tiger** | 高概率 + 高影响 = 真老虎。必须直接应对。 | 缓解方案 + 监控指标 |
+| **📄 Paper Tiger** | 看起来吓人但经不起推敲 = 纸老虎。深入分析后发现没那么危险。 | 记录理由，不投入资源 |
+| **🐘 Elephant** | 低概率 + 高影响 = 房间里的大象。大家都知道但没人提。 | 明确承认 + if-then 预案 |
+
+**使用方式**：在 blue-team 审查完成后，将每个死亡假设标注 Tiger/Paper Tiger/Elephant 级别。Tiger 项写入 Must Fix，Elephant 写入 Should Fix 并附 if-then 预案。Paper Tiger 记录在「什么站得住脚」中。
 
 #### 7.2b 深度审视（Advanced Elicitation — 可选增强层）
 
@@ -872,6 +966,9 @@ Date: {date}
 
 ## 蓝军审查摘要
 {调用 blue-team 的结果摘要或完整嵌入}
+
+## 红队审查摘要（战略级方案）
+{如有运行 7.2a 红队攻击，嵌入 Top Kill-Assumptions + Cheapest Test}
 
 ## 总体评分
 {score}/100 — {一句话总结}
@@ -1007,7 +1104,7 @@ Date: {date}
 | Phase 6 Build 重构/优化 README 或文档 | 加载 `huashu-design` 技能，轻量注入信息层级和反 AI slop 原则（注意：README 是 markdown，不是 HTML 页面） |
 | Phase 6 Build 创建技能 | 使用 `skill_manage(action='create')` |
 | Phase 7 Review HTML 产出 | 加载 `feishu-html` 技能，使用其增强版阶段五（含 design-review 设计质量审查） |
-| Phase 7 Review 方案文档 | 加载 `blue-team` 技能，对方案逻辑进行压力测试 |
+| Phase 7 Review 方案文档 | 加载 `blue-team` 技能，对方案逻辑进行压力测试。如果方案级别为战略级（非日常流程/活动），额外运行本技能内置的 7.2a 红队攻击流程 |
 | Phase 7 Review 文档/README 产出 | 使用 answer 自身的 5 维度对照审查表（完整性/一致性/标准合规/依赖闭合/受众适配），不需要 blue-team |
 | 所有阶段 Wiki 操作 | 使用本技能内置的 Feishu API 封装；不依赖 feishu-wiki 技能（避免循环依赖） |
 
