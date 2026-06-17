@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-68-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-70-blue)](.)
 
 ---
 
@@ -32,11 +32,12 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (15)
+### 🧠 方法论 (16)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [advanced-elicitation](advanced-elicitation/SKILL.md) | 深度审视/换个角度/red team | 69+3种追问方法，产出后自动触发多维审视 |
+| [author-methodology-analysis](author-methodology-analysis/SKILL.md) | 分析博主方法论/拆解公众号套路/提炼写作框架/内容方法论 | 21维度作者内容方法论分析→报告+文案框架+HTML看板+飞书同步 |
 | [blue-team](blue-team/SKILL.md) | 帮我看看这个方案/challenge一下 | 6阶段破坏性逻辑审查 |
 | [book-deconstruct](book-deconstruct/SKILL.md) | 拆书/拆这本/这本书在讲什么 | 五件事拆书法——问题→基线→delta→落点→内核 |
 | [creative-ideation](creative-ideation/SKILL.md) | 帮我想个idea/创意生成 | 创意约束生成器——随机约束激发项目创意 |
@@ -102,7 +103,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
 
-### 🏔️ 贵州之客 (10)
+### 🏔️ 贵州之客 (11)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -115,6 +116,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [travel-intel](travel-intel/SKILL.md) | 搜一下知识库/行业动态 | 4通道采集→入库→分级报告 |
 | [travel-itinerary](travel-itinerary/SKILL.md) | 规划行程/去XX玩几天 | 7步智能行程规划 |
 | [trip-landing](trip-landing/SKILL.md) | 生成落地页/生成行程页 | 一键5 TAB SPA → PWA → OSS部署 |
+| [wechat-article-archive](wechat-article-archive/SKILL.md) | 采集公众号/公众号归档/微信文章转Markdown | 公众号文章采集→Markdown归档→ZIP打包→飞书同步 |
 | [zhike-content-output](zhike-content-output/SKILL.md) | 产出文档/对客文案 | 对客写作铁律 + 叙事声音规范 |
 
 ### 🔬 研究 (4)
@@ -320,6 +322,28 @@ relationship-analysis → deep-think
 
 ---
 
+#### wechat-article-archive — 公众号文章采集归档器 🆕
+
+> **触发**：采集公众号 / 公众号归档 / 微信文章转Markdown / 竞品公众号监控
+
+从公开公众号文章链接出发，识别博主、采集最近N篇文章（默认50）、保存为Markdown归档（含图片本地化）、生成文章清单CSV、按需调用 author-methodology-analysis 做方法论分析、HTML看板+飞书同步、ZIP打包。适应自 freestylefly/wechat-article-archive-skill by 苍何 (MIT)。
+
+**能力**：扫码登录微信公众平台 | 5源候选列表 | 串行采集+图片本地化 | 校验+打包 | 飞书同步
+
+---
+
+#### author-methodology-analysis — 作者内容方法论深度分析器 🆕
+
+> **触发**：分析博主方法论 / 拆解公众号套路 / 提炼写作框架 / 内容方法论分析
+
+21维度全面数据分析（样本质量/发布节奏/篇幅密度/主题分类/关键词体系/标题策略/开头模式/篇章结构/论证方式/证据体系/实体网络/判断立场/语言风格/读者收益/CTA/图片使用/时间演化/交叉关联/异常检测），提炼作者定位、选题系统、表达模板、金句风格、写作SOP。适应自 freestylefly/author-methodology-analysis-skill by 苍何 (MIT)。
+
+**能力**：21维数据分析 | 13模块方法论报告 | 独立文案框架（选题脚手架+标题公式+开头模板） | HTML看板（十章节学习者视角） | 飞书同步
+
+**联动**：可被 `wechat-article-archive` 调用 | 与 `zhike-content-output` 形成规范↔分析闭环 | `advanced-elicitation` 审视 | `humanizer` 后处理
+
+---
+
 #### travel-intel — 旅游情报系统
 
 > **触发**：搜一下知识库 / 查XX景点信息 / 行业动态
@@ -454,7 +478,8 @@ for dir in */; do
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike|plan|cross-project-adaptation) category="software-development" ;;
     supabase-backend|dingtalk-cli|kanban) category="devops" ;;
     amap-lbs|jimeng-video) category="mapping" ;;
-    *) continue ;;
+    wechat-article-archive) category="content" ;;
+    author-methodology-analysis) category="methodology" ;;
   esac
   mkdir -p "$HOME/.hermes/skills/$category/$name"
   cp "$name/SKILL.md" "$HOME/.hermes/skills/$category/$name/"
@@ -486,6 +511,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.3.0 | 2026-06-18 | 70技能（+2 吸收 canghe-skills：wechat-article-archive/author-methodology-analysis；公众号采集归档 + 21维作者方法论分析；方法论 16→16，贵州之客 11→11） |
 | v4.2.0 | 2026-06-17 | 68技能（+4 新增：dynamic-workflow/cross-project-adaptation/plan/strategy-plan-writing；15技能触发场景全面扩展为通用领域覆盖） |
 | v4.1.0 | 2026-06-16 | 63技能（+3 ljg增强companion技能：writing-voice/elicitation-modes/infographic-design；5核心技能触发场景全面细化；方法论12→15） |
 | v4.0.0 | 2026-06-16 | 60技能（+5 吸收 ljg-skills 方法论引擎：domain-decompose/book-deconstruct/deep-think/qa-extract/relationship-analysis；方法论 7→12，跨技能调用网络） |
