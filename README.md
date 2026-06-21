@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-73-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-76-blue)](.)
 
 ---
 
@@ -95,6 +95,14 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
+
+### 🤖 AI 工程 (3) 🆕
+
+| 技能 | 触发词 | 核心能力 |
+|------|--------|---------|
+| [skill-evaluator](skill-evaluator/SKILL.md) 🆕 | 评测skill/技能质量 | 三维评测(精准度×时效×成本)+LLM法官+过程追溯+靶向归因+自动触发 |
+| [skill-ab-test](skill-ab-test/SKILL.md) 🆕 | AB测试/对比skill | A/B对比测试——对照组vs实验组自动评测+三维决策(能力/成本/稳定性) |
+| [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
 
 ### 📋 飞书系列 (5)
 
@@ -315,6 +323,42 @@ relationship-analysis → deep-think
 
 ---
 
+### 🤖 AI 工程 🆕
+
+> **来源**：吸收 [openEuler/agent-insight](https://atomgit.com/openeuler/witty-skill-insight) (MIT) — Agent 技能全生命周期工程化方法论，本地化适配 Hermes 生态。
+
+**吸收核心思想**：数据驱动的闭环飞轮——「生成→执行→评测→归因→优化」共享同一套执行数据；过程追溯而非只问结果；靶向归因区分「Skill错了」还是「模型歪了」。
+
+#### skill-evaluator — Agent 技能三维评测引擎
+
+> **触发**：评测skill / 技能质量 / 这个skill怎么样
+
+执行精准度 × 端到端时效 × 计算成本 三维量化评测 + LLM-as-Judge 自动打分 + Mermaid 过程追溯图 + 靶向归因(技能/模型/环境) + **自动触发**(每次Skill使用后自动评分)。
+
+**能力**：三维评测 | LLM法官 | 过程追溯 | 靶向归因 | 自动触发 | 历史趋势 | CPSR成本量化
+
+**调用链**：skill-evaluator → benchmark-generator（无benchmark时先生成测试集）
+
+---
+
+#### skill-ab-test — Skill A/B 对比测试
+
+> **触发**：AB测试 / 对比skill / 这个改动有没有提升
+
+同一套用例下对照组(A) vs 实验组(B)自动对比——能力(精准度) × 成本(Token) × 稳定性(标准差) 三维评估 + 统计显著性检验 + 通过/打回决策。
+
+**调用链**：skill-ab-test → benchmark-generator（生成测试数据） → skill-evaluator（逐run打分）
+
+---
+
+#### benchmark-generator — 测试集自动生成
+
+> **触发**：生成测试集 / 造benchmark / 这个skill的测试数据
+
+从 Skill 定义自动生成 routing 测试集(该不该命中) + outcome 测试集(命中后应产出什么)，语义去重后入库。支撑 skill-evaluator 和 skill-ab-test 的测试数据需求。
+
+---
+
 ### 🏔️ 贵州之客系列
 
 #### zhike-content-output — 内容产出准则
@@ -480,6 +524,7 @@ for dir in */; do
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|spike|plan|cross-project-adaptation) category="software-development" ;;
     supabase-backend|dingtalk-cli|kanban) category="devops" ;;
+    skill-evaluator|skill-ab-test|benchmark-generator) category="ai-engineering" ;;
     amap-lbs|jimeng-video) category="mapping" ;;
     wechat-article-archive) category="content" ;;
     author-methodology-analysis) category="methodology" ;;
@@ -514,6 +559,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.5.0 | 2026-06-21 | 76技能（+3 吸收 openEuler/agent-insight AI工程方法论：skill-evaluator/skill-ab-test/benchmark-generator；Skill三维评测+A/B对比+测试集自动生成；新增 ai-engineering 分类；skill-evaluator 支持 cron 自动触发评测） |
 | v4.4.0 | 2026-06-18 | 73技能（+3 吸收 pm-skills PM方法论：pm-prioritization-frameworks/stakeholder-mapping/opportunity-solution-tree；9种优先级框架速查+干系人矩阵+四层发现树；answer v1.5.0→v1.6.0 注入红队攻击+JTBD价值主张+产品战略画布+死亡假设Tiger分级；方法论 16→19） |
 | v4.3.0 | 2026-06-18 | 70技能（+2 吸收 canghe-skills：wechat-article-archive/author-methodology-analysis；公众号采集归档 + 21维作者方法论分析；方法论 16→16，贵州之客 11→11） |
 | v4.2.0 | 2026-06-17 | 68技能（+4 新增：dynamic-workflow/cross-project-adaptation/plan/strategy-plan-writing；15技能触发场景全面扩展为通用领域覆盖） |
