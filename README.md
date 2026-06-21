@@ -81,6 +81,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [strategy-plan-writing](strategy-plan-writing/SKILL.md) | 写战略/写方案/商业计划 | 商业战略、运营规划、市场分析方案写作 |
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
+| [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
 ### 🔧 开发工程 (11)
 
@@ -106,7 +107,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [skill-ab-test](skill-ab-test/SKILL.md) 🆕 | AB测试/对比skill | A/B对比测试——对照组vs实验组自动评测+三维决策(能力/成本/稳定性) |
 | [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
 
-### 📋 飞书系列 (6)
+### 📋 飞书系列 (5)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -115,7 +116,6 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [feishu-wiki](feishu-wiki/SKILL.md) | 知识库巡检/首页更新 | 每日巡检+文档总结+分类检测+变更日志（space=7643710721485753535） |
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
-| [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异/PRD对比/需求变更分析 | 多轮需求对齐差异分析——PRD与会议结果逐项对比，标注原有/差异/新增/待确定 |
 
 ### 🏔️ 贵州之客 (12)
 
