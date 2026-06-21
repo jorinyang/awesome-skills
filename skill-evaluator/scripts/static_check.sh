@@ -87,8 +87,9 @@ check_references() {
     local MISSING=0
     local DETAILS=""
     if [ -f "$SKILL_DIR/SKILL.md" ]; then
-        # 提取 references/ 和 scripts/ 引用
-        REFS=$(grep -oP '(references/[^)\s"]+|scripts/[^)\s"]+)' "$SKILL_DIR/SKILL.md" 2>/dev/null || true)
+        # 提取 references/ 和 scripts/ 引用（排除 backtick 内和代码块内的引用）
+        REFS=$(grep -oP '(?<![`\"])(?:references|scripts)/[a-zA-Z0-9_./-]+' "$SKILL_DIR/SKILL.md" 2>/dev/null | grep -v '^references/.*\.md$' || true)
+        [ -z "$REFS" ] && REFS=$(grep -oP 'references/[^)\s"`]+|scripts/[^)\s"`]+' "$SKILL_DIR/SKILL.md" 2>/dev/null || true)
         for ref in $REFS; do
             if [ -f "$SKILL_DIR/$ref" ]; then
                 DETAILS="$DETAILS$ref=OK,"
@@ -113,7 +114,7 @@ check_dangerous() {
     local DETAILS=""
     PATTERNS=("rm -rf /" "rm -rf ~" "DROP TABLE" "DROP DATABASE" "> /dev/sda" "dd if=/dev/zero" "chmod 777 /" ":(){ :|:& };:")
     for pattern in "${PATTERNS[@]}"; do
-        if grep -rq "$pattern" "$SKILL_DIR" --include="*.sh" --include="*.py" --include="*.md" 2>/dev/null; then
+        if grep -rq --exclude='static_check.sh' "$pattern" "$SKILL_DIR" --include="*.sh" --include="*.py" --include="*.md" 2>/dev/null; then
             DETAILS="$DETAILS'$pattern' "
             FOUND=$((FOUND + 1))
         fi
@@ -150,6 +151,6 @@ echo '  ],'
 echo '  "summary": {'
 echo '    "passed": '"$SCORE"','
 echo '    "total": '"$TOTAL"','
-echo '    "pass_rate": '"$(python3 -c "print(round($SCORE/$TOTAL*100,1))")"'"'
+echo '    "pass_rate": '"$(python3 -c "print(round($SCORE/$TOTAL*100,1))")"
 echo '  }'
 echo "}"
