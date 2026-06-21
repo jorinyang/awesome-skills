@@ -55,9 +55,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [pm-prioritization-frameworks](pm-prioritization-frameworks/SKILL.md) 🆕 | 优先级排序/怎么排优先级/RICE还是ICE | 9种优先级框架速查——Opportunity Score/ICE/RICE/Kano/MoSCoW等 |
 | [stakeholder-mapping](stakeholder-mapping/SKILL.md) 🆕 | 干系人分析/stakeholder map/谁会影响这个项目 | Power×Interest矩阵定位+四象限沟通策略+冲突识别 |
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
-| [external-skill-evaluation](methodology/external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/技能吸收策略 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
+| [external-skill-evaluation](methodology/external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
-### 🏗️ 构建与设计 (20)
+### 🏗️ 构建与设计 (21)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -112,7 +112,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 |------|--------|---------|
 | [feishu-doc](feishu-doc/SKILL.md) | 创建飞书文档/归档 | 飞书文档创建/修改/评论/归档 |
 | [feishu-table](feishu-table/SKILL.md) | 新建多维表格/查询 | 飞书多维表格 + 电子表格 CRUD |
-| [feishu-wiki](feishu-wiki/SKILL.md) | 知识库巡检/目录更新 | 知识库全生命周期管理 |
+| [feishu-wiki](feishu-wiki/SKILL.md) | 知识库巡检/首页更新 | 每日巡检+文档总结+分类检测+变更日志（space=7643710721485753535） |
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异/PRD对比/需求变更分析 | 多轮需求对齐差异分析——PRD与会议结果逐项对比，标注原有/差异/新增/待确定 |
@@ -532,6 +532,10 @@ for dir in */; do
     amap-lbs|jimeng-video) category="mapping" ;;
     wechat-article-archive) category="content" ;;
     author-methodology-analysis) category="methodology" ;;
+    external-skill-evaluation) category="methodology" ;;
+    wsl-browser-cdp) category="devops" ;;
+    shipinhao-cold-start) category="productivity" ;;
+    requirement-alignment-analysis) category="productivity" ;;
   esac
   mkdir -p "$HOME/.hermes/skills/$category/$name"
   cp "$name/SKILL.md" "$HOME/.hermes/skills/$category/$name/"
@@ -563,6 +567,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.6.0 | 2026-06-22 | 80技能（+4 新增：external-skill-evaluation/shipinhao-cold-start/wsl-browser-cdp/requirement-alignment-analysis；方法论19→20；贵州之客11→12；飞书系列5→6；开发工程10→11；+6 更新：skill-evaluator v1.2 B-2 Hook架构/wechat-article-archive QR登录工作流/travel-intel v1.5.6 迈点降级监控/feishu-wiki 精简定制化/blue-team/author-methodology-analysis） |
 | v4.5.0 | 2026-06-21 | 76技能（+3 吸收 openEuler/agent-insight AI工程方法论：skill-evaluator/skill-ab-test/benchmark-generator；Skill三维评测+A/B对比+测试集自动生成；新增 ai-engineering 分类；skill-evaluator 支持 cron 自动触发评测） |
 | v4.4.0 | 2026-06-18 | 73技能（+3 吸收 pm-skills PM方法论：pm-prioritization-frameworks/stakeholder-mapping/opportunity-solution-tree；9种优先级框架速查+干系人矩阵+四层发现树；answer v1.5.0→v1.6.0 注入红队攻击+JTBD价值主张+产品战略画布+死亡假设Tiger分级；方法论 16→19） |
 | v4.3.0 | 2026-06-18 | 70技能（+2 吸收 canghe-skills：wechat-article-archive/author-methodology-analysis；公众号采集归档 + 21维作者方法论分析；方法论 16→16，贵州之客 11→11） |
