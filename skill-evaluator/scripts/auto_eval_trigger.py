@@ -27,11 +27,14 @@ import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 # 数据目录
 EVAL_DIR = os.path.expanduser("~/.hermes-feishu/eval_results")
 STATE_FILE = os.path.join(EVAL_DIR, "_auto_trigger_state.json")
 INDEX_FILE = os.path.join(EVAL_DIR, "index.json")
+# 与 B-2 Gateway hook 共享的去重注册表
+EVALUATED_REGISTRY = os.path.join(EVAL_DIR, "_evaluated_sessions.json")
 
 
 def ensure_dirs():
@@ -53,27 +56,120 @@ def save_state(state: dict):
     Path(STATE_FILE).write_text(json.dumps(state, indent=2, default=str))
 
 
-def get_recent_sessions(count: int = 10) -> list[dict]:
+def get_recent_sessions(count: int = 10, since: Optional[str] = None) -> list[dict]:
     """
     获取最近的会话记录。
-    尝试多种数据源：session DB → 日志文件 → eval 索引。
+    尝试多种数据源：session 文件 → sessions.json 索引 → eval 索引。
+
+    Args:
+        count: 最多返回的会话数
+        since: ISO 时间戳字符串，只返回此时间之后修改的会话 (用于增量模式)
     """
     sessions = []
+    since_ts = None
+    if since:
+        try:
+            since_ts = datetime.fromisoformat(since).timestamp()
+        except (ValueError, TypeError):
+            pass
 
-    # 尝试从 session search 机制获取近期会话
-    # （这里依赖 Hermes 的本地存储）
-    try:
-        # 检查 eval_results 中是否有之前的会话索引
-        if os.path.exists(INDEX_FILE):
-            index = json.loads(Path(INDEX_FILE).read_text())
-            recent = sorted(
-                index.get("recent_sessions", []),
-                key=lambda s: s.get("timestamp", ""),
-                reverse=True,
-            )
-            sessions = recent[:count]
-    except Exception:
-        pass
+    # 数据源1: 直接扫描 ~/.hermes/sessions/ 目录中的 session JSON 文件
+    sessions_dir = os.path.expanduser("~/.hermes/sessions")
+    if os.path.isdir(sessions_dir):
+        try:
+            import glob as glob_mod
+            session_files = []
+            for f in glob_mod.glob(os.path.join(sessions_dir, "session_*.json")):
+                fname = os.path.basename(f)
+                # 跳过 request_dump 文件和 .jsonl 日志文件
+                if "request_dump" in fname or fname.endswith(".jsonl"):
+                    continue
+                mtime = os.path.getmtime(f)
+                # 增量模式: 跳过上次检查之前就已存在的文件
+                if since_ts is not None and mtime <= since_ts:
+                    continue
+                session_files.append((mtime, f))
+            session_files.sort(key=lambda x: x[0], reverse=True)
+
+            for mtime, fpath in session_files[:count]:
+                fname = os.path.basename(fpath)
+                try:
+                    # 尝试提取 session_id
+                    session_id = fname
+                    if fname.startswith("session_") or fname.startswith("session_cron_"):
+                        # 从文件名提取 ID
+                        session_id = fname.replace(".json", "")
+                    dt = datetime.fromtimestamp(mtime)
+
+                    sessions.append({
+                        "id": session_id,
+                        "session_id": session_id,
+                        "timestamp": dt.isoformat(),
+                        "created_at": dt.isoformat(),
+                        "_file": fpath,
+                        "_mtime": mtime,
+                    })
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    # 数据源2: 检查 sessions.json 索引
+    if not sessions:
+        sessions_json = os.path.join(sessions_dir, "sessions.json")
+        if os.path.exists(sessions_json):
+            try:
+                index = json.loads(Path(sessions_json).read_text())
+                for key, data in index.items():
+                    if isinstance(data, dict):
+                        ts = data.get("updated_at") or data.get("created_at")
+                        # 增量模式: 跳过 last_check 之前的会话
+                        if since_ts is not None and ts:
+                            try:
+                                entry_ts = datetime.fromisoformat(ts).timestamp()
+                                if entry_ts <= since_ts:
+                                    continue
+                            except (ValueError, TypeError):
+                                pass
+                        sessions.append({
+                            "id": data.get("session_id", key),
+                            "session_id": data.get("session_id", key),
+                            "timestamp": ts,
+                            "created_at": data.get("created_at"),
+                            "summary": data.get("display_name", ""),
+                        })
+                sessions.sort(key=lambda s: s.get("timestamp", ""), reverse=True)
+                sessions = sessions[:count]
+            except Exception:
+                pass
+
+    # 数据源3: 检查 eval_results 索引 (历史评测数据)
+    if not sessions:
+        try:
+            if os.path.exists(INDEX_FILE):
+                index = json.loads(Path(INDEX_FILE).read_text())
+                recent = sorted(
+                    index.get("recent_sessions", []),
+                    key=lambda s: s.get("timestamp", ""),
+                    reverse=True,
+                )
+                # 增量模式: 过滤 last_check 之前的会话
+                if since_ts is not None:
+                    filtered = []
+                    for s in recent:
+                        ts = s.get("timestamp")
+                        if ts:
+                            try:
+                                entry_ts = datetime.fromisoformat(ts).timestamp()
+                                if entry_ts <= since_ts:
+                                    continue
+                            except (ValueError, TypeError):
+                                pass
+                        filtered.append(s)
+                    recent = filtered
+                sessions = recent[:count]
+        except Exception:
+            pass
 
     return sessions
 
@@ -87,12 +183,35 @@ def extract_skills_from_session(session: dict) -> list[str]:
         if key in session and isinstance(session[key], list):
             skills.update(session[key])
 
-    # 检查 content 中的 skill 引用
-    content = json.dumps(session)
-    # Hermes skill 引用常见模式
+    # 如果有 _file 字段，读取会话文件内容进行分析
     import re
-    for match in re.finditer(r'skill[_\s]*(?:name|view|load)[\s:"\']+([a-zA-Z][a-zA-Z0-9_-]+)', content, re.IGNORECASE):
+    content = ""
+    if "_file" in session and os.path.exists(session["_file"]):
+        try:
+            with open(session["_file"], "r") as f:
+                content = f.read()
+        except Exception:
+            pass
+
+    if not content:
+        content = json.dumps(session)
+
+    # 检测实际的 skill_view(name="xxx") 调用
+    for match in re.finditer(
+        r'skill_view\s*\(\s*name\s*=\s*["\']([^"\']+)["\']',
+        content,
+        re.IGNORECASE,
+    ):
         skills.add(match.group(1))
+
+    # 兜底: Hermes skill 引用常见模式
+    if not skills:
+        for match in re.finditer(
+            r'skill[_\s]*(?:name|view|load)[\s:"\']+([a-zA-Z][a-zA-Z0-9_-]+)',
+            content,
+            re.IGNORECASE,
+        ):
+            skills.add(match.group(1))
 
     return list(skills)
 
@@ -203,11 +322,29 @@ def main():
     ensure_dirs()
     state = load_state()
 
-    sessions = get_recent_sessions(args.recent)
+    # 增量模式：用 last_check 过滤，只检查上次运行后新增的会话
+    since = state.get("last_check") if args.mode == "incremental" else None
+    # 增量模式取全部新会话 (不受 --recent 限制)，首次运行则用 --recent 兜底
+    effective_count = args.recent
+    if args.mode == "incremental" and since:
+        effective_count = max(args.recent * 10, 100)  # 足够大以覆盖全部新会话
+    sessions = get_recent_sessions(effective_count, since=since)
 
     if not sessions:
+        # 无新会话：静默更新 last_check 后退出 (cron no_agent 模式下 stdout 会被投递，空输出=静默)
         if not args.quiet:
-            print("⚠️ 未找到近期会话记录。请确认 Hermes 数据源可用。")
+            msg = "⚠️ 未找到近期会话记录。请确认 Hermes 数据源可用。"
+            if args.mode == "incremental" and state.get("last_check"):
+                msg = f"ℹ️ 自 {state['last_check']} 以来无新增会话。"
+            # incremental 模式静默 (cron 场景)，once 模式输出到 stderr 供手动排查
+            if args.mode == "incremental":
+                import sys as _sys
+                print(msg, file=_sys.stderr)
+            else:
+                print(msg)
+        if args.mode == "incremental":
+            state["last_check"] = datetime.now().isoformat()
+            save_state(state)
         return
 
     to_evaluate = check_skill_sessions(sessions)
@@ -215,9 +352,30 @@ def main():
     if args.skill:
         to_evaluate = [s for s in to_evaluate if args.skill in s["skill_names"]]
 
+    # ============================================================
+    # 去重：跳过已被 B-2 Gateway hook 评测过的会话
+    # ============================================================
+    if os.path.exists(EVALUATED_REGISTRY):
+        try:
+            reg = json.loads(Path(EVALUATED_REGISTRY).read_text())
+            already = set(reg.get("evaluated_sessions", []))
+            before = len(to_evaluate)
+            to_evaluate = [s for s in to_evaluate if s["session_id"] not in already]
+            skipped = before - len(to_evaluate)
+            if skipped > 0 and not args.quiet:
+                print(f"⏭️ 跳过 {skipped} 个已由 Hook 评测的会话")
+        except Exception:
+            pass
+
     if not to_evaluate:
+        # 有会话但无 Skill 使用：incremental 模式静默 (cron 场景)
         if not args.quiet:
-            print("ℹ️ 近期会话中未检测到 Skill 使用。")
+            msg = "ℹ️ 近期会话中未检测到 Skill 使用。"
+            if args.mode == "incremental":
+                import sys as _sys
+                print(msg, file=_sys.stderr)
+            else:
+                print(msg)
         return
 
     if not args.quiet:
