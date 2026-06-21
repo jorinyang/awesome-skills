@@ -1,9 +1,9 @@
 {
-  "last_report_path": null,
-  "last_run_at": "2026-05-25T11:37:32.523149+00:00",
-  "last_run_duration_seconds": null,
-  "last_run_summary": "deferred first run — curator seeded, will run after one interval; use `hermes curator run --dry-run` to preview now",
-  "last_run_summary_shown_at": null,
+  "last_report_path": "/home/aorus/.hermes-feishu/logs/curator/20260615-135446",
+  "last_run_at": "2026-06-15T13:54:46.596786+00:00",
+  "last_run_duration_seconds": 102.981532,
+  "last_run_summary": "auto: no changes; llm: Consolidation pass complete. Here's the summary:\n\n---\n\n## Human Summary\n\n**4 agent-created skills → 2 umbrellas.** Two clusters identified, both processed.\n\n### Cluster: `wsl-browser-cdp*` (2 skills)\n**`wsl-browser-cdp-setup` absorbed into …\narchived 2 skill(s):\n  • content-expiry-check → feishu-wiki\n  • wsl-browser-cdp-setup → wsl-browser-cdp\nfull report: hermes curator status\nkeep an umbrella stable: hermes curator pin feishu-wiki",
+  "last_run_summary_shown_at": "2026-06-08T13:23:13.891249+00:00",
   "paused": false,
-  "run_count": 0
+  "run_count": 3
 }
