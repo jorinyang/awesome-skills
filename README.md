@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-76-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-80-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (19)
+### 🧠 方法论 (20)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -55,6 +55,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [pm-prioritization-frameworks](pm-prioritization-frameworks/SKILL.md) 🆕 | 优先级排序/怎么排优先级/RICE还是ICE | 9种优先级框架速查——Opportunity Score/ICE/RICE/Kano/MoSCoW等 |
 | [stakeholder-mapping](stakeholder-mapping/SKILL.md) 🆕 | 干系人分析/stakeholder map/谁会影响这个项目 | Power×Interest矩阵定位+四象限沟通策略+冲突识别 |
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
+| [external-skill-evaluation](methodology/external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/技能吸收策略 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
 ### 🏗️ 构建与设计 (20)
 
@@ -81,7 +82,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 
-### 🔧 开发工程 (10)
+### 🔧 开发工程 (11)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -95,6 +96,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
+| [wsl-browser-cdp](devops/wsl-browser-cdp/SKILL.md) 🆕 | WSL连Chrome/浏览器CDP | WSL环境下通过CDP连接Windows Chrome——Node.js路径修复+远程调试启动+连接验证 |
 
 ### 🤖 AI 工程 (3) 🆕
 
@@ -104,7 +106,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [skill-ab-test](skill-ab-test/SKILL.md) 🆕 | AB测试/对比skill | A/B对比测试——对照组vs实验组自动评测+三维决策(能力/成本/稳定性) |
 | [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
 
-### 📋 飞书系列 (5)
+### 📋 飞书系列 (6)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -113,8 +115,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [feishu-wiki](feishu-wiki/SKILL.md) | 知识库巡检/目录更新 | 知识库全生命周期管理 |
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
+| [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异/PRD对比/需求变更分析 | 多轮需求对齐差异分析——PRD与会议结果逐项对比，标注原有/差异/新增/待确定 |
 
-### 🏔️ 贵州之客 (11)
+### 🏔️ 贵州之客 (12)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -129,6 +132,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [trip-landing](trip-landing/SKILL.md) | 生成落地页/生成行程页 | 一键5 TAB SPA → PWA → OSS部署 |
 | [wechat-article-archive](wechat-article-archive/SKILL.md) | 采集公众号/公众号归档/微信文章转Markdown | 公众号文章采集→Markdown归档→ZIP打包→飞书同步 |
 | [zhike-content-output](zhike-content-output/SKILL.md) | 产出文档/对客文案 | 对客写作铁律 + 叙事声音规范 |
+| [shipinhao-cold-start](productivity/shipinhao-cold-start/SKILL.md) 🆕 | 视频号/微信视频号/视频号起号 | 视频号冷启动策略——封面/标签/评论/分发规则+抖音双平台速查表 |
 
 ### 🔬 研究 (4)
 

@@ -5,11 +5,11 @@ description: >
   生成 Mermaid 过程追溯图，LLM-as-Judge 自动打分并输出靶向归因报告。自动触发：每次涉及 Skill 的任务完成后
   自动采集执行数据并评分。触发信号：评测 skill、评估技能、skill evaluation、检查这个skill的质量、
   这个skill怎么样、跑一下skill评测、skill质量报告。
-version: 1.0.0
+version: 1.2.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
-    tags: [skill-evaluation, agent-quality, llm-as-judge, trace-visualization, attribution, ai-engineering]
+    tags: [skill-evaluation, agent-quality, llm-as-judge, trace-visualization, attribution, ai-engineering, hooks, dedup]
     related_skills: [external-skill-evaluation, systematic-debugging, github-code-review]
 triggers:
   - "评测一下这个 skill"
@@ -109,7 +109,51 @@ auto_trigger:
 
 ---
 
-## 执行流程
+## 数据自动采集架构
+
+### 三层保障体系
+
+```
+层1: B-2 Gateway Hook (主力 — 实时事件驱动)
+  触发方式: Hermes agent:end 事件（每次 Agent 回复完成后）
+  注册方式: ~/.hermes/hooks/skill-eval/HOOK.yaml + handler.py
+  覆盖范围: 100%（内核级事件，非轮询）
+  延迟: 0（事件发生即触发）
+  适用: Gateway 模式（Feishu/Telegram/Discord 等）
+
+层2: Cron 增量轮询 (兜底 — 10分钟)
+  触发方式: 每 10 分钟 `auto_eval_trigger.py --mode incremental --quiet`
+  运行方式: no_agent=true 脚本直跑（零 token 开销），包装脚本 `~/.hermes-feishu/scripts/skill_auto_eval.sh`
+  增量逻辑: 通过 `_auto_trigger_state.json` 中的 `last_check` 时间戳过滤会话文件 mtime
+  覆盖范围: 补漏（Hook 未重启、Gateway 未运行时）
+  去重: 跳过 `_evaluated_sessions.json` 中已有记录
+  首次运行: `last_check` 为空时回退到 `--recent N` 模式扫描最近会话
+
+层3: 手动触发 (按需)
+  触发方式: 用户说"评测一下这个 skill"
+```
+
+### 去重机制
+
+Hook 和 Cron 共享同一个去重注册表 `~/.hermes-feishu/eval_results/_evaluated_sessions.json`：
+
+```
+Hook 先执行（实时） → 写入 session_id 到注册表
+Cron 后执行（定时） → 检查注册表 → 已有 → 跳过
+```
+
+两个入口代码中均读取同一文件：
+- `~/.hermes/hooks/skill-eval/handler.py` → `save_evaluated()`
+- `scripts/auto_eval_trigger.py` → `EVALUATED_REGISTRY` → 过滤已评测会话
+
+### ⚠️ 关键区分：Hook 不是轮询
+
+`session_watcher.py` 是**文件轮询器**（5s 检查一次文件变化），不是真正的 hook。它作为 B-1 方案的升级版仍然可用，但：
+- 真正的 B-2 是 Gateway hook（`agent:end` 事件驱动）
+- Hook 是 Hermes 内核在会话结束时**主动调用**你的回调
+- 轮询是你**定时主动检查**有没有新文件
+
+当用户说 "hook" 时，指的是事件驱动回调，不是轮询。不要混用术语。
 
 ### 模式一：自动触发（快速模式）
 
@@ -285,10 +329,75 @@ graph TD
 
 ---
 
+## Pitfalls
+
+### `--mode incremental` 不真正过滤（已修复 2026-06-22）
+
+`auto_eval_trigger.py` 曾存在一个缺陷：`--mode incremental` 参数被 argparse 解析了，但 `main()` 中从未使用它来过滤会话。`load_state()` 返回的 `last_check` 时间戳从未传给 `get_recent_sessions()`，导致每次 cron 运行都评测全部历史会话。
+
+**修复要点**（已在 `auto_eval_trigger.py` 中落实）：
+1. `get_recent_sessions()` 新增 `since: Optional[str]` 参数，按 `mtime > since_ts` 过滤会话文件
+2. `main()` 在 `args.mode == "incremental"` 时传入 `state["last_check"]` 作为 `since`
+3. 增量模式下 `effective_count` 设为 `max(args.recent * 10, 100)` 确保不漏新会话
+4. **无新会话时也更新 `last_check`**：防止连续多次无新会话后时间戳过期，导致下次运行漏掉中间出现的新会话
+
+### 数据源三层过滤完整性（已修复 2026-06-22）
+
+`get_recent_sessions()` 有三个回退数据源，原实现中只有 数据源1 支持 `since` 增量过滤：
+
+| 数据源 | 内容 | 原过滤 | 修复后 |
+|--------|------|:---:|:---:|
+| Source 1 | glob `session_*.json` 直接扫文件 | ✅ mtime 过滤 | ✅ (修复 glob 排除 `.jsonl`) |
+| Source 2 | `sessions.json` 索引 | ❌ 无过滤 | ✅ `updated_at`/`created_at` 时间戳过滤 |
+| Source 3 | `eval_results/index.json` | ❌ 无过滤 | ✅ `timestamp` 时间戳过滤 |
+
+**陷阱**：若 Source 1 因 glob 太宽（`*.json` 匹配到 `.jsonl`）导致空结果，会 fallthrough 到 Source 2/3。修复前 Source 2 会返回所有历史会话（含 2026-05-25 的 `.jsonl` 文件），一旦被 `check_skill_sessions()` 误判为含 Skill，就会触发重复评测。
+
+**glob 精确定**：`session_*.json`（仅匹配 `session_YYYYMMDD_*.json` 和 `session_cron_*.json`），排除 `.jsonl` 日志流文件和 `sessions.json` 索引自身。
+
+### 不要手动修改 `_auto_trigger_state.json`
+
+该文件由脚本自动维护。手动修改可能导致时间戳错位，增量模式过滤出大量历史会话。
+
+### cron wrapper 脚本路径与执行环境（2026-06-22 验证）
+
+cron runner 解析相对 `script` 路径的基目录是 `~/.hermes-feishu/scripts/`，不是 `~/.hermes/scripts/`。包装脚本 **必须直接放在** `~/.hermes-feishu/scripts/skill_auto_eval.sh`。
+
+**三个关键陷阱**：
+
+1. **不要用符号链接**：符号链接会导致 `$0`/`dirname` 解析到链接所在目录而非目标目录，相对路径推导出错。直接写入脚本文件。
+
+2. **cron 环境没有 venv python3**：cron 执行的 PATH 不包含 venv。裸 `python3` 会失败。必须用绝对路径 `/home/aorus/.hermes/hermes-agent/venv/bin/python3`。
+
+3. **Python 脚本也用绝对路径**：不依赖 `$0`/`dirname` 推导，直接写死 `/home/aorus/.hermes-feishu/skills/ai-engineering/skill-evaluator/scripts/auto_eval_trigger.py`。
+
+**正确的包装脚本内容**（`~/.hermes-feishu/scripts/skill_auto_eval.sh`）：
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Handle bare cron environment where HOME may be unset
+if [ -z "${HOME:-}" ]; then
+    export HOME="/home/aorus"
+fi
+
+exec /home/aorus/.hermes/hermes-agent/venv/bin/python3 \
+  /home/aorus/.hermes-feishu/skills/ai-engineering/skill-evaluator/scripts/auto_eval_trigger.py \
+  --mode incremental
+```
+
+cron job 配置使用相对路径 `script: "skill_auto_eval.sh"`（cron runner 自动解析到 `~/.hermes-feishu/scripts/`）。
+
 ## 参考文件
 
 - `references/report-template.md` — 完整评测报告模板
 - `references/scoring-rubric.md` — 六维打分细则
 - `references/mermaid-template.md` — 过程追溯 Mermaid 图模板
-- `scripts/collect_trace.py` — 执行数据采集脚本
+- `references/hermes-session-format.md` — Hermes 会话 JSON 格式与数据提取陷阱
+- `references/hermes-hook-setup.md` — Gateway Hook 配置指南
+- `scripts/collect_trace.py` — 执行数据采集脚本（直读 session JSON）
 - `scripts/static_check.sh` — L1 静态合规检查脚本
+- `scripts/auto_eval_trigger.py` — 自动触发评测（cron 增量模式）
+- `scripts/session_watcher.py` — B-2 文件监听器（备用）
+- `~/.hermes-feishu/scripts/skill_auto_eval.sh` — cron no_agent 包装脚本（每 10 分钟调用 auto_eval_trigger.py --mode incremental）。⚠️ cron runner 解析相对 script 路径的基目录是 `~/.hermes-feishu/scripts/`，非 `~/.hermes/scripts/`。

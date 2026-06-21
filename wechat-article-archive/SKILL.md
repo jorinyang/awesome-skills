@@ -223,6 +223,10 @@ python3 scripts/validate_archive.py "<author_root>" --zip "<zip_path>"
 
 ## 资源
 
+## 资源
+
+> ⚠️ Python 脚本需从上游仓库安装到技能 scripts/ 目录：`git clone https://github.com/freestylefly/wechat-article-archive-skill.git /tmp/waa && cp /tmp/waa/scripts/*.py <skill_dir>/scripts/`。依赖 `requests` + `lxml`，需在 venv 中可用。
+
 本技能 Python 脚本源自 `freestylefly/wechat-article-archive-skill`：
 - `scripts/discover_account_articles.py` — 扫码登录微信公众平台，生成候选列表
 - `scripts/collect_articles.py` — 抓取正文、转换 Markdown、本地化图片
@@ -230,12 +234,75 @@ python3 scripts/validate_archive.py "<author_root>" --zip "<zip_path>"
 - `scripts/package_archive.py` — 以 UTF-8 文件名创建 ZIP
 - `scripts/archive_common.py` — 共享 CSV Schema、安全路径规则
 
+## QR 码登录工作流 ★ (2026-06-18 实战验证)
+
+首次采集某个公众号必须扫码。**不能在 foreground 直接跑**（用户看不到终端 stdout 里的 QR 码文本），必须按以下流程操作（已验证四次后成功）：
+
+```
+1. 用 --login-timeout 300 后台启动（默认 180s 不够）
+   terminal(background=true, notify_on_complete=true,
+     "python3 -u scripts/discover_account_articles.py
+      --account \"<名称>\" --limit <N> --login-timeout 300
+      --output <csv_path>")
+
+2. 等 3 秒让 QR 文件写入磁盘
+   sleep 3 && ls <skill_dir>/wechat-login-qr.jpg
+
+3. 立刻将 QR 码文件发到飞书（用户手机在飞书里可以直接长按识别）
+   send_message("📱 微信扫码（5分钟内有效）
+                 MEDIA:<skill_dir>/wechat-login-qr.jpg", target="feishu")
+
+4. 等用户扫码 → 监听 notify_on_complete 通知
+```
+
+**关键约束**：
+- QR 文件由脚本写入磁盘（`<cwd>/wechat-login-qr.jpg`），与 stdout 输出独立——所以即使 background 缓冲了 stdout，QR 文件仍然可读
+- Session 缓存路径：`~/.cache/wechat-article-archive/session.json`（权限 0600）
+- 进程被 kill 时 session 不会保存。正常 exit code 0 退出后 session 自动缓存
+- 缓存后同号下次不再需要扫码，直接复用
+
+## QR 码登录工作流 ★
+
+首次采集新公众号必须扫码。正确流程（已验证）：
+
+```
+1. 后台启动 discover 脚本（300s 超时）
+   terminal(background=true, notify_on_complete=true,
+     "python3 -u scripts/discover_account_articles.py
+      --account \"<名称>\" --limit <N> --login-timeout 300
+      --output <path>")
+
+2. 等 3 秒让 QR 文件生成
+   sleep 3 && ls wechat-login-qr.jpg
+
+3. 立刻将 QR 码发到飞书
+   send_message("📱 微信扫码（5分钟内有效）
+                 MEDIA:<skill_dir>/wechat-login-qr.jpg", target="feishu")
+
+4. 等用户扫码 → process poll 或等 notify_on_complete
+```
+
+**为什么不能 foreground 直接跑**：foreground 模式下 QR 码打印到终端 stdout，但用户看不到终端输出。必须发到飞书。
+
+**为什么不能后台跑完再发 QR**：后台 Python 输出被缓冲，`process poll` 始终返回空。QR 文件是独立写入磁盘的，可以检测到。
+
+**关键参数**：`--login-timeout 300`（默认 180s 不够——从发 QR 到用户看到并扫码，180s 很紧）
+
 ## 常见陷阱
 
-1. **扫码人未就位** — 首次采集新公众号需要手机扫码，确认扫码人可用后再启动
-2. **微信改版导致脚本失效** — 脚本有降级策略（公开搜索/合集），非完全依赖后台接口
-3. **高频采集触发风控** — 默认串行+2s延迟，不建议调高并发
-4. **公众号名称精确匹配失败** — 用 `--fakeid` 精确选择
+1. **扫码人未就位** — 首次采集新公众号需要手机扫码。跑脚本前确认扫码人可用
+2. **QR 码超时（最高频陷阱）** — 默认 `--login-timeout 180` 偏紧。从生成 QR → 发飞书 → 用户打开飞书 → 长按识别，180s 经常不够。**必须用 `--login-timeout 300`**
+3. **Foreground 跑 QR 登录** — 脚本在 foreground 会打印 QR 文本到 stdout 然后阻塞等待。用户看不到终端输出。**必须用 background 模式 + 检测 QR 文件写入 + 发飞书**
+4. **Background Python 缓冲导致空 output** — `process poll` 对 background Python 进程始终返回空。不要依赖 poll 来判断 QR 是否生成——用 `ls wechat-login-qr.jpg` 检测文件
+5. **Session 缓存被 kill 丢失** — 如果进程被 kill（非正常 exit 0），session 不会写入 `~/.cache/wechat-article-archive/session.json`。必须等进程正常退出后 session 才持久化
+6. **微信改版导致脚本失效** — 脚本有降级策略（公开搜索/合集），非完全依赖后台接口
+7. **高频采集触发风控** — 默认串行+2s延迟，不建议调高并发
+8. **公众号名称精确匹配失败** — 用 `--fakeid` 精确选择（从候选列表中获取）+ 检测 QR 文件写入 + 发飞书**
+4. **Background Python 缓冲导致空 output** — `process poll` 对 background Python 进程始终返回空。不要依赖 poll 来判断 QR 是否生成——用 `ls wechat-login-qr.jpg` 检测文件
+5. **Session 缓存被 kill 丢失** — 如果进程被 kill（非正常 exit 0），session 不会写入 `~/.cache/wechat-article-archive/session.json`。必须等进程正常退出后 session 才持久化
+6. **微信改版导致脚本失效** — 脚本有降级策略（公开搜索/合集），非完全依赖后台接口
+7. **高频采集触发风控** — 默认串行+2s延迟，不建议调高并发
+8. **公众号名称精确匹配失败** — 用 `--fakeid` 精确选择（从候选列表中获取）
 
 ## 验证清单
 

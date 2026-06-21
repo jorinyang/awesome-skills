@@ -11,9 +11,9 @@ triggers:
   - "travel-intel query"
 tags: [travel, intel, collector, reporter, querier, 贵州之客]
 category: travel
-version: 1.5.1
+version: 1.5.6
 dependencies:
-  skills: [feishu-doc, feishu-wiki, opencli]
+  skills: [feishu-wiki, opencli]
   commands: [lark-cli, agent-browser, opencli]
 ---
 
@@ -162,8 +162,8 @@ L1 通用搜索:
 | 站点 | URL | 编码 | 产出/次 | 提取模式 | 状态 |
 |------|-----|:--:|:--:|------|:--:|
 | **品橙旅游** | pinchain.com | utf-8 | 10-12 | `<h2><a href>` | ✅ 主力 |
-| **迈点网 文旅** | meadin.com/wl/ | utf-8 | 20-30 | img alt 属性 (噪音多) | ✅ 新增 |
-| **迈点网 景区** | meadin.com/jq/ | utf-8 | 20-30 | img alt 属性 (噪音多) | ✅ 新增 |
+| **迈点网 文旅** | meadin.com/wl/ | utf-8 | 0-30 | img alt 属性 (噪音多) — ⚠️ 2026-06-12: 连续多日提取为0，可能迁至SPA | ⚠️ 降级监控 |
+| **迈点网 景区** | meadin.com/jq/ | utf-8 | 0-30 | img alt 属性 (噪音多) — ⚠️ 2026-06-12: 连续多日提取为0，可能迁至SPA | ⚠️ 降级监控 |
 | **闻旅** | wenlvnews.com | utf-8 | ~100 (仅5-10条实质) | 含大量政宣/导航，需旅行关键词过滤后 ~10条 | ⚠️ 高噪需精选 |
 | 执惠旅游 | tripvivid.com | utf-8 | 30-60 | 行业日报汇总，信息密度高（需旅行关键词过滤后 ~36条实质内容） | ✅ 高产但需精选 |
 | ~~贵州文旅厅~~ | whhly.guizhou.gov.cn | — | 0 | ❌ JS-SPA |
@@ -251,6 +251,8 @@ L2 采集原始产量波动大（品橙 ~15 + 迈点 ~80 + 闻旅 ~100 + 执惠 
 python3 -u scripts/l2_ingestor.py $(date +%Y-%m-%d) /tmp/l2_ingest.json
 ```
 
+> ⚠️ **入库进度验证必须用 `--page-limit 0`**：`wiki +node-list --page-all` 默认 500 条封顶，新文档在封顶外不可见。详见「实测陷阱 → wiki +node-list --page-all 静默截断陷阱」。
+
 ---
 
 ## 模块 3: 过期校验 (Expiry)
@@ -327,6 +329,7 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 | 脚本 | 路径 | 用途 |
 |------|------|------|
 | l3_poller.py | `~/.hermes-feishu/scripts/l3_poller.py` | L3 Bitable 轮询器 (no_agent cron, 每5分钟) |
+| l2_collect.py | `skills/travel/travel-intel/scripts/l2_collect.py` | L2 urllib 站点直抓 (品橙/迈点/闻旅/执惠) — cron 直接调用 |
 | l2_ingestor.py | `skills/travel/travel-intel/scripts/l2_ingestor.py` | L2 urllib 结果入库 (替代有 bug 的 ingestor.py，批冷却防限流) |
 | l2_prefilter.py | `skills/travel/travel-intel/scripts/l2_prefilter.py` | L2 三阶段预过滤：去模板 → 旅行关键词 → 去导航+去重 |
 | ingestor.py | `skills/travel/travel-intel/scripts/ingestor.py` | 通用入库引擎 (⚠️ 当前有 3380002 bug，建议用 l2_ingestor.py) |
@@ -343,7 +346,6 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 |------|------|------|
 | travel-itinerary | 消费者 | 调用 querier 查目的地信息 |
 | trip-landing | 消费者 | 调用 querier 查景点/须知 |
-| feishu-doc | 依赖 | 创建文档 |
 | feishu-wiki | 依赖 | 节点管理 |
 | opencli | 依赖 | L1b 微博热搜+知乎热榜采集 |
 
@@ -403,7 +405,7 @@ def parse_larkcli_output(result):
 >
 > **首条脆弱模式**：冷却后的批次第一项最容易触发限流（令牌桶在冷却期间未完全恢复）。减小 BATCH_SIZE 比增大 COOL_DOWN 更有效。
 >
-> `l2_ingestor.py` 默认值: BATCH_SIZE=6, COOL_DOWN=15s, ITEM_DELAY=5s, RETRY_DELAY=15s, MAX_RETRIES=2。直接调用此脚本即可。
+> `l2_ingestor.py` 默认值: BATCH_SIZE=6, COOL_DOWN=15s, ITEM_DELAY=5s, RETRY_DELAY=15s, MAX_RETRIES=3 (2026-06-14 添加)。遇到 99991400 错误自动等待 RETRY_DELAY 后重试，最多 3 次。直接调用此脚本即可。重试实现细节见 [references/l2-ingestor-retry-pattern.md](references/l2-ingestor-retry-pattern.md)。
 
 ### 云端 cron 管道安全限制 (2026-06-01, 更新 2026-06-05)
 
@@ -532,24 +534,53 @@ terminal python3 -u l2_ingestor.py ...  # foreground, timeout=600
 | >50 条，预计 >10 分钟 | **background + notify_on_complete** | 超 600s 上限，信任 notify |
 | 需要实时进度 | foreground (必须) | background 无可信进度 |
 
-### 入库进程卡死恢复流程 (2026-06-06) ★
+> ⚠️ **Foreground timeout 硬上限 600s (2026-06-14 确认):** `terminal(timeout=N)` 的最大 foreground timeout 为 600 秒。设置 900s 会拒绝执行并提示 "use background=true"。52 条入库 (BATCH=6, DELAY=5, COOL=15) 实际耗时 ~400s，在 600s 内可完成。如需处理 >80 条，强制使用 background 模式。
+
+### 入库进程卡死恢复流程 (2026-06-06, 更新 2026-06-11) ★
 
 当 background 模式的 ingestor 长时间无输出，**不要立即 kill**——进程可能在静默工作。按以下步骤处理：
 
 ```
 1. 验证实际进度（非 poll/log）
-   lark-cli wiki +node-list → 统计今日已创建文档数
+   lark-cli wiki +node-list --page-limit 0 → 统计今日已创建文档数
+   ⚠️ 必须加 --page-limit 0，否则默认10页(500条)封顶，新文档可能在封顶外不可见
    
 2. 判断真实状态
    ├─ 文档数持续增长 → 进程正常，继续等待 notify_on_complete
    └─ 文档数停滞 >5 分钟 → 进程可能卡死，执行恢复
 
-3. 恢复：diff 找出缺失条目 → foreground 重跑
-   python3 find_missing.py  # 对比 /tmp/l2_ingest.json vs wiki node-list
+3. 恢复：kill 原进程 → diff 找出缺失条目 → foreground 重跑
+   python3 find_missing.py  # 对比 /tmp/l2_ingest.json vs wiki node-list (--page-limit 0)
    python3 -u l2_ingestor.py DATE /tmp/l2_missing.json  # 仅入库缺失部分
 ```
 
-**本次验证 (2026-06-06)**：86 条入库，background 模式下 543s 无输出→被误杀（实际已入库 61/86）。恢复后 foreground 模式 27 条缺失全部成功，总耗时 ~200s。
+**2026-06-06 验证**：86 条入库，background 模式下 543s 无输出→被误杀（实际已入库 61/86）。恢复后 foreground 模式 27 条缺失全部成功，总耗时 ~200s。
+
+**⚠️ background+foreground 重叠导致重复入库 (2026-06-11 验证):** 先 background (736s 无输出→被 kill)、再 foreground (59/82 超时) 的两段式恢复会产生重复文档。background 进程在静默期间可能已完成部分入库，foreground 从第1条开始会重复创建。本次 130 条总数 vs 71 条去重唯一，重复率 45%。**正确恢复顺序：必须先 kill background，再验证 wiki 存量，最后仅入库缺失条目。**
+
+### wiki +node-list --page-all 静默截断陷阱 (2026-06-11 发现, 2026-06-15 更新) ★
+
+`lark-cli wiki +node-list --page-all` 的 **默认 `--page-limit 10`**（10页×50条=**500条封顶**）。超过 500 条的知识库会被静默截断，后续文档不可见。
+
+```bash
+# ❌ 默认 — 最多返回500条，后面的看不见
+lark-cli wiki +node-list --space-id SPACE --parent-node-token TOKEN --page-all --as bot
+
+# ✅ 必须 — 咨询洞察节点已 750+ 条，--page-limit 20 为当前最佳值
+lark-cli wiki +node-list --space-id SPACE --parent-node-token TOKEN --page-all --page-limit 20 --as bot
+
+# ⚠️ 不推荐 — --page-limit 0（不限）在 750+ 条节点上实测超时（60s+）
+```
+
+**`--page-limit 0` 超时问题 (2026-06-15 实测):** `--page-limit 0` 理论上不限页数，但 750+ 条节点的全量拉取会超时（60s+）。**当前最佳折中：`--page-limit 20`（1000 条），覆盖 2-3 周的数据量。**
+
+**影响范围**：
+- 过期校验 (`expiry_checker.py`)：可能漏检文档
+- 每日简报/周度分析：统计计数偏低，无法发现当日新增文档（新文档排在列表末尾）
+- 入库恢复 (`find_missing.py`)：误判"0 today docs" → 重新入库已存在条目 → 产生大量重复
+- **weekly/insight cron 直接失败（Broken pipe）— 找不到本周数据**
+
+**2026-06-15 确认**：咨询洞察节点 ~750 条，`--page-limit 10` 只能看到 06-05~06-09，06-10 起的每日简报完全不可见。`--page-limit 15` 可见 06-11，`--page-limit 20` 应覆盖 2-3 周。
 
 ### L2 站点直抓 — 品橙/闻旅 采集修正 (2026-06-03)
 
@@ -574,6 +605,49 @@ html = urllib.request.urlopen(req, timeout=15, context=ctx).read().decode('utf-8
 ```
 
 即使修复 SSL，闻旅首页仅返回 3 条标签链接（非真实文章），实际产出几乎为零。**建议从主力采集站降级或移除。**
+
+### travel-intel skill 目录丢失与恢复 (2026-06-14 发现) ★
+
+`travel-intel` skill 所在的目录 `/home/aorus/.hermes-feishu/skills/travel/travel-intel/` 可能在系统迁移/清理过程中被删除。当 cron 调度提示 "Skill not found and skipped: travel-intel" 时，按以下步骤恢复：
+
+```bash
+# 1. 检查备份目录
+ls /home/aorus/.hermes-shared/backups/
+
+# 2. 从最新备份恢复整个 skill 目录
+cp -r /home/aorus/.hermes-shared/backups/feishu-skills-20260613-204813/travel/travel-intel \
+     /home/aorus/.hermes-feishu/skills/travel/travel-intel
+
+# 3. 验证恢复
+ls /home/aorus/.hermes-feishu/skills/travel/travel-intel/scripts/
+# 应包含: l2_collect.py, l2_ingestor.py, l2_prefilter.py, expiry_checker.py 等
+```
+
+**注意**：备份中的 `l2_ingestor.py` 可能不含 99991400 自动重试逻辑（2026-06-14 添加），恢复后需验证 `ingest_one()` 函数是否有 `MAX_RETRIES` 和 `for attempt in range(...)` 循环。如缺失需手动添加（见该脚本顶部的 `MAX_RETRIES = 3` 和重试逻辑）。
+
+`/tmp` 也可能有旧版本缓存：
+```bash
+ls /tmp/l2_ingestor*.py
+# l2_ingestor_v2.py - 早期版本 (BATCH=8, COOL=12, 无重试)
+# l2_ingestor_fixed.py - 中间版本 (PARENT_TOKEN fallback, BATCH=8, 无重试)
+```
+
+### L2 迈点网提取持续退化 (2026-06-12)
+
+迈点文旅 (`meadin.com/wl/`) 和迈点景区 (`meadin.com/jq/`) 的 `<img alt="...">` 提取模式连续多日返回 0 条。站点可能已迁至 JS-SPA 或改版。
+
+```python
+# 当前模式 — 2026-06-12 返回 0
+matches = re.finditer(r'<img[^>]*alt="([^"]+)"[^>]*>', html)
+```
+
+**诊断命令**（下次 cron 运行时验证）：
+```bash
+curl -sL 'https://www.meadin.com/wl/' | grep -c '<img alt='
+# 若返回 0 → 确认 img alt 已从 HTML 中消失，需换提取模式或标记不可用
+```
+
+**影响**：理论产出 40-60 条/日（两站各 20-30），现为 0。品橙+执惠+闻旅仍可产出 50-70 条预过滤后 ~45 条，短期不影响日报质量。
 
 ### ingestor.py 全量 3380002 故障 (2026-06-03 定位+修复)
 
@@ -647,6 +721,33 @@ for rule in rules:
 
 **待修复**：需为这 4 条规则实现对应的动态阈值逻辑，而非统一 `days: null`。
 
+### agent-browser Chrome 长期运行僵死 (2026-06-13 发现+修复) ★
+
+agent-browser 的 headless Chrome 进程在连续运行 10+ 天后会逐渐僵死：所有 `agent-browser open` 和 `eval` 调用均超时（20s timeout），采集产出降为 0。6/5 开始劣化，6/7 彻底无响应，持续到 6/13 重启前。
+
+**诊断特征**：
+- 日志中全部关键字搜索均为 `[百度] timeout` / `[夸克] timeout`
+- `ps aux | grep agent-browser` 显示进程 uptime 超过 10 天
+- 手动 `agent-browser eval "1+1"` 也超时 → 确认 agent-browser 本身僵死
+
+**修复**：
+1. `l3_cron.sh` 增加健康检查：采集前 `agent-browser eval "1+1"` 验证，失败则 kill + 重启
+2. 保守估计 agent-browser 健康寿命 ~7 天，健康检查在每次 cron 运行时自动执行
+
+**手动恢复**（如果健康检查也失败）：
+```bash
+pkill -f agent-browser; pkill -f agent-browser-chrome; sleep 3
+agent-browser &
+sleep 5
+agent-browser eval "1+1"  # 验证恢复
+```
+
+### 百度反爬验证码 (2026-06-13 发现+修复) ★
+
+agent-browser 访问百度搜索时会被重定向到 `wappass.baidu.com` 验证页面，导致所有搜索结果提取为 0。
+
+**修复**：`search_baidu()` 增加验证码检测 + 最多 3 次重试（间隔 10s），同时增加 5 组 CSS 选择器兜底（适配百度 DOM 变化）。
+
 ### L1b opencli 依赖 Chrome + Daemon (2026-06-01)
 
 hotlist_collector.py 通过 opencli 调用微博/知乎，依赖链：`opencli → Daemon (127.0.0.1:19825) → TCP relay → Chrome Extension → Chrome CDP`。此依赖链仅在 WSL 本地且 Chrome 运行时可工作。
@@ -662,17 +763,18 @@ curl -s http://$(ip route show default | awk '{print $3}'):9222/json/version | g
 opencli doctor
 ```
 
-### `docs +create --doc-format markdown` 中 `--title` 被覆盖 (2026-06-02)
+### `docs +create --doc-format markdown` 中标题控制 (2026-06-02, 2026-06-20 更新)
 
-当 markdown 内容以 `# 标题` 开头时，lark-cli 将文档标题设为 heading 文本，**忽略 `--title` 参数**。后果：自动化采集的 `YYYY-MM-DD_source_topic` 格式标题丢失日期/来源前缀，文档以原始文章标题命名。
+> ⚠️ **lark-cli 1.0.53+:** `--title` 标志已完全移除。标题现在仅从内容中提取（Markdown `#` heading 或 XML `<title>`）。
+
+**历史行为**（lark-cli <1.0.53）：当 markdown 内容以 `# 标题` 开头时，lark-cli 将文档标题设为 heading 文本，忽略 `--title` 参数。
 
 | 方案 | 结果 | 适用 |
 |------|------|------|
-| markdown + `# Title` | 标题 = 文章标题（无日期前缀） | ❌ 不适合自动化审计 |
-| markdown + 省略 `#` | 标题 = `--title` 值 | ✅ 需精确标题时 |
+| markdown + `# Title` | 标题 = heading 文本 | ✅ 唯一方式（lark-cli ≥1.0.53） |
 | XML + `<title>` | 标题 = XML 中 `<title>` 值 | ✅ 完全控制 |
 
-**对策**：L2 入库脚本中，不写 `#` heading 行，仅用 `--title` 传标题。或改用 XML 格式。
+**对策**（当前）：如需自动化标题格式（如 `YYYY-MM-DD_source_topic`），在 Markdown 中使用 `# YYYY-MM-DD_source_topic` 作为第一行。
 
 ### L3 Bitable 队列迁移 (2026-06-02 已解决)
 
@@ -704,7 +806,7 @@ lark-cli api GET "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables"
 
 **历史**：feishu-doc 技能中 2026-06-03 记录为「可能失效」，本日（2026-06-04）确认全部失效。2026-06-05 验证 Move API 不受影响。
 
-### lark-cli 内容写入与验证陷阱 ★ (2026-06-01 定位+校正)
+### lark-cli 内容写入与验证陷阱 ★ (2026-06-01 定位+校正, 2026-06-15 更新)
 
 **认知校正**：`docs +update v2` 对 Wiki docx 节点**实际可以写入**——之前认为"永远无效"是 `docs +fetch` 的误报（fetch 显示 blocks=0 但 REST API 确认内容存在）。但两步法仍不推荐——一步法更可靠。
 
@@ -715,6 +817,17 @@ lark-cli api GET "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables"
 | 1 | `lark-cli doc +create` 无效命令（应为 `docs`） | hotlist_collector 从未成功 | ✅ 已修正为 `docs +create` |
 | 2 | `lark-cli docs +create --markdown` 用 v1 API | **实测可正常工作** (REST API 验证) | ✅ 可靠，已回退到一步法 |
 | 3 | `docs +fetch` 不可靠（blocks=0 误报） | 无法通过 CLI 验证内容 | 用 REST API 验证 |
+
+**API v2 语法注意事项 (2026-06-20 更新, lark-cli 1.0.53+):**
+
+> ⚠️ **lark-cli 1.0.53 重大变更 (2026-06-20):** `--title`, `--wiki-node`, `--wiki-space` 三个 v1 标志已完全移除。使用旧标志会报 `validation: invalid_argument`。详见下方新陷阱条目。
+
+| 要点 | 说明 |
+|------|------|
+| 格式 flag | `--doc-format markdown` 或 `--doc-format xml`（默认），v2 API 使用此 flag |
+| 内容传参 | `--content "$(cat /tmp/file.md)"` 或 `--content "inline markdown..."` |
+| Wiki 放置 | `--parent-token TOKEN`（替代旧 `--wiki-node`） |
+| 标题 | Markdown `# Title` 或 XML `<title>`，旧 `--title` 已废弃 |
 
 **travel-intel 特有**：Wiki 文档为骨架格式（标题 + bookmark 链接），无正文内容。内容写入失败不影响采集流水线——简报生成时 `curl` 取原文提取摘要。
 
@@ -747,3 +860,48 @@ lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/ch
 | zhike-morning | no_agent script | ✅ 正常 |
 
 **缓解措施**：已将 `travel-intel-daily` 和 `travel-intel-weekly` 调度从 `0 9 * * *` 错开至 `5 9 * * *`（09:05），避开整点争抢窗口（2026-06-08 应用）。
+
+### `docs +create` CLI 命令格式变更 ☆ (2026-06-20 发现+修复) ★
+
+lark-cli 1.0.53 完全移除了 v1 遗留标志，之前所有 insight/weekly/briefing cron 中使用的命令格式全部失效：
+
+```bash
+# ❌ lark-cli ≥1.0.53 — 三个标志均被拒绝
+lark-cli docs +create --api-version v2 \
+  --title "标题" \              # validation: invalid_argument — 已移除
+  --wiki-node TOKEN \           # 同上 — 用 --parent-token 替代
+  --wiki-space SPACE_ID \       # 同上 — 用 --parent-position 替代
+  --content @file.md
+
+# ✅ 正确格式（lark-cli 1.0.53+）
+# Markdown 格式
+cd /tmp && lark-cli docs +create --api-version v2 \
+  --doc-format markdown \
+  --parent-token UF7Cw5w2WiHGfjkKVvBcxj8Hnib \
+  --content "$(cat w25_insight.md)" \
+  --as bot
+
+# 标题从 Markdown 第一个 # heading 或 XML <title> 中提取
+```
+
+**影响范围**：
+- `insight-execution-guide.md` 步骤 5（综合洞察/周度分析创建文档）
+- 每日简报 cron（`travel-intel-daily`）
+- 任何使用 `docs +create` 写入 Wiki 节点的脚本
+
+**已修复**：`references/insight-execution-guide.md` 步骤 5 已更新为新格式。
+**检测方法**：运行时若看到 `validation: invalid_argument` + `legacy v1 flag(s) --title, --wiki-node, --wiki-space` 即确认版本升级。
+
+### 周编号歧义：`%W` vs `%V` (2026-06-20)
+
+`date +%W` 和 `date +%V`（ISO 8601）返回不同的周编号：
+
+```bash
+$ date -d 2026-06-20 '+%W %V'
+24 25
+```
+
+- `%W`：周一起始，01 从第一个周一开始（1月5日当周）→ 6月20日为 W24
+- `%V`（ISO 8601）：周一起始，W01 为含1月4日的那周 → 6月20日为 W25
+
+**当前 convention**：综合洞察和周度分析使用 **ISO 周编号** (`isocalendar()[1]`)，与 `date +%V` 一致。用 `date +%W` 会产生 1 周偏差。

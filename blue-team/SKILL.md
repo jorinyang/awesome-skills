@@ -50,7 +50,7 @@ triggers:
 - 纯技术代码审查（用 `github-code-review`）
 - 文案语法/风格审查（用 `editorial-review-prose`）
 - 文档结构调整（用 `editorial-review-structure`）
-- 日常闲聊中的随口一问（"你觉得这个怎么样"且无具体方案内容）
+- 日常闲聊中的随口一问（\"你觉得这个怎么样\"且无具体方案内容）
 
 ---
 

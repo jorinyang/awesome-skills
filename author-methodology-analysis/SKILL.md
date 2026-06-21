@@ -234,6 +234,8 @@ python3 scripts/generate_dashboard.py \
 
 ## 资源
 
+> ⚠️ Python 脚本和参考模板需从上游仓库安装。详见 [`references/script-setup.md`](references/script-setup.md)。测试结果见 [`references/test-results.md`](references/test-results.md)。
+
 本技能 Python 脚本源自 `freestylefly/author-methodology-analysis-skill`：
 - `scripts/analyze_corpus.py` — 解析语料并生成确定性特征数据
 - `scripts/generate_dashboard.py` — 从共享数据源生成离线 HTML 看板
