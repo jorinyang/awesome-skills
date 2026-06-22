@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-80-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-88-blue)](.)
 
 ---
 
@@ -133,6 +133,19 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [wechat-article-archive](wechat-article-archive/SKILL.md) | 采集公众号/公众号归档/微信文章转Markdown | 公众号文章采集→Markdown归档→ZIP打包→飞书同步 |
 | [zhike-content-output](zhike-content-output/SKILL.md) | 产出文档/对客文案 | 对客写作铁律 + 叙事声音规范 |
 | [shipinhao-cold-start](productivity/shipinhao-cold-start/SKILL.md) 🆕 | 视频号/微信视频号/视频号起号 | 视频号冷启动策略——封面/标签/评论/分发规则+抖音双平台速查表 |
+
+### ✈️ 旅行社工作流 (8) 🆕
+
+| 技能 | 触发词 | 核心能力 |
+|------|--------|---------|
+| [trip-quote](travel/trip-quote/SKILL.md) | 生成报价单/做报价 | 报价单→PDF（团建/私人定制/研学/散客4风格） |
+| [trip-briefing](travel/trip-briefing/SKILL.md) | 出团通知书 | 对客PDF→行程/住宿/餐饮/交通/安全/天气 |
+| [guide-exec](travel/guide-exec/SKILL.md) | 导游执行单/执行单 | 12章飞书docx→名单(身份证/保险)/行程/对接/物资/应急 |
+| [supply-check](travel/supply-check/SKILL.md) | 物资清单/核对物资 | 行程物资逐项核对→飞书docx勾选表 |
+| [vendor-brief](travel/vendor-brief/SKILL.md) | 供应商对接/对接单 | 酒店/车辆/地接 ×3 PDF对接单 |
+| [cost-engine](travel/cost-engine/SKILL.md) | 成本核算/市场比价 | 成本分项+OTA实时比价→定价建议 |
+| [trip-archive](travel/trip-archive/SKILL.md) | 团后归档 | 全部出团文档→知识库5节点自动归档 |
+| [customer-view](travel/customer-view/SKILL.md) | 客户打包/客户文档包 | 报价单+通知书+须知→单PDF打包 |
 
 ### 🔬 研究 (4)
 
@@ -567,6 +580,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.7.0 | 2026-06-22 | 88技能（+8 旅行社工作流系统：trip-quote/trip-briefing/guide-exec/supply-check/vendor-brief/cost-engine/trip-archive/customer-view；报价单4风格+出团通知书+导游执行单12章+物资核对+供应商对接×3+成本比价+客户打包+归档；新增 travel 分类） |
 | v4.6.0 | 2026-06-22 | 80技能（+4 新增：external-skill-evaluation/shipinhao-cold-start/wsl-browser-cdp/requirement-alignment-analysis；方法论19→20；贵州之客11→12；飞书系列5→6；开发工程10→11；+6 更新：skill-evaluator v1.2 B-2 Hook架构/wechat-article-archive QR登录工作流/travel-intel v1.5.6 迈点降级监控/feishu-wiki 精简定制化/blue-team/author-methodology-analysis） |
 | v4.5.0 | 2026-06-21 | 76技能（+3 吸收 openEuler/agent-insight AI工程方法论：skill-evaluator/skill-ab-test/benchmark-generator；Skill三维评测+A/B对比+测试集自动生成；新增 ai-engineering 分类；skill-evaluator 支持 cron 自动触发评测） |
 | v4.4.0 | 2026-06-18 | 73技能（+3 吸收 pm-skills PM方法论：pm-prioritization-frameworks/stakeholder-mapping/opportunity-solution-tree；9种优先级框架速查+干系人矩阵+四层发现树；answer v1.5.0→v1.6.0 注入红队攻击+JTBD价值主张+产品战略画布+死亡假设Tiger分级；方法论 16→19） |
