@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 15mm 20mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Noto Sans SC", sans-serif; color: #333; font-size: 10.5pt; line-height: 1.6; }
+
+  .header { background: #f97316; color: #fff; padding: 18px 22px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header h1 { font-size: 22pt; font-weight: 700; }
+  .header .meta { text-align: right; font-size: 9pt; opacity: 0.9; }
+
+  .summary { background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; font-size: 9pt; }
+  .summary strong { color: #ea580c; }
+
+  h2 { font-size: 13pt; color: #ea580c; font-weight: 700; margin: 20px 0 10px; }
+  h2 .icon { margin-right: 6px; }
+
+  .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 9pt; }
+  .schedule-table th { background: #f97316; color: #fff; padding: 8px; text-align: left; }
+  .schedule-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .schedule-table .day-sep td { background: #fff7ed; font-weight: 700; color: #ea580c; font-size: 10pt; }
+
+  .pricing-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 9.5pt; }
+  .pricing-table th { background: #f97316; color: #fff; padding: 8px; text-align: left; }
+  .pricing-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+  .pricing-table .total-row td { background: #fff7ed; font-weight: 700; font-size: 11pt; color: #ea580c; }
+
+  .learning { display: flex; gap: 12px; margin-bottom: 16px; }
+  .learning-card { flex: 1; background: #fff7ed; border-radius: 8px; padding: 12px 14px; }
+  .learning-card h3 { font-size: 10pt; color: #ea580c; margin-bottom: 4px; }
+  .learning-card p { font-size: 9pt; color: #555; }
+
+  .safety { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 9pt; }
+  .safety strong { color: #dc2626; }
+
+  .footer { border-top: 2px solid #f97316; padding-top: 10px; margin-top: 20px; text-align: center; font-size: 8.5pt; color: #999; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div><h1>研学旅行方案</h1></div>
+  <div class="meta">
+    团号：{{group.id}}<br>
+    {{group.dates.start}} — {{group.dates.end}}
+  </div>
+</div>
+
+<div class="summary">
+  <strong>{{group.name}}</strong> · {{group.size.total}}人 · {{days}}天{{days_minus_1}}晚<br>
+  客户：{{group.customer.company}} · 联系人：{{group.customer.contact_name}} {{group.customer.contact_phone}}
+</div>
+
+<h2>📚 研学目标</h2>
+<div class="learning">
+  <div class="learning-card">
+    <h3>🏔️ 地质探索</h3>
+    <p>喀斯特地貌实地观察，认识钟乳石、地下河、天坑形成原理</p>
+  </div>
+  <div class="learning-card">
+    <h3>💪 体能挑战</h3>
+    <p>桨板平衡训练、SRT绳索技术、团队协作能力培养</p>
+  </div>
+  <div class="learning-card">
+    <h3>🌿 生态认知</h3>
+    <p>峡谷生态系统观察，了解贵州特有植被与水域环境</p>
+  </div>
+</div>
+
+<h2>📅 课程安排</h2>
+<table class="schedule-table">
+  <tr><th style="width:8%">日期</th><th style="width:10%">时间</th><th style="width:14%">课程</th><th style="width:12%">地点</th><th>内容</th><th style="width:14%">学习重点</th></tr>
+  {{itinerary_rows}}
+</table>
+
+<h2>💰 费用明细</h2>
+<table class="pricing-table">
+  <tr><th>类别</th><th>项目</th><th style="text-align:right">单价</th><th style="text-align:center">数量</th><th style="text-align:right">小计</th></tr>
+  {{pricing_rows}}
+  <tr class="total-row"><td colspan="4">合计</td><td style="text-align:right">¥{{total_price}}</td></tr>
+</table>
+<div style="font-size:8.5pt;color:#888;">人均约 ¥{{price_per_person}}</div>
+
+<h2>✅ 费用包含</h2>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">{{includes_tags}}</div>
+<div style="font-size:9pt;color:#888;">* 不含个人消费及上述未列明项目</div>
+
+<div class="safety">
+  <strong>🛡️ 安全保障：</strong>教练配比不低于1:5 · 全员户外运动保险 · SRT装备CE认证 · 急救包+对讲机全程随队 · 最近医院车程25分钟
+</div>
+
+<div class="footer">
+  有效期至 {{valid_until}} · 贵州之客旅行社有限公司 · {{group.planner.phone}} · 专注贵州深度研学体验
+</div>
+
+</body>
+</html>

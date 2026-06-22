@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 12mm 16mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Noto Sans SC", "PingFang SC", sans-serif; color: #2d3436; font-size: 10pt; line-height: 1.6; }
+
+  .top-bar { background: linear-gradient(90deg, #00b894 0%, #00cec9 100%); color: #fff; text-align: center; padding: 6px; font-size: 8pt; letter-spacing: 2px; margin-bottom: 0; }
+
+  .hero { background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%); color: #fff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .hero .title { font-size: 22pt; font-weight: 700; letter-spacing: 1px; }
+  .hero .title small { display: block; font-size: 10pt; font-weight: 400; opacity: 0.85; margin-top: 4px; }
+  .hero .price-box { text-align: center; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px 20px; }
+  .hero .price-box .from { font-size: 8pt; opacity: 0.8; }
+  .hero .price-box .amount { font-size: 30pt; font-weight: 700; line-height: 1; }
+
+  .quick-info { display: flex; gap: 0; background: #fff; border-bottom: 1px solid #e0e0e0; }
+  .quick-info .qi-item { flex: 1; text-align: center; padding: 10px 8px; border-right: 1px solid #f0f0f0; }
+  .quick-info .qi-item:last-child { border-right: none; }
+  .quick-info .qi-icon { font-size: 16pt; margin-bottom: 2px; }
+  .quick-info .qi-label { font-size: 7pt; color: #999; letter-spacing: 1px; }
+  .quick-info .qi-value { font-size: 9pt; font-weight: 600; color: #0984e3; }
+
+  h2 { font-size: 14pt; color: #0984e3; margin: 18px 0 10px; padding-left: 10px; border-left: 4px solid #00b894; }
+
+  .highlight-box { background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%); border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .highlight-box .tag { display: inline-block; background: #0984e3; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 8pt; margin-right: 6px; }
+
+  .day-card { border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .day-card .day-header { background: #f8f9fa; padding: 10px 16px; font-weight: 700; color: #0984e3; font-size: 11pt; border-bottom: 1px solid #e0e0e0; }
+  .day-card .day-body { padding: 0; }
+  .day-card .row { display: flex; padding: 8px 14px; border-bottom: 1px solid #f5f5f5; font-size: 9pt; align-items: baseline; }
+  .day-card .row:last-child { border-bottom: none; }
+  .day-card .row .time { width: 55px; color: #00b894; font-weight: 600; flex-shrink: 0; font-size: 9pt; }
+  .day-card .row .act { flex: 1; }
+  .day-card .row .act strong { color: #2d3436; }
+  .day-card .row .act span { color: #888; font-size: 8.5pt; display: block; }
+
+  .pricing-simple { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  .pricing-simple td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; font-size: 9.5pt; }
+  .pricing-simple td.inc { color: #00b894; font-weight: 600; }
+  .pricing-simple .summary-row td { background: #f8f9fa; font-weight: 700; font-size: 10.5pt; color: #0984e3; }
+
+  .includes-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .includes-grid .chip { background: #e8f5e9; color: #2e7d32; padding: 4px 14px; border-radius: 16px; font-size: 9pt; }
+
+  .dates-box { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+  .dates-box .label { font-size: 9pt; color: #888; margin-bottom: 4px; }
+
+  .cta { background: linear-gradient(90deg, #00b894 0%, #0984e3 100%); color: #fff; text-align: center; padding: 14px; border-radius: 8px; margin-top: 16px; font-size: 11pt; font-weight: 600; }
+
+  .footer { text-align: center; font-size: 8pt; color: #bbb; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">贵州之客 · 深度体验旅行</div>
+
+<div class="hero">
+  <div class="title">
+    {{group.name}}
+    <small>{{days}}天{{days_minus_1}}晚 · {{group.size.total}}人成团</small>
+  </div>
+  <div class="price-box">
+    <div class="from">人均参考</div>
+    <div class="amount">¥{{price_per_person}}</div>
+  </div>
+</div>
+
+<div class="quick-info">
+  <div class="qi-item"><div class="qi-icon">📅</div><div class="qi-label">出发日期</div><div class="qi-value">{{group.dates.start}}</div></div>
+  <div class="qi-item"><div class="qi-icon">⏱️</div><div class="qi-label">行程天数</div><div class="qi-value">{{days}}天{{days_minus_1}}晚</div></div>
+  <div class="qi-item"><div class="qi-icon">👥</div><div class="qi-label">成团人数</div><div class="qi-value">{{group.size.total}}人起</div></div>
+  <div class="qi-item"><div class="qi-icon">🚩</div><div class="qi-label">集合地点</div><div class="qi-value">贵阳北站</div></div>
+</div>
+
+<h2>行程亮点</h2>
+<div class="highlight-box">
+  {{highlight_tags}}
+</div>
+
+<h2>每日行程</h2>
+{{itinerary_html}}
+
+<h2>费用说明</h2>
+<table class="pricing-simple">
+  {{pricing_rows}}
+  <tr class="summary-row"><td>合计</td><td style="text-align:right">¥{{total_price}}</td></tr>
+  <tr class="summary-row"><td>人均</td><td style="text-align:right">约 ¥{{price_per_person}}/人</td></tr>
+</table>
+
+<div class="dates-box">
+  <div class="label">📅 出发日期</div>
+  <div style="font-size:10pt;font-weight:600;">{{group.dates.start}}（{{day_of_week}}）</div>
+  <div style="font-size:8pt;color:#888;">* 其他日期请咨询客服，4人以上可定制日期</div>
+</div>
+
+<h2>费用包含</h2>
+<div class="includes-grid">{{includes_chips}}</div>
+<div style="font-size:8.5pt;color:#888;margin:4px 0;">
+  <strong>不含：</strong>往返大交通、个人消费、酒水饮料、上述未列明项目
+</div>
+
+<h2>预订须知</h2>
+<div style="font-size:9pt;color:#555;line-height:1.7;">
+  <p>✅ 预订确认后需支付50%定金，出发前7天付清尾款</p>
+  <p>✅ 出发前7天以上取消全额退款，3-7天退50%，3天内不退定金</p>
+  <p>✅ 如遇不可抗力（极端天气/地质灾害），全额退款或免费改期</p>
+  <p>✅ 建议自行购买往返大交通，或由我方代订</p>
+</div>
+
+<div class="cta">
+  📞 立即预订 · {{group.planner.name}} {{group.planner.phone}}
+</div>
+
+<div class="footer">
+  贵州之客旅行社有限公司 · 专注贵州深度体验 · 本报价有效期至 {{valid_until}}
+</div>
+
+</body>
+</html>
