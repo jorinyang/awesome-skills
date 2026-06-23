@@ -594,6 +594,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.8.1 | 2026-06-23 | agent-tool-system v1.0→v1.1.0：升级为规范+工具——新增3个脚本(scaffold/validate/mcp-schema导出)+CI管线+GitHub Actions模板；18个触发词全生命周期覆盖 |
 | v4.8.0 | 2026-06-23 | 89技能（+1 agent-tool-system：defineTool→registry→toolsToAI三层架构+ToolLog+StepBudget，吸收自 open-pencil/open-pencil；AI工程3→4；+1更新 github-absorb v1.3.0 新增📦独立安装分类+Phase 5C安装验证） |
 | v4.7.0 | 2026-06-22 | 88技能（+8 旅行社工作流系统：trip-quote/trip-briefing/guide-exec/supply-check/vendor-brief/cost-engine/trip-archive/customer-view；报价单4风格+出团通知书+导游执行单12章+物资核对+供应商对接×3+成本比价+客户打包+归档；新增 travel 分类） |
 | v4.6.0 | 2026-06-22 | 80技能（+4 新增：external-skill-evaluation/shipinhao-cold-start/wsl-browser-cdp/requirement-alignment-analysis；方法论19→20；贵州之客11→12；飞书系列5→6；开发工程10→11；+6 更新：skill-evaluator v1.2 B-2 Hook架构/wechat-article-archive QR登录工作流/travel-intel v1.5.6 迈点降级监控/feishu-wiki 精简定制化/blue-team/author-methodology-analysis） |

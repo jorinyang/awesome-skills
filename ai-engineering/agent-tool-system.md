@@ -1,11 +1,11 @@
 ---
 name: agent-tool-system
 description: >-
-  AI Agent 工具系统设计方法论——defineTool→registry→toolsToAI 三层架构。
-  当需要为 Agent 系统设计工具集、构建 MCP Server 工具注册表、
-  或评估 Agent 工具架构时触发。触发词：Agent 工具/工具系统/tool system/
-  defineTool/工具注册表/工具适配器/tool adapter/MCP tools。
-version: 1.0.0
+  Agent 工具系统设计与生成工具——defineTool→registry→toolsToAI 三层架构方法论，
+  含脚手架生成器 + 合规章检查 + MCP Schema 导出。触发词：Agent 工具/工具系统/
+  生成工具定义/defineTool/生成 defineTool/工具注册表/验证工具集/检查工具合规/
+  导出 MCP Schema/toolsToAI/MCP tools 设计/Agent 工具箱/脚手架/工具骨架。
+version: 1.1.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -20,18 +20,27 @@ triggers:
   - "工具系统"
   - "tool system"
   - "defineTool"
+  - "生成工具定义"
+  - "生成 defineTool"
   - "工具注册表"
   - "工具适配器"
   - "tool registry"
   - "toolsToAI"
   - "MCP tools 设计"
   - "Agent 工具箱"
+  - "验证工具集"
+  - "检查工具合规"
+  - "导出 MCP Schema"
+  - "脚手架"
+  - "工具骨架"
+  - "生成工具骨架"
 ---
 
-# Agent 工具系统设计方法论
+# Agent 工具系统设计与生成工具
 
 > 吸收自 [OpenPencil](https://github.com/open-pencil/open-pencil) `packages/core/src/tools/` 的三层工具架构。
 > 核心思想：**一个工具定义，多处消费**——同一份 ToolDef 同时驱动 AI Chat、CLI、MCP Server，零重复定义。
+> v1.1.0 升级：从纯方法论升级为**规范+工具**——含三个可执行脚本来生成、验证、导出工具定义。
 
 ## 设计哲学
 
@@ -40,6 +49,7 @@ triggers:
 3. **Minimal core** — 核心工具集 < 30 个，覆盖 90%+ 场景；扩展工具按需加载
 4. **Observability built-in** — 每个工具调用自动记录 before/after 快照、重复检测、noop 检测
 5. **Budget awareness** — 步数预算内置于执行管道，防止 Agent 无限循环
+6. **Executable** — 不仅是规范，更可通过脚本一键生成/验证/导出工具定义
 
 ## 三层架构
 
@@ -397,6 +407,51 @@ interface ToolLogEntry {
 
 ---
 
+## Phase 4: 工具生成与验证（脚本驱动）
+
+本技能已升级为**规范+工具**。三个脚本覆盖 Agent 工具全生命周期：
+
+### 4A: 脚手架生成 (`scripts/scaffold-tool.py`)
+
+**触发词**：生成工具定义 / 生成 defineTool / 脚手架 / 工具骨架 / 生成工具骨架
+
+**用法**：
+```bash
+# 交互式
+python3 scripts/scaffold-tool.py --interactive
+
+# 从 JSON 管道（批量）
+echo '[{"name":"set_font","desc":"Set font properties","mutates":true,"params":{"font":"Font family","weight":"100-900"}}]' | python3 scripts/scaffold-tool.py
+```
+
+**产出**：完整的 `defineTool` TypeScript 定义（含参数类型推断）+ 注册表骨架 + `execute` 函数体 stubbed。
+
+### 4B: 合规检查 (`scripts/validate-registry.py`)
+
+**触发词**：验证工具集 / 检查工具合规 / 检查工具注册表
+
+**用法**：
+```bash
+python3 scripts/validate-registry.py packages/core/src/tools/
+```
+
+**检查 18 项**：schema→registry→adapter→ToolLog→StepBudget→生命周期钩子→逐文件 defineTool/description/mutates/snake_case/JSDoc。**产出**：Markdown 合规性报告。
+
+### 4C: MCP Schema 导出 (`scripts/tools-to-mcp-schema.py`)
+
+**触发词**：导出 MCP Schema / 生成 MCP 工具列表 / tools → MCP
+
+**用法**：
+```bash
+python3 scripts/tools-to-mcp-schema.py tools/*.ts --format mcp      # MCP tools/list
+python3 scripts/tools-to-mcp-schema.py tools/*.ts --format json     # 纯 JSON Schema
+python3 scripts/tools-to-mcp-schema.py tools/*.ts --format markdown # Markdown
+```
+
+**产出**：MCP `tools/list` 兼容的 JSON，可直接喂给 MCP Server 初始化。
+
+---
+
 ## 反例（禁止）
 
 - ❌ 工具定义和 AI 适配混在一起 — Schema 层必须独立于消费层
@@ -430,7 +485,15 @@ interface ToolLogEntry {
 - [ ] 添加步数预算
 - [ ] 编写至少 3 个工具的单元测试（验证 execute + schema 正确性）
 
----
+## 工具集
+
+| 文件 | 用途 |
+|------|------|
+| `scripts/scaffold-tool.py` | 脚手架生成——从 JSON 描述生成 defineTool TypeScript 骨架 |
+| `scripts/validate-registry.py` | 合规检查——18 项检查扫描工具集是否符合三层架构规范 |
+| `scripts/tools-to-mcp-schema.py` | MCP 导出——从 TS defineTool 定义生成 MCP JSON Schema |
+| `scripts/design-ci.sh` | CI 管线——启动 MCP Server → 设计检查 → 导出 → 报告 |
+| `templates/github-actions.yml` | GitHub Actions CI 模板——PR 提交 .fig/.pen 自动触发 |
 
 > 吸收自: https://github.com/open-pencil/open-pencil (MIT License)
 > 源文件: packages/core/src/tools/schema.ts, registry-core.ts, registry-extended.ts, ai-adapter.ts

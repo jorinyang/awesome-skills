@@ -1,0 +1,41 @@
+name: Design CI — OpenPencil 自动化检查
+
+on:
+  pull_request:
+    paths:
+      - 'designs/**/*.fig'
+      - 'designs/**/*.pen'
+  push:
+    paths:
+      - 'designs/**/*.fig'
+      - 'designs/**/*.pen'
+
+jobs:
+  design-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install OpenPencil MCP
+        run: npm install -g @open-pencil/mcp
+
+      - name: Run design checks
+        run: |
+          for file in designs/**/*.fig designs/**/*.pen; do
+            [ -f "$file" ] || continue
+            echo "::group::检查 $file"
+            bash scripts/design-ci.sh "$file" --strict
+            echo "::endgroup::"
+          done
+
+      - name: Upload previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-previews
+          path: /tmp/openpencil-ci-exports/
