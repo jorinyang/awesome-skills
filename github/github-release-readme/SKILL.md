@@ -126,21 +126,37 @@ def classify_skill(skill_md_path):
 
 ### Phase 3: 同步执行
 
-对每个应同步的技能（自建 + 三方）：
+> 🔴 **Symlink 穿透规则**：本地技能目录大量使用软链接（当前 212 个）。访问任何技能前必须先解析 symlink 到真实路径，复制时必须使用 `cp -rL` 穿透链接。
+
+#### Symlink 解析
 
 ```bash
-# 新增技能：完整复制（含 references/templates/scripts）
-SRC=~/.hermes-feishu/skills/<category>/<skill-name>
-DST=/tmp/awesome-skills/<skill-name>  # 或 <category>/<skill-name>
-cp -rL "$SRC" "$DST"
-
-# 更新技能：覆盖 SKILL.md + 附属文件
-cp "$SRC/SKILL.md" "$DST/SKILL.md"
+# 读取 SKILL.md 前先解析 symlink
+REAL_PATH=$(readlink -f ~/.hermes-feishu/skills/<category>/<skill-name>/SKILL.md)
+# 或整个目录
+REAL_DIR=$(readlink -f ~/.hermes-feishu/skills/<category>/<skill-name>)
 ```
 
-⚠️ **必须用 `-L` 解除软链接**：本地技能目录可能使用软链接，直接 `cp` 会保留链接 → GitHub 上变成死链接。用 `cp -rL` 复制实际文件。
+#### 复制到 GitHub（穿透 + 排除）
 
-⚠️ **必须排除 `__pycache__`**：`cp -rL` 后删除任何 `__pycache__/` 目录。
+```bash
+# 新增技能：穿透所有 symlink → 复制真实文件
+SRC=$(readlink -f ~/.hermes-feishu/skills/<category>/<skill-name>)
+DST=/tmp/awesome-skills/<skill-name>
+cp -rL "$SRC" "$DST"
+
+# 更新技能：覆盖 SKILL.md
+cp "$(readlink -f ~/.hermes-feishu/skills/<category>/<skill-name>/SKILL.md)" "$DST/SKILL.md"
+
+# 清理 __pycache__
+find "$DST" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
+```
+
+| 命令 | 作用 | 错误做法 |
+|------|------|---------|
+| `readlink -f` | 解析 symlink 到真实路径 | 直接 `cat` symlink 路径（可能指到别的 profile） |
+| `cp -rL` | 递归复制 + 穿透所有层级 symlink | `cp -a`（保留 symlink → GitHub 死链接） |
+| `cp -rL` 而非 `cp -r` | 穿透目录级和文件级 symlink | `cp -r` 只处理文件，目录 symlink 仍保留 |
 
 ### Phase 4: README 自动更新
 
@@ -250,7 +266,8 @@ gh release create v{M}.{m}.{p} \
 
 - [ ] 双源扫描已完成（本地 vs GitHub）
 - [ ] 官方/插件技能已过滤（不在同步列表中）
-- [ ] 软链接已解除（`cp -rL` 而非 `cp -a`）
+- [ ] **Symlink 解析**：所有源路径已通过 `readlink -f` 解析
+- [ ] 软链接已解除（`cp -rL` 而非 `cp -a`；GitHub 端 `find -type l` 必须为 0）
 - [ ] `__pycache__/` 已删除
 - [ ] README badge 计数已更新
 - [ ] README 分类表计数已更新
@@ -263,6 +280,13 @@ gh release create v{M}.{m}.{p} \
 
 ### Q: 如何判断一个技能是否"官方"？
 A: 检查 SKILL.md 中是否有 `plugin:` / `superpowers:` 标记，或来源是否为 Hermes 官方仓库。lark-cli/lark-* 系列虽然部分自建，但因含飞书内部 API 配置，也划为"仅本地"。
+
+### Q: 遇到 symlink 怎么办？
+A: 本地技能目录使用 `hermes-instance-sync` 创建了大量软链接（当前 212 个）。
+- **读取前**：`readlink -f <path>` 解析到真实文件
+- **复制时**：`cp -rL` 穿透所有层级 symlink，复制真实内容
+- **验证**：`find /tmp/awesome-skills -type l` 必须为空
+- **注意**：跨 profile 的 symlink（如 `~/.hermes/skills/ → ~/.hermes-feishu/skills/`）用 `readlink -f` 自动解析
 
 ### Q: unclassified 技能怎么处理？
 A: 首次遇到时标记为 ⚠️，输出列表让用户确认分类。确认后更新该技能的 SKILL.md 添加分类标记。
@@ -288,7 +312,8 @@ A: 以 GitHub 实际目录结构为准。README 中的分类表是面向读者�
 ## 反例（禁止）
 
 - ❌ 不执行双源扫描就直接复制文件——遗漏差异
-- ❌ 用 `cp -a` 保留软链接——GitHub 上变成死链接
+- ❌ 不先 `readlink -f` 解析 symlink 就访问——可能指到其他 profile 的过期版本
+- ❌ 用 `cp -a` 保留软链接——GitHub 上变成死链接（120000 文件类型）
 - ❌ 不排除 `__pycache__`——污染仓库
 - ❌ WSL 用前台 push——100% 超时
 - ❌ 同步后不更新 README badge/分类计数——版本号与内容不一致
