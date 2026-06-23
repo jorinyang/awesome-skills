@@ -170,6 +170,10 @@ See `scripts/wsl-chrome-cdp.sh` for a one-command launcher that handles IP disco
 
 See `references/chrome-cdp-flags.md` for the complete flag reference including session isolation, headless modes, and troubleshooting.
 
+## WeChat Article Extraction
+
+See `references/wechat-article-extraction.md` for the browser_console + `#js_content` extraction pattern when `browser_navigate` times out or `browser_snapshot` truncates 微信文章.
+
 ## Cleanup
 
 Chrome CDP session persists until the Chrome window is closed. To stop:

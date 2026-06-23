@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-89-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-102-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (20)
+### 🧠 方法论 (21)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -47,6 +47,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [edge-case-hunter](edge-case-hunter/SKILL.md) | 边界检查/edge case/穷举测试 | 穷举7维边界条件，纯JSON输出 |
 | [editorial-review-prose](editorial-review-prose/SKILL.md) | 审一下文案/文本审查 | 微软基线 × 7维审查 × 三列表格修订 |
 | [editorial-review-structure](editorial-review-structure/SKILL.md) | 结构审查/逻辑重排 | 5种结构模型 × 6类重组建议 |
+| [github-absorb](methodology/github-absorb/SKILL.md) 🆕 | 评估仓库/这个项目怎么样/吸收仓库 | GitHub仓库全流程评估→吸收——代码分析/业务价值/吸收策略/测试验证 |
 | [ljg-elicitation-modes](ljg-elicitation-modes/SKILL.md) | 解剖概念/圆桌讨论/降秩审视 | advanced-elicitation增强——八维解剖+圆桌+降秩审视三种模式 |
 | [ljg-infographic-design](ljg-infographic-design/SKILL.md) | 信息图设计判断 | baoyu-infographic增强——密度×结构×情绪三维诊断 |
 | [ljg-writing-voice](ljg-writing-voice/SKILL.md) | 写作声音/写作哲学 | humanizer增强——ljg-writes最高法则+语言铁律 |
@@ -57,19 +58,20 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 | [external-skill-evaluation](methodology/external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
-### 🏗️ 构建与设计 (21)
+### 🏗️ 构建与设计 (23)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [answer](answer/SKILL.md) | answer/从零开始/帮我规划 | 7阶段工作流编排器 |
 | [answer-standalone](answer-standalone/SKILL.md) | answer/从零开始 | 同上，独立部署版（非Wiki集成） |
 | [dynamic-workflow](dynamic-workflow/SKILL.md) | 编排多Agent/并行工作流 | 自动构建并执行动态多Agent工作流 |
-| [architecture-diagram](architecture-diagram/SKILL.md) | 架构图/系统架构/云架构 | 白底黑字+蓝红强调 SVG 架构图 16:9 |
+| [architecture-diagram](architecture-diagram/SKILL.md) | 架构图/系统架构/云架构 | 暗色主题 SVG 架构图 16:9 |
+| [drawio-generation](drawio-generation/SKILL.md) 🆕 | drawio/可编辑图表/专业架构图/客户方案图 | Draw.io XML 专业图表生成→PNG/SVG/PDF导出，五维质控 |
 | [brandkit](brandkit/SKILL.md) | 品牌设计/Logo设计/品牌视觉 | 品牌策略+5种Logo手法+8种视觉模式——设计决策层 |
 | [claude-design](claude-design/SKILL.md) | 做个页面/设计一个landing | 一次性 HTML 制品设计 |
 | [design-md](design-md/SKILL.md) | 参考Apple/Stripe风格 | 71品牌 DESIGN.md token 参考库 |
 | [feishu-html](feishu-html/SKILL.md) | 做个网页/发布到线上/部署 | 飞书文档 → WEB SPA 制作 + OSS 部署 |
-| [fireworks-tech-graph](fireworks-tech-graph/SKILL.md) | AI技术图/Agent架构/UML | AI/Agent 技术图 + 系统架构可视化 |
+| [fireworks-tech-graph](fireworks-tech-graph/SKILL.md) | 画图/架构图/流程图/可视化 | NL→SVG+PNG 技术图表，五维质控+轻量路由+设计语言注入 |
 | [hallmark](hallmark/SKILL.md) | 审查AI味/audit/发射前检查 | Anti-AI-slop 58道关卡质量门禁 |
 | [html-ppt](html-ppt/SKILL.md) | 做幻灯片/PPT/演示文稿 | HTML 幻灯片工厂 |
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo/高保真UI | HTML高保真原型/动画/幻灯片/品牌设计 |
@@ -83,7 +85,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
-### 🔧 开发工程 (11)
+### 🔧 开发工程 (12)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -594,6 +596,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.9.0 | 2026-06-24 | 102技能（+13/更新12：吸收 deepjai-way/ai-viz——新增 drawio-generation Draw.io专业图表生成+增强 fireworks-tech-graph五维质控/轻量路由/设计语言注入；+8缺失技能同步至GitHub→agent-tool-system/codebase-inspection/dogfood/image-analysis/ocr-and-documents/technical-documentation-production/windows-troubleshooting-from-wsl/yuanbao；覆盖12个内容差异技能至最新版本；构建与设计21→23；方法论20→21） |
 | v4.8.1 | 2026-06-23 | agent-tool-system v1.0→v1.1.0：升级为规范+工具——新增3个脚本(scaffold/validate/mcp-schema导出)+CI管线+GitHub Actions模板；18个触发词全生命周期覆盖 |
 | v4.8.0 | 2026-06-23 | 89技能（+1 agent-tool-system：defineTool→registry→toolsToAI三层架构+ToolLog+StepBudget，吸收自 open-pencil/open-pencil；AI工程3→4；+1更新 github-absorb v1.3.0 新增📦独立安装分类+Phase 5C安装验证） |
 | v4.7.0 | 2026-06-22 | 88技能（+8 旅行社工作流系统：trip-quote/trip-briefing/guide-exec/supply-check/vendor-brief/cost-engine/trip-archive/customer-view；报价单4风格+出团通知书+导游执行单12章+物资核对+供应商对接×3+成本比价+客户打包+归档；新增 travel 分类） |

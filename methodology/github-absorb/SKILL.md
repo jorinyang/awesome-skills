@@ -5,7 +5,7 @@ description: >-
   深度分析→业务价值评估→吸收策略分类→独立创建/吸收执行→网格化引用→
   单元测试+全业务链路测试→能力强化报告。触发信号：github.com 链接、
   "这个仓库怎么样"、"帮我看看这个项目"、"能不能用"、"吸收这个仓库"。
-version: 1.3.0
+version: 1.4.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -18,6 +18,7 @@ metadata:
       - darwin-skill
       - github-release-readme
       - agent-tool-system
+      - wsl-browser-cdp
 triggers:
   - "https://github.com/"
   - "这个仓库怎么样"
@@ -121,6 +122,30 @@ print(f'Archived: {r.get(\"archived\",False)}')
 5. **examples/ 目录** — 使用示例
 
 使用 `curl -s 'https://raw.githubusercontent.com/{owner}/{repo}/main/README.md' | head -500` 分块读取。
+
+### Step 2.1b: 读取配套文章/博客（如有）
+
+当用户同时提供了仓库的配套文章链接（微信公众号 `mp.weixin.qq.com`、Medium、博客等），这些文章通常包含作者的完整设计思路和哲学背景，是评估仓库价值的**高信号信息源**。
+
+**微信文章访问**：`browser_navigate` 直接访问微信文章通常超时或返回空白。必须使用 CDP 浏览器：
+
+1. 确保 Windows Chrome CDP 已连接（加载 `wsl-browser-cdp` 按流程启动）
+2. `browser_navigate(url="微信文章URL")` 打开页面
+3. 页面加载后，用 `browser_console` 提取正文：
+
+```js
+// 微信文章正文在 #js_content 容器中
+document.querySelector('#js_content') ? 
+  document.querySelector('#js_content').innerText : 
+  document.body.innerText
+```
+
+> `browser_snapshot` 会截断长文（~2000行），优先用 `browser_console` 直接提取全文。
+
+提取后，将文章内容作为 Phase 2 分析的一部分，重点关注：
+- 作者的设计哲学和核心洞察
+- 与 README 互补的实现细节
+- 无法从代码中直接读出的决策背景
 
 ### Step 2.2: 分析目录结构
 
@@ -424,6 +449,8 @@ metadata:
 4. **记录环境约束** — 运行时依赖（Node/Bun/Python 版本）、平台限制、已知问题
 5. **创建速查卡** — 记录到最终报告的工具信息表中
 
+> **常见问题**：运行时不匹配（shebang node 但 dist 用 Bun API）、端口与文档不一致、MCP HTTP 需要双 Accept 头、测试文件非真实格式——详见 `references/tool-install-pitfalls.md`。
+
 ---
 
 ## Phase 7: 测试验证
@@ -554,6 +581,7 @@ metadata:
 - ❌ 对低价值仓库继续执行后续阶段 — Phase 3 门禁必须严格执行
 - ❌ 吸收时破坏原有技能结构 — 注入内容必须放在对应 Phase 末尾
 - ❌ 不加判断地补全所有反向引用 — 通用工具被调用/格式引用/方法论启发等不需要反向引用，补了制造噪音和假耦合。过滤标准见 `references/filtering-criteria.md`
+- ❌ 用户提出"更高维度评估"时仍用原策略矩阵回答 — 用户问"能不能改成Hermes""吸收后正负面影响""用户级vs项目级最优方案"等问题时，说明原策略矩阵不够，需要重新从范式/架构/能力边界三个维度审视。案例见 `references/ai-viz-absorption-case.md`
 
 ---
 
@@ -568,6 +596,7 @@ metadata:
 | `darwin-skill` | downstream | Phase 5A 创建技能后使用其 L1 静态检查 |
 | `github-release-readme` | downstream | Phase 8 报告产出后可同步到 GitHub |
 | `agent-tool-system` | downstream | Phase 5 独立创建——从源码仓库提取 defineTool→registry→toolsToAI 三层工具架构时使用 |
+| `wsl-browser-cdp` | downstream | Phase 2.1b 访问配套微信/博客文章时使用 CDP 浏览器 |
 
 - ❌ 不加判断地补全所有反向引用 — 通用工具被调用/格式引用/方法论启发等不需要反向引用，补了制造噪音和假耦合。过滤标准见 `references/filtering-criteria.md`
 
@@ -580,6 +609,7 @@ metadata:
 | `references/report-template.md` | Phase 8 能力强化报告模板 | 每次吸收完成后生成报告 |
 | `references/filtering-criteria.md` | Phase 6B 引用过滤标准 | 判断哪些反向引用值得补、哪些应跳过 |
 | `scripts/audit-reference-network.py` | 技能引用网络双源审计脚本 | 扫描本地+GitHub 全库，输出反向缺口/孤立技能/连通聚类 |
+| `references/tool-install-pitfalls.md` | Phase 5C 独立安装故障排查模式 | 安装后遇到运行时不匹配/端口错误/MCP协议问题/测试文件格式问题时查阅 |
 
 运行审计脚本：
 ```bash
@@ -600,3 +630,4 @@ python3 ~/.hermes-feishu/skills/methodology/github-absorb/scripts/audit-referenc
 | 仓库是 Fork | `fork: true` | 标注 Fork 来源，评估与原版的差异 |
 | API rate limit | 403 返回 | 等待 60s 重试一次；仍失败则用 `web_search` 获取信息 |
 | 用户中途改变需求 | 任意阶段 | 记录当前进度后调整方向 |
+| 配套微信文章无法直接访问 | `browser_navigate` 超时或返回空白 | 使用 CDP 浏览器 + `browser_console` 提取 `#js_content`（见 Phase 2.1b）。若 CDP 也不可用，仅基于代码分析评估 |

@@ -9,8 +9,6 @@ metadata:
     category: methodology
     companion_to: [baoyu-infographic]
     co_load_with: [baoyu-infographic]
-    related_skills:
-      - baoyu-infographic
 ---
 
 # baoyu-infographic 设计判断增强层
@@ -123,9 +121,3 @@ metadata:
 - 已有明确layout/style指定的信息图（"用bento-grid+crafthandmade做"）→ 用户已指定，不需要诊断
 - 标准图表的简单美化（"把这个折线图弄好看点"）→ 不需要三维诊断
 - SVG架构图/架构图（用户明确说"画架构图"）→ 用architecture-diagram
-
-## 关联技能指引
-
-> 以下指引由 `github-absorb` Phase 6 自动生成
-
-- **sibling → `baoyu-infographic`**：本技能是 `baoyu-infographic` 的增强层，在信息图设计前注入密度×结构×情绪三维判断框架。当需要设计信息图时，先加载本技能做内容诊断（密度评估/结构检测/情绪判断），再加载 `baoyu-infographic` 执行 21 种布局×21 种风格的信息图生成。

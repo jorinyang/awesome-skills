@@ -9,8 +9,6 @@ metadata:
     category: methodology
     companion_to: [advanced-elicitation]
     co_load_with: [advanced-elicitation]
-    related_skills:
-      - advanced-elicitation
 ---
 
 # advanced-elicitation 模式扩展
@@ -159,9 +157,3 @@ metadata:
 - 简单定义查询（"什么是XX"→直接回答，不需要八维解剖）
 - 已有明确答案的非争议性问题（"1+1等于几"→不需要圆桌）
 - 元素少（<5个）的方案 → 不需要降秩审视
-
-## 关联技能指引
-
-> 以下指引由 `github-absorb` Phase 6 自动生成
-
-- **sibling → `advanced-elicitation`**：本技能是 `advanced-elicitation` 的增强层，新增三种审视模式（#70 八维概念解剖 / #71 结构化圆桌讨论 / #72 降秩审视）。当需求超越 69 种基础审视方法时，与本技能协同加载 `advanced-elicitation`，本技能接管新增模式的方法编排。

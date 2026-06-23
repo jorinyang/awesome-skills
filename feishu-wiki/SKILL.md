@@ -135,7 +135,20 @@ cron 模式下 `execute_code` 工具被阻止（需用户批准）。Python 处�
 **正确修复方向**：递归遍历子节点或使用 `/wiki/v2/spaces/{id}/nodes` 的分页深度遍历。
 
 ## 模型输出腐败陷阱（见 references/curly-brace-corruption.md）
-本环境的模型输出过滤器会系统性腐败 `{` `}` 字符及 `***` 子串。在写入 Python 脚本时需使用 token 拆分、`%s` 格式化等规避手段。详见 [references/curly-brace-corruption.md](references/curly-brace-corruption.md)。
+
+本环境的模型输出过滤器会系统性腐败 `{` `}` 字符及 `***` 子串。在写入 Python 脚本时需使用 token 拆分、`%s` 格式化等规避手段。
+
+### ⚡ 看到 `***` 时的第一反应（避免浪费时间）
+
+**先跑语法检查，不要直接修：**
+```bash
+python3 -c "import py_compile; py_compile.compile('file.py', doraise=True)"
+```
+
+- 若语法检查 **通过** → 是 read_file 显示脱敏（Mode D），文件本身没坏，**不要修**
+- 若语法检查 **失败** → 才是真实腐败（Mode A/B），需 patch 修复
+
+这个教训来自 2026-06-22：在 wiki_monitor.py 第 71 行看到 `***`，用 Python hex 分析确认实际字节正确后才意识到是显示脱敏。详见 [references/curly-brace-corruption.md](references/curly-brace-corruption.md) Mode D。
 
 ## 图片型 PDF 内容提取与入库（见 references/image-pdf-extraction.md）
 
