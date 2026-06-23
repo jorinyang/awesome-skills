@@ -1,0 +1,83 @@
+# Design Language Configuration — 全局默认
+# 位置：~/.hermes-feishu/design-language.yaml
+# 所有可视化技能以此作为默认风格配置
+#
+# 项目级覆盖：
+#   在项目根目录放置同名文件 → 自动覆盖全局默认
+#   不放置 → 使用此全局默认（零摩擦）
+#
+# 对话级覆盖：
+#   在对话中说明"配色用暗色主题" → 本次对话覆盖
+#   不影响文件和下次使用
+
+# ============================================================
+# 项目标识
+# ============================================================
+project: "全局默认"
+description: "白底黑字 + 蓝标注 + 红强调，16:9 比例，PingFang SC / HarmonyOS Sans SC"
+
+# ============================================================
+# 配色系统（语义槽位）
+# ============================================================
+colors:
+  canvas_bg: "#ffffff"
+  canvas_grid: "#f0f0f0"
+  primary: "#DBEAFE"
+  primary_stroke: "#2563EB"
+  secondary: "#D1FAE5"
+  secondary_stroke: "#059669"
+  accent: "#FEF3C7"
+  accent_stroke: "#D97706"
+  muted: "#F3F4F6"
+  muted_stroke: "#6B7280"
+  danger: "#FEE2E2"
+  danger_stroke: "#DC2626"
+  text: "#111827"
+  text_secondary: "#6B7280"
+  stroke: "#111827"
+  arrow_default: "#111827"
+  arrow_emphasis: "#2563EB"
+  arrow_danger: "#DC2626"
+
+typography:
+  font_family: "PingFang SC, HarmonyOS Sans SC, Microsoft YaHei, sans-serif"
+  font_size_title: 18
+  font_size_heading: 14
+  font_size_body: 12
+  font_size_caption: 10
+  font_weight_heading: "bold"
+  font_weight_body: "normal"
+
+layout:
+  aspect_ratio: "16:9"
+  viewBox_width: 1169
+  viewBox_height: 827
+  margin: 40
+  grid_size: 10
+  spacing:
+    compact_h: 200
+    compact_v: 150
+    standard_h: 250
+    standard_v: 180
+    relaxed_h: 300
+    relaxed_v: 200
+  complexity:
+    simple_max_nodes: 8
+    standard_max_nodes: 15
+    complex_max_nodes: 20
+    split_threshold: 20
+  node:
+    standard_width: 200
+    standard_height: 65
+    max_width: 350
+    min_width: 120
+
+format_specific:
+  svg:
+    corner_radius: 6
+    stroke_width: 1.5
+    shadow: false
+  drawio:
+    corner_radius: 1
+    default_shape: "rounded=1"
+    connector_style: "orthogonalEdgeStyle"
