@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-88-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-89-blue)](.)
 
 ---
 
@@ -99,13 +99,14 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
 | [wsl-browser-cdp](devops/wsl-browser-cdp/SKILL.md) 🆕 | WSL连Chrome/浏览器CDP | WSL环境下通过CDP连接Windows Chrome——Node.js路径修复+远程调试启动+连接验证 |
 
-### 🤖 AI 工程 (3) 🆕
+### 🤖 AI 工程 (4) 🆕
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [skill-evaluator](skill-evaluator/SKILL.md) 🆕 | 评测skill/技能质量 | 三维评测(精准度×时效×成本)+LLM法官+过程追溯+靶向归因+自动触发 |
 | [skill-ab-test](skill-ab-test/SKILL.md) 🆕 | AB测试/对比skill | A/B对比测试——对照组vs实验组自动评测+三维决策(能力/成本/稳定性) |
 | [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
+| [agent-tool-system](ai-engineering/agent-tool-system.md) 🆕 | Agent工具/工具系统/defineTool/toolsToAI | defineTool→registry→toolsToAI三层架构+ToolLog调试+StepBudget步数预算 |
 
 ### 📋 飞书系列 (5)
 
@@ -376,6 +377,19 @@ relationship-analysis → deep-think
 
 ---
 
+#### agent-tool-system — Agent 工具系统设计方法论 🆕
+
+> **触发**：Agent 工具 / 工具系统 / defineTool / toolsToAI / MCP tools 设计
+> **来源**：吸收 [open-pencil/open-pencil](https://github.com/open-pencil/open-pencil) (MIT) — AI-Native 设计编辑器的 100+ 工具三层架构。
+
+defineTool → registry → toolsToAI 三层架构 + ToolLog 调试基建（before/after 快照、重复检测、noop 检测）+ StepBudget 步数预算。一份工具定义同时驱动 AI Chat（Vercel AI SDK）、CLI（citty）、MCP Server（JSON Schema），零重复定义。
+
+**能力**：Schema层(defineTool泛型工厂) | Registry层(CORE/EXTENDED分级) | Adapter层(toolsToAI/MCP/CLI) | ToolLog调试 | StepBudget | 参数类型系统
+
+**调用链**：github-absorb → agent-tool-system（从源码仓库提取工具系统架构） → cross-project-adaptation（迁移到不同业务域）
+
+---
+
 ### 🏔️ 贵州之客系列
 
 #### zhike-content-output — 内容产出准则
@@ -580,6 +594,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.8.0 | 2026-06-23 | 89技能（+1 agent-tool-system：defineTool→registry→toolsToAI三层架构+ToolLog+StepBudget，吸收自 open-pencil/open-pencil；AI工程3→4；+1更新 github-absorb v1.3.0 新增📦独立安装分类+Phase 5C安装验证） |
 | v4.7.0 | 2026-06-22 | 88技能（+8 旅行社工作流系统：trip-quote/trip-briefing/guide-exec/supply-check/vendor-brief/cost-engine/trip-archive/customer-view；报价单4风格+出团通知书+导游执行单12章+物资核对+供应商对接×3+成本比价+客户打包+归档；新增 travel 分类） |
 | v4.6.0 | 2026-06-22 | 80技能（+4 新增：external-skill-evaluation/shipinhao-cold-start/wsl-browser-cdp/requirement-alignment-analysis；方法论19→20；贵州之客11→12；飞书系列5→6；开发工程10→11；+6 更新：skill-evaluator v1.2 B-2 Hook架构/wechat-article-archive QR登录工作流/travel-intel v1.5.6 迈点降级监控/feishu-wiki 精简定制化/blue-team/author-methodology-analysis） |
 | v4.5.0 | 2026-06-21 | 76技能（+3 吸收 openEuler/agent-insight AI工程方法论：skill-evaluator/skill-ab-test/benchmark-generator；Skill三维评测+A/B对比+测试集自动生成；新增 ai-engineering 分类；skill-evaluator 支持 cron 自动触发评测） |
