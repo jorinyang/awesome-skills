@@ -8,6 +8,10 @@ triggers:
   - guide-exec
   - 带团手册
 version: 1.0.0
+metadata:
+  hermes:
+    related_skills:
+      - supply-check
 ---
 
 # guide-exec — 导游执行单生成器
@@ -28,3 +32,9 @@ version: 1.0.0
 ```bash
 python3 scripts/generate_guide_exec.py <trip_json_path> [--parent-token <wiki_node_token>]
 ```
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+- **downstream → `supply-check`**：生成导游执行单后，加载 `supply-check` 逐项核对行程所需物资（第 8 模块「物资核对清单」）。两技能输出互补：执行单给导游看，物资单给仓库核。

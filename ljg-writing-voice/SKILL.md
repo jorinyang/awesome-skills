@@ -9,6 +9,8 @@ metadata:
     category: methodology
     companion_to: [humanizer]
     co_load_with: [humanizer, zhike-content-output]
+    related_skills:
+      - humanizer
 ---
 
 # 写作声音增强层
@@ -127,4 +129,10 @@ metadata:
 | 拥有...的能力 | 能... |
 | 进行（研究/讨论/对话） | 直接用具体动词 |
 | 通过X抓到Y | X动词直接带宾 |
-| 一是...二是...三是... | 散文式排开，不编号 |
+|| 一是...二是...三是... | 散文式排开，不编号 |
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+- **sibling → `humanizer`**：本技能是 `humanizer` 的增强层，在去除 AI 味的基础上注入 ljg-writes 认知哲学（动词优先、不解释自己、做不做由你）。当需要深度人味写作时，先加载 `humanizer` 做基础去味，再加载本技能叠加认知哲学层面的语言风格强化。

@@ -217,3 +217,9 @@ manifest.json 格式：
 
 - `references/case-template.md` — 测试用例模板
 - `references/dedup-strategy.md` — 去重策略详解
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+- **downstream → `skill-ab-test`**：测试集生成并去重入库后，可加载 `skill-ab-test` 用同一批测试数据对 Skill 新旧版本做 A/B 对比评测，形成「生成测试集 → 跑 AB 对比 → 输出决策建议」的测试闭环。

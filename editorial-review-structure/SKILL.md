@@ -303,3 +303,9 @@ reader_type='llm' 时，优化精确度和无歧义：
 - [ ] 每项建议有类别标签(CUT/MERGE等)
 - [ ] 估计字数影响
 - [ ] 无未标记的理解权衡
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+- **downstream → `editorial-review-prose`**：结构审查完成后，下一步通常是逐句文案审查。当结构审查通过（CUT/MERGE/MOVE 建议已应用），加载 `editorial-review-prose` 对重组后的文档做遣词造句层面的临床级编辑。

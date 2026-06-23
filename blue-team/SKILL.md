@@ -6,7 +6,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [business-review, critical-thinking, strategy, blue-team, challenge]
-    related_skills: [answer, advanced-elicitation, editorial-review-prose, pm-prioritization-frameworks, stakeholder-mapping]
+    related_skills: [answer, advanced-elicitation, editorial-review-prose, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree]
 triggers:
   - "帮我看看这个方案"
   - "这个idea怎么样"
@@ -391,3 +391,9 @@ answer 的 Phase 7.2 内置了 blue-team 的简化版（3 步：本质还原/死
 - [ ] Phase 5 重构建议每个都有 KPI
 - [ ] Phase 6 有真实案例（或标注"未找到"）
 - [ ] 最终报告有量化评分
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+- **sibling → `opportunity-solution-tree`**：当蓝军审查的对象是产品机会/方案时，先加载 `opportunity-solution-tree` 获取结构化的机会空间（期望结果→机会→方案→实验四层），再将 OST 产出作为蓝军压力测试的靶子，逐层挑战每个机会点的逻辑断层和业务风险。

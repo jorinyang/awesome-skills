@@ -9,6 +9,19 @@ triggers:
   - travel-workflow
   - trip pipeline
 version: 1.0.0
+metadata:
+  hermes:
+    related_skills:
+      - trip-quote
+      - cost-engine
+      - trip-briefing
+      - customer-view
+      - guide-exec
+      - supply-check
+      - vendor-brief
+      - trip-archive
+      - travel-itinerary
+      - trip-landing
 ---
 
 # travel-workflow — 贵州之客工作流系统
@@ -92,3 +105,20 @@ python3 ~/.hermes-feishu/skills/travel/pipeline.py trip.json
 ├── 04-供应商对接/ ← vendor-brief 模板
 └── 05-归档结算/  ← trip-archive
 ```
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+当用户给出 trip.json 或行程方案，进入以下任一场景时加载对应子技能：
+
+- **生成对客报价** → 加载 `trip-quote`，传入行程 JSON，选择团建/私人定制/研学/散客四种风格之一
+- **核算成本** → 先加载 `cost-engine` 获取各项成本明细（交通/住宿/餐饮/景点/物资），再将成本数据传给 `trip-quote`
+- **生成出团通知书** → 加载 `trip-briefing`，先加载 `customer-view` 获取客户姓名/身份证/联系电话
+- **提取客户信息** → 加载 `customer-view`，获取客户名单、身份证号、保险单号
+- **生成导游执行单** → 加载 `guide-exec`，同步加载 `supply-check` 获取物资核对清单
+- **核对物资** → 加载 `supply-check`，逐项勾选行程所需物资
+- **生成供应商对接单** → 加载 `vendor-brief`，按酒店/车辆/地接分包生成 PDF
+- **行程归档** → 加载 `trip-archive`，将全部执行文档归档至飞书知识库 05-归档结算
+- **调整行程方案** → 加载 `travel-itinerary`，生成/修改每日行程明细
+- **生成行程落地页** → 加载 `trip-landing`，生成客户侧行程展示页

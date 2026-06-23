@@ -14,6 +14,10 @@ triggers:
   - 研学报价
   - 定制报价
 version: 1.1.0
+metadata:
+  hermes:
+    related_skills:
+      - cost-engine
 ---
 
 # trip-quote — 报价单生成器
@@ -56,3 +60,9 @@ python3 scripts/generate_quote.py <trip_json_path>
 
 - Playwright (Chromium) — HTML → PDF 渲染
 - Python stdlib json/pathlib
+
+## 关联技能指引
+
+> 以下指引由 `github-absorb` Phase 6 自动生成
+
+- **downstream → `cost-engine`**：生成报价单前，必须先加载 `cost-engine` 获取各项成本明细（交通/住宿/餐饮/景点/物资）。成本数据作为报价的输入底价，本技能在此基础上生成不含利润的对客报价。
