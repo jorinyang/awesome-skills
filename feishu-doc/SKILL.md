@@ -9,6 +9,7 @@ triggers:
   - 讨论主题在知识库检索中被发现已存在
   - 用户要求同时产出「内部实施方案+对外宣传版本」（双轨交付）
   - 用户说「客户提了意见」「看看评论」「有修订意见」「帮我看下文档评论」
+  related_skills: [feishu-html, feishu-table, feishu-wiki]
 ---
 
 # Feishu Doc — 飞书文档创建与管理（v2）

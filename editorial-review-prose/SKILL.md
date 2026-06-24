@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [editorial, writing, review, quality, copy-editing]
-    related_skills: [zhike-content-output, editorial-review-structure, answer]
+    related_skills: [zhike-content-output, editorial-review-structure, answer, humanizer]
 ---
 
 # Editorial Review — 临床级文本编辑

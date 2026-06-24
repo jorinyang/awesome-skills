@@ -2,7 +2,7 @@
 name: huashu-design
 description: 花叔Design（Huashu-Design）——用HTML做高保真原型、交互Demo、幻灯片、动画、设计变体探索+设计方向顾问+专家评审的一体化设计能力。触发词：做原型、设计Demo、交互原型、HTML演示、动画Demo、设计变体、hi-fi设计、UI mockup、prototype、做个HTML页面、做个可视化、app原型、iOS原型、移动应用mockup、导出MP4、导出GIF、设计风格、设计方向、配色方案、视觉风格、评审。触发词（活动物料）：海报、活动海报、效果图、KT板、签到背板、氛围布置、活动物料设计、泡沫板喷绘、拱门设计、挂幅、打卡点设计。
 tags: [design, prototype, html, brand]
-related_skills: [design-md, popular-web-designs, hallmark]
+related_skills: [design-md, popular-web-designs, hallmark, claude-design]
 ---
 
 # 花叔Design · Huashu-Design

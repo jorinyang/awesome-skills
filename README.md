@@ -581,7 +581,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| v5.2.0 | 2026-06-25 | 89技能 — 目录展平(all skills at root)、分类重构(贵州之客+旅行社全链路合并16技能、github-release-readme迁入开发工程、删除工具与集成)、修复6处交叉引用、github-release-readme升级v2合并重复 |
+| v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |
 | v5.0.0 | 2026-06-24 | 102技能 — README重构：去重7跨类技能(brandkit/huashu-design等)→每技能唯一分类；+12缺失条目补全(codebase-inspection/dingtalk-channel/dogfood/hermes-instance-sync/technical-documentation-production/windows-troubleshooting-from-wsl/github-release-readme/yuanbao/ocr-and-documents/pdf-content-generation/image-analysis/travel-workflow)；新增📋工具与集成分类；贵州之客12→9、创意内容6→7、开发工程12→17、构建与设计23→22；github-release-readme v2.0.1 symlink穿透规则 |
 | v4.8.1 | 2026-06-23 | agent-tool-system v1.0→v1.1.0：升级为规范+工具——新增3个脚本(scaffold/validate/mcp-schema导出)+CI管线+GitHub Actions模板；18个触发词全生命周期覆盖 |

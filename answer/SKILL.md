@@ -1,12 +1,16 @@
 ---
 name: answer
-description: AI Native'S Workflow(er) — 7 阶段结构化工作流编排器。适用于任何从零开始的复杂构建任务：新业务/新产品/新技能/新方案/新流程/新系统/调研分析/策略规划/项目启动/决策支持/汇报演示/预算规划/复盘总结/运营营销/品牌策划/架构设计/迭代优化。以 design-flow 编排范式为核心，串联 clarify → brief → architect → standards → decompose → build → review。触发：answer / 梳理思路 / 从零开始 / 帮我规划 / 设计方案 / 启动项目 / 拆解问题 / 写方案 / 做BP / SOP / 做复盘 / 运营方案 / 营销计划 / from scratch / plan this 等 100+ 关键词。
+description: >-
+  AI Native'S Workflow(er) — 7 阶段结构化工作流编排器（飞书集成版）。
+  适用于任何从零开始的复杂构建任务。产出为飞书 Wiki 完整文档套件+本地文件。
+  独立/离线场景请使用 answer-standalone。
+  触发：answer / 梳理思路 / 从零开始 / 帮我规划 / 设计方案 等 100+ 关键词。
 version: 1.6.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [workflow, design-flow, builder, orchestrator]
-    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree]
+    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree, answer-standalone]
 triggers:
   # 显式调用
   - "answer"

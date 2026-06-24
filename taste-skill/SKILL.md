@@ -1,6 +1,13 @@
 ---
 name: taste-skill
 description: 设计方向指引——在huashu-design执行前，通过Brief推断+三旋钮(VARIANCE/MOTION/DENSITY)+风格预设，为设计提供量化的方向参数。定位为设计管线的第一环（方向→执行→验证）。适应自 Leonxlnx/taste-skill (MIT)。
+metadata:
+  hermes:
+    tags: [design, direction, pre-generation, tuning, anti-slop]
+    related_skills: [brandkit, huashu-design, hallmark, design-md]
+    scope: design-direction
+    pipeline: brandkit(策略) → taste-skill(方向) → huashu-design(执行) → hallmark(门禁)
+  upstream: https://github.com/Leonxlnx/taste-skill (MIT, by Leonxlnx)
 version: 1.0.0
 license: MIT (adapted from Leonxlnx/taste-skill)
 triggers:
@@ -12,12 +19,6 @@ triggers:
   - 视觉方向
   - 帮我定设计方向
   - 这个页面应该什么风格
-metadata:
-  hermes:
-    tags: [design, direction, pre-generation, tuning, anti-slop]
-    related_skills: [huashu-design, hallmark, design-md]
-    scope: design-direction
-  upstream: https://github.com/Leonxlnx/taste-skill (MIT, by Leonxlnx)
 ---
 
 # Taste Skill · 设计方向指引

@@ -1,6 +1,10 @@
 ---
 name: brandkit
 description: 品牌策略与Logo设计方法论——品牌策略推导、5种Logo概念手法、8种视觉模式、面板组合DNA。设计决策层，图片生成委派jimeng-video/ComfyUI执行。适应自 Leonxlnx/taste-skill 的 brandkit (MIT)。
+metadata:
+  hermes:
+    related_skills: [taste-skill, huashu-design, hallmark]
+    pipeline: brandkit(策略) → taste-skill(方向) → huashu-design(执行) → hallmark(门禁)
 version: 1.0.0
 license: MIT (adapted from Leonxlnx/taste-skill)
 triggers:

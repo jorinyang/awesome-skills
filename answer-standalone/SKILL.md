@@ -1,8 +1,14 @@
 ---
 name: answer-standalone
-description: AI Native'S Workflow(er) — 7 阶段结构化工作流编排器。适用于任何从零开始的复杂构建任务。独立版本，无外部平台依赖，产出为本地 markdown 文件。
+description: >-
+  AI Native'S Workflow(er) — 7 阶段结构化工作流编排器（独立版）。
+  适用于任何从零开始的复杂构建任务。无外部平台依赖，产出为本地 markdown 文件。
+  需要飞书 Wiki 集成时请使用 answer。
 version: 2.0.0
 author: 杨瑒 (月夜)
+metadata:
+  hermes:
+    related_skills: [answer]
 triggers:
   - "answer"
   - "AI原生工作流"
