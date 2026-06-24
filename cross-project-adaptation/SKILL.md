@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [architecture, adaptation, patterns, refactoring]
-    related_skills: [writing-plans, codebase-inspection]
+    related_skills: [writing-plans]
 ---
 
 # Cross-Project Adaptation

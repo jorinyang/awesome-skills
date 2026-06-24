@@ -12,7 +12,7 @@ metadata:
     tags: [github, absorption, evaluation, repository, meta-skill, code-review, business-value]
     related_skills:
       - external-skill-evaluation
-      - codebase-inspection
+      - cross-project-adaptation
       - cross-project-adaptation
       - skill-evaluator
       - darwin-skill
@@ -161,7 +161,7 @@ for i in json.load(sys.stdin):
 
 ### Step 2.3: 代码规模与语言分析
 
-使用 `codebase-inspection` 技能的方法：
+使用代码库分析工具进行规模和语言分析：
 
 ```bash
 # 浅克隆（加速）

@@ -58,7 +58,7 @@ ln -s ~/.hermes-feishu/skills/$CAT ~/.hermes/skills/$CAT
 
 ### Phase 4: Handle Target-Unique Sub-Skills
 
-When a category has sub-skills only in target (e.g., `ocr-and-documents`):
+When a category has sub-skills only in target (e.g., a document extraction skill):
 
 ```bash
 cp -a "$BACKUP/$CAT/unique-sub" ~/.hermes-feishu/skills/$CAT/

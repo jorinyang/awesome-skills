@@ -46,7 +46,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [edge-case-hunter](edge-case-hunter/SKILL.md) | 边界检查/edge case/穷举测试 | 穷举7维边界条件，纯JSON输出 |
 | [editorial-review-prose](editorial-review-prose/SKILL.md) | 审一下文案/文本审查 | 微软基线 × 7维审查 × 三列表格修订 |
 | [editorial-review-structure](editorial-review-structure/SKILL.md) | 结构审查/逻辑重排 | 5种结构模型 × 6类重组建议 |
-| [github-absorb](methodology/github-absorb/SKILL.md) 🆕 | 评估仓库/这个项目怎么样/吸收仓库 | GitHub仓库全流程评估→吸收——代码分析/业务价值/吸收策略/测试验证 |
+| [github-absorb](github-absorb/SKILL.md) 🆕 | 评估仓库/这个项目怎么样/吸收仓库 | GitHub仓库全流程评估→吸收——代码分析/业务价值/吸收策略/测试验证 |
 | [ljg-elicitation-modes](ljg-elicitation-modes/SKILL.md) | 解剖概念/圆桌讨论/降秩审视 | advanced-elicitation增强——八维解剖+圆桌+降秩审视三种模式 |
 | [ljg-infographic-design](ljg-infographic-design/SKILL.md) | 信息图设计判断 | baoyu-infographic增强——密度×结构×情绪三维诊断 |
 | [ljg-writing-voice](ljg-writing-voice/SKILL.md) | 写作声音/写作哲学 | humanizer增强——ljg-writes最高法则+语言铁律 |
@@ -55,7 +55,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [pm-prioritization-frameworks](pm-prioritization-frameworks/SKILL.md) 🆕 | 优先级排序/怎么排优先级/RICE还是ICE | 9种优先级框架速查——Opportunity Score/ICE/RICE/Kano/MoSCoW等 |
 | [stakeholder-mapping](stakeholder-mapping/SKILL.md) 🆕 | 干系人分析/stakeholder map/谁会影响这个项目 | Power×Interest矩阵定位+四象限沟通策略+冲突识别 |
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
-| [external-skill-evaluation](methodology/external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
+| [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
 ### 🏗️ 构建与设计 (22)
 
@@ -84,7 +84,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
-### 🔧 开发工程 (11)
+### 🔧 开发工程 (12)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -95,10 +95,11 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
-| [wsl-browser-cdp](devops/wsl-browser-cdp/SKILL.md) 🆕 | WSL连Chrome/浏览器CDP | WSL环境下通过CDP连接Windows Chrome——Node.js路径修复+远程调试启动+连接验证 |
-| [hermes-instance-sync](devops/hermes-instance-sync/SKILL.md) 🆕 | 同步技能/实例间同步/技能对齐 | Hermes实例间Skill同步——双源对比+分类+备份+软链接 |
+| [wsl-browser-cdp](wsl-browser-cdp/SKILL.md) 🆕 | WSL连Chrome/浏览器CDP | WSL环境下通过CDP连接Windows Chrome——Node.js路径修复+远程调试启动+连接验证 |
+| [hermes-instance-sync](hermes-instance-sync/SKILL.md) 🆕 | 同步技能/实例间同步/技能对齐 | Hermes实例间Skill同步——双源对比+分类+备份+软链接 |
 | [technical-documentation-production](technical-documentation-production/SKILL.md) 🆕 | 产出技术文档/PRD/ER图/架构图 | 技术文档套件——PRD+ER图+架构图+流程图+交叉校验 |
 | [windows-troubleshooting-from-wsl](windows-troubleshooting-from-wsl/SKILL.md) 🆕 | Windows修复/服务诊断/WSL修复 | WSL→Windows PowerShell桥接——服务/Store/AppX/注册表诊断修复 |
+| [github-release-readme](github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
 
 ### 🤖 AI 工程 (4) 🆕
 
@@ -107,7 +108,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [skill-evaluator](skill-evaluator/SKILL.md) 🆕 | 评测skill/技能质量 | 三维评测(精准度×时效×成本)+LLM法官+过程追溯+靶向归因+自动触发 |
 | [skill-ab-test](skill-ab-test/SKILL.md) 🆕 | AB测试/对比skill | A/B对比测试——对照组vs实验组自动评测+三维决策(能力/成本/稳定性) |
 | [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
-| [agent-tool-system](ai-engineering/agent-tool-system.md) 🆕 | Agent工具/工具系统/defineTool/toolsToAI | defineTool→registry→toolsToAI三层架构+ToolLog调试+StepBudget步数预算 |
+| [agent-tool-system](agent-tool-system/SKILL.md) 🆕 | Agent工具/工具系统/defineTool/toolsToAI | defineTool→registry→toolsToAI三层架构+ToolLog调试+StepBudget步数预算 |
 
 ### 📋 飞书系列 (5)
 
@@ -119,13 +120,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
 
-### 📋 工具与集成 (1) 🆕
-
-| 技能 | 触发词 | 核心能力 |
-|------|--------|---------|
-| [github-release-readme](github/github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
-
-### 🏔️ 贵州之客 (8)
+### 🏔️ 贵州之客 · 旅行社全链路 (16)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -133,23 +128,18 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [jimeng-video](jimeng-video/SKILL.md) | 生成视频/即梦/CapCut | AI视频与图片生成 |
 | [travel-intel](travel-intel/SKILL.md) | 搜一下知识库/行业动态 | 4通道采集→入库→分级报告 |
 | [travel-itinerary](travel-itinerary/SKILL.md) | 规划行程/去XX玩几天 | 7步智能行程规划 |
-| [travel-workflow](travel/travel-workflow/SKILL.md) 🆕 | 旅行社工作流/一键出团 | 一条 trip.json → 8技能全链路（报价→通知书→执行单→归档） |
+| [travel-workflow](travel-workflow/SKILL.md) 🆕 | 旅行社工作流/一键出团 | 一条 trip.json → 8技能全链路（报价→通知书→执行单→归档） |
 | [trip-landing](trip-landing/SKILL.md) | 生成落地页/生成行程页 | 一键5 TAB SPA → PWA → OSS部署 |
 | [wechat-article-archive](wechat-article-archive/SKILL.md) | 采集公众号/公众号归档/微信文章转Markdown | 公众号文章采集→Markdown归档→ZIP打包→飞书同步 |
 | [zhike-content-output](zhike-content-output/SKILL.md) | 产出文档/对客文案 | 对客写作铁律 + 叙事声音规范 |
-
-### ✈️ 旅行社工作流 (8) 🆕
-
-| 技能 | 触发词 | 核心能力 |
-|------|--------|---------|
-| [trip-quote](travel/trip-quote/SKILL.md) | 生成报价单/做报价 | 报价单→PDF（团建/私人定制/研学/散客4风格） |
-| [trip-briefing](travel/trip-briefing/SKILL.md) | 出团通知书 | 对客PDF→行程/住宿/餐饮/交通/安全/天气 |
-| [guide-exec](travel/guide-exec/SKILL.md) | 导游执行单/执行单 | 12章飞书docx→名单(身份证/保险)/行程/对接/物资/应急 |
-| [supply-check](travel/supply-check/SKILL.md) | 物资清单/核对物资 | 行程物资逐项核对→飞书docx勾选表 |
-| [vendor-brief](travel/vendor-brief/SKILL.md) | 供应商对接/对接单 | 酒店/车辆/地接 ×3 PDF对接单 |
-| [cost-engine](travel/cost-engine/SKILL.md) | 成本核算/市场比价 | 成本分项+OTA实时比价→定价建议 |
-| [trip-archive](travel/trip-archive/SKILL.md) | 团后归档 | 全部出团文档→知识库5节点自动归档 |
-| [customer-view](travel/customer-view/SKILL.md) | 客户打包/客户文档包 | 报价单+通知书+须知→单PDF打包 |
+| [trip-quote](trip-quote/SKILL.md) | 生成报价单/做报价 | 报价单→PDF（团建/私人定制/研学/散客4风格） |
+| [trip-briefing](trip-briefing/SKILL.md) | 出团通知书 | 对客PDF→行程/住宿/餐饮/交通/安全/天气 |
+| [guide-exec](guide-exec/SKILL.md) | 导游执行单/执行单 | 12章飞书docx→名单(身份证/保险)/行程/对接/物资/应急 |
+| [supply-check](supply-check/SKILL.md) | 物资清单/核对物资 | 行程物资逐项核对→飞书docx勾选表 |
+| [vendor-brief](vendor-brief/SKILL.md) | 供应商对接/对接单 | 酒店/车辆/地接 ×3 PDF对接单 |
+| [cost-engine](cost-engine/SKILL.md) | 成本核算/市场比价 | 成本分项+OTA实时比价→定价建议 |
+| [trip-archive](trip-archive/SKILL.md) | 团后归档 | 全部出团文档→知识库5节点自动归档 |
+| [customer-view](customer-view/SKILL.md) | 客户打包/客户文档包 | 报价单+通知书+须知→单PDF打包 |
 
 ### 🔬 研究 (4)
 
@@ -169,7 +159,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [baoyu-cover-image](baoyu-cover-image/SKILL.md) | 封面图/文章封面 | 5D封面图系统——类型×配色×渲染×文字×情绪 |
 | [baoyu-infographic](baoyu-infographic/SKILL.md) | 信息图/可视化 | 信息图——21布局×21风格 |
 | [baoyu-translate](baoyu-translate/SKILL.md) | 翻译/精翻/快翻 | 三模式翻译——快翻/标准/精翻 + 受众×风格参数化 |
-| [image-analysis](media/image-analysis/SKILL.md) 🆕 | 分析图片/图片内容识别 | MiniMax VLM 图片分析——JPEG/PNG/WebP，URL或本地文件 |
+| [image-analysis](image-analysis/SKILL.md) 🆕 | 分析图片/图片内容识别 | MiniMax VLM 图片分析——JPEG/PNG/WebP，URL或本地文件 |
 
 ---
 
@@ -549,22 +539,17 @@ cd awesome-skills
 for dir in */; do
   name=$(basename "$dir")
   case "$name" in
-    advanced-elicitation|edge-case-hunter|systematic-debugging|darwin-skill|dynamic-workflow) category="methodology" ;;
+    advanced-elicitation|edge-case-hunter|systematic-debugging|darwin-skill|dynamic-workflow|author-methodology-analysis|external-skill-evaluation|github-absorb) category="methodology" ;;
     editorial-review-prose|editorial-review-structure) category="productivity" ;;
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
-    travel-*|trip-landing) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*) category="creative" ;;
+    travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
     ara-*) category="research" ;;
-    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation) category="software-development" ;;
+    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
-    skill-evaluator|skill-ab-test|benchmark-generator) category="ai-engineering" ;;
-    amap-lbs|jimeng-video) category="mapping" ;;
-    wechat-article-archive) category="content" ;;
-    author-methodology-analysis) category="methodology" ;;
-    external-skill-evaluation) category="methodology" ;;
-    wsl-browser-cdp) category="devops" ;;
-    requirement-alignment-analysis) category="productivity" ;;
+    skill-evaluator|skill-ab-test|benchmark-generator|agent-tool-system) category="ai-engineering" ;;
+    requirement-alignment-analysis) category="productivity" ;; 
   esac
   mkdir -p "$HOME/.hermes/skills/$category/$name"
   cp "$name/SKILL.md" "$HOME/.hermes/skills/$category/$name/"
@@ -596,6 +581,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.2.0 | 2026-06-25 | 89技能 — 目录展平(all skills at root)、分类重构(贵州之客+旅行社全链路合并16技能、github-release-readme迁入开发工程、删除工具与集成)、修复6处交叉引用、github-release-readme升级v2合并重复 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |
 | v5.0.0 | 2026-06-24 | 102技能 — README重构：去重7跨类技能(brandkit/huashu-design等)→每技能唯一分类；+12缺失条目补全(codebase-inspection/dingtalk-channel/dogfood/hermes-instance-sync/technical-documentation-production/windows-troubleshooting-from-wsl/github-release-readme/yuanbao/ocr-and-documents/pdf-content-generation/image-analysis/travel-workflow)；新增📋工具与集成分类；贵州之客12→9、创意内容6→7、开发工程12→17、构建与设计23→22；github-release-readme v2.0.1 symlink穿透规则 |
 | v4.8.1 | 2026-06-23 | agent-tool-system v1.0→v1.1.0：升级为规范+工具——新增3个脚本(scaffold/validate/mcp-schema导出)+CI管线+GitHub Actions模板；18个触发词全生命周期覆盖 |
