@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [elicitation, critique, review, questioning, reasoning, quality]
-    related_skills: [answer, blue-team, systematic-debugging, editorial-review-prose]
+    related_skills: [answer, systematic-debugging, editorial-review-prose]
 ---
 
 # Advanced Elicitation — 结构化深度追问

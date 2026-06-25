@@ -7,7 +7,7 @@ metadata:
   hermes:
     tags: [reading, analysis, deconstruction, books, methodology]
     category: methodology
-    related_skills: [deep-think, domain-decompose, qa-extract, advanced-elicitation, answer]
+    related_skills: [deep-think, domain-decompose, advanced-elicitation, answer]
     calls: [deep-think, domain-decompose, qa-extract]
     called_by: [answer, domain-decompose]
 ---

@@ -13,7 +13,7 @@ triggers:
   - "识别景点/图片识别"
 tags: [travel, itinerary, planning, guizhou, 贵州之客]
 category: travel
-  related_skills: [travel-intel, travel-workflow]
+  related_skills: [travel-workflow]
 ---
 
 # travel-itinerary — 智能行程规划

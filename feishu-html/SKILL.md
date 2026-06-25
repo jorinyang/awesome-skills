@@ -5,7 +5,7 @@ triggers:
   - 用户要求创建内部方案+对外宣传两个版本（双轨交付）
 metadata:
   hermes:
-    related_skills: [ai-native-workflow, huashu-design, trip-landing, feishu-doc, blue-team, hallmark]
+    related_skills: [ai-native-workflow, huashu-design, trip-landing, blue-team, hallmark]
 ---
 
 # Feishu HTML · 内容制作与 OSS 部署
