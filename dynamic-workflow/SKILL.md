@@ -6,7 +6,7 @@ author: Yueye Yang
 metadata:
   hermes:
     tags: [workflow, multi-agent, fanout, verification, tournament, isolation, execution, harneess]
-    related_skills: [delegate_task, test-driven-development, systematic-debugging, edge-case-hunter]
+    related_skills: [delegate_task, test-driven-development, systematic-debugging, edge-case-hunter, double-evolution]
 ---
 
 # Dynamic Workflow — 动态工作流执行引擎

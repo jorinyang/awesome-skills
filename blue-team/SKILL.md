@@ -6,7 +6,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [business-review, critical-thinking, strategy, blue-team, challenge]
-    related_skills: [answer, advanced-elicitation, editorial-review-prose, pm-prioritization-frameworks, stakeholder-mapping]
+    related_skills: [answer, advanced-elicitation, editorial-review-prose, pm-prioritization-frameworks, stakeholder-mapping, double-evolution]
 triggers:
   - "帮我看看这个方案"
   - "这个idea怎么样"

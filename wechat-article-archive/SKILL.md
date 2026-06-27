@@ -8,7 +8,7 @@ source: https://github.com/freestylefly/wechat-article-archive-skill
 metadata:
   hermes:
     tags: [wechat, archive, content-collection, markdown, intelligence, competitor-research]
-    related_skills: [author-methodology-analysis, travel-intel, lark-doc]
+    related_skills: [author-methodology-analysis, travel-intel, lark-doc, double-evolution]
     category: content
 ---
 

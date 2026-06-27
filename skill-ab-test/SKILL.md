@@ -9,7 +9,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [skill-evaluation, ab-testing, comparison, quality, ai-engineering]
-    related_skills: [skill-evaluator, benchmark-generator]
+    related_skills: [skill-evaluator, benchmark-generator, double-evolution]
 triggers:
   - "AB 测试"
   - "A/B 测试"

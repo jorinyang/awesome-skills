@@ -9,7 +9,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [benchmark, test-data, skill-evaluation, dataset-generation, ai-engineering]
-    related_skills: [skill-evaluator, skill-ab-test]
+    related_skills: [skill-evaluator, skill-ab-test, double-evolution]
 triggers:
   - "生成测试集"
   - "造 benchmark"

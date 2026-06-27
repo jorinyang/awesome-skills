@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-89-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-91-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (20)
+### 🧠 方法论 (21)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -150,7 +150,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [ara-rigor-reviewer](ara-rigor-reviewer/SKILL.md) | 审查论文/审稿 | 六维认识论审查 |
 | [systematic-debugging](systematic-debugging/SKILL.md) | 帮我debug/排查bug | 4阶段根因调试 |
 
-### 🎨 创意内容 (6)
+### 🎨 创意内容 (7)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -581,6 +581,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.3.0 | 2026-06-27 | 91技能 — +2 新增：double-evolution(双速技能进化引擎——Fast Loop /evolve + Slow Loop 30min Cron，吸收自MOMO CODE/Pioneer Agent方法论) + ocr-and-documents(重加)；+10 更新：全技能关联 double-evolution 追踪网络(agent-tool-system/benchmark-generator/blue-team/drawio-generation/github-absorb/skill-ab-test/skill-evaluator/author-methodology-analysis/dynamic-workflow/wechat-article-archive)；方法论20→21、创意内容6→7 |
 | v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |
 | v5.0.0 | 2026-06-24 | 102技能 — README重构：去重7跨类技能(brandkit/huashu-design等)→每技能唯一分类；+12缺失条目补全(codebase-inspection/dingtalk-channel/dogfood/hermes-instance-sync/technical-documentation-production/windows-troubleshooting-from-wsl/github-release-readme/yuanbao/ocr-and-documents/pdf-content-generation/image-analysis/travel-workflow)；新增📋工具与集成分类；贵州之客12→9、创意内容6→7、开发工程12→17、构建与设计23→22；github-release-readme v2.0.1 symlink穿透规则 |

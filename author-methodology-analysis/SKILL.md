@@ -8,7 +8,7 @@ source: https://github.com/freestylefly/author-methodology-analysis-skill
 metadata:
   hermes:
     tags: [methodology, content-analysis, writing, competitor-research, content-strategy, copywriting]
-    related_skills: [wechat-article-archive, zhike-content-output, advanced-elicitation, humanizer, editorial-review-prose, domain-decompose]
+    related_skills: [wechat-article-archive, zhike-content-output, advanced-elicitation, humanizer, editorial-review-prose, domain-decompose, double-evolution]
     category: methodology
 ---
 

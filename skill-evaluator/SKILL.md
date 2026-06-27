@@ -10,7 +10,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [skill-evaluation, agent-quality, llm-as-judge, trace-visualization, attribution, ai-engineering, hooks, dedup]
-    related_skills: [external-skill-evaluation, systematic-debugging, github-code-review, github-absorb]
+    related_skills: [external-skill-evaluation, systematic-debugging, github-code-review, github-absorb, double-evolution]
 triggers:
   - "评测一下这个 skill"
   - "评估技能质量"

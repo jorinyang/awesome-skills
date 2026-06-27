@@ -2,15 +2,15 @@
 name: drawio-generation
 description: >-
   生成可编辑的 Draw.io (.drawio) 格式专业图表。支持架构图/流程图/ER图/部署图/网络拓扑等，
-  导出 PNG/SVG/PDF。适用于客户提案、正式文档、PPT 嵌入等需要后续人工编辑的场景。
-  触发词："drawio" "画drawio" "生成drawio" "可编辑图表" "客户方案图" "PPT用图"。
-  不需要编辑直接用 SVG/PNG → fireworks-tech-graph；暗色主题 16:9 架构图 → architecture-diagram。
+  导出 PNG/SVG/PDF。适用于客户提案、正式文档、PPT 嵌入等需要专业外观的场景。
+  触发词："drawio" "画drawio" "生成drawio" "导出drawio" "可编辑图表"
+  "专业架构图" "正式图表" "客户方案图" "PPT用图"。
 version: 1.0.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [drawio, diagram, architecture, professional, export, XML]
-    related_skills: [fireworks-tech-graph, architecture-diagram]
+    related_skills: [fireworks-tech-graph, architecture-diagram, double-evolution]
 source: 吸收自 deepjai-way/ai-viz (MIT) — 提取 + 适配为 Hermes 原生技能
 ---
 

@@ -12,7 +12,8 @@ metadata:
     tags: [github, absorption, evaluation, repository, meta-skill, code-review, business-value]
     related_skills:
       - external-skill-evaluation
-      - cross-project-adaptation
+      - codebase-inspection
+      - double-evolution
       - cross-project-adaptation
       - skill-evaluator
       - darwin-skill
@@ -161,7 +162,7 @@ for i in json.load(sys.stdin):
 
 ### Step 2.3: 代码规模与语言分析
 
-使用代码库分析工具进行规模和语言分析：
+使用 `codebase-inspection` 技能的方法：
 
 ```bash
 # 浅克隆（加速）
@@ -334,7 +335,34 @@ grep -c "🔴 CHECKPOINT" SKILL.md  # 至少 1 个检查点
 grep -c "❌" SKILL.md  # 至少 1 个反例
 ```
 
-### 5B: 吸收增强现有技能
+### 吸收策略用户级 vs 项目级设计模式
+
+当吸收的工具/方法论设计为「项目级安装」（如 `npx ai-viz init` 每个项目独立配置），但用户场景是多项目 + 统一偏好时，应遵循以下模式：
+
+**模式**：用户级全局默认 + 项目级可选覆盖
+
+```
+Layer 1: 用户级默认（~/.hermes-feishu/）
+  · 全局配置文件（如 design-language.yaml）
+  · 所有技能共享此默认
+  · 零摩擦——不需要任何项目级 setup
+
+Layer 2: 项目级覆盖（可选）
+  · 项目根目录放置同名配置文件
+  · 技能检测到项目级配置 → 覆盖全局默认
+  · 未检测到 → 使用全局默认
+
+Layer 3: 对话级临时覆盖
+  · 用户口头指定（如"配色用暗色主题"）
+  · 仅本次对话有效，不污染文件
+```
+
+**何时应用**：
+- 工具要求每个项目手动 init
+- 用户的项目太多，手动 init 不现实
+- 用户有稳定的全局偏好
+
+**反模式**：为每个项目写适配器——适配器模式（Adapter Pattern）适用于不同接口的标准化，不适用于「同一接口的不同配置」。区别在于：适配器解决**格式差异**，本模式解决**配置差异**。
 
 对 🔵 类能力单元，执行以下操作：
 

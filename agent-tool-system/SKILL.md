@@ -14,6 +14,7 @@ metadata:
       - github-absorb
       - cross-project-adaptation
       - skill-evaluator
+      - double-evolution
   source: https://github.com/open-pencil/open-pencil (packages/core/src/tools/)
 triggers:
   - "Agent 工具"
