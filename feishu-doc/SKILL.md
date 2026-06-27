@@ -9,7 +9,6 @@ triggers:
   - 讨论主题在知识库检索中被发现已存在
   - 用户要求同时产出「内部实施方案+对外宣传版本」（双轨交付）
   - 用户说「客户提了意见」「看看评论」「有修订意见」「帮我看下文档评论」
-  related_skills: [feishu-html, feishu-table, feishu-wiki, double-evolution]
 ---
 
 # Feishu Doc — 飞书文档创建与管理（v2）
@@ -151,8 +150,11 @@ lark-cli config show
 **创建文档（含知识库归档）：**
 
 ```bash
+# ⚠️ --title is DEPRECATED (lark-cli v1.0.53+). Title goes in first line of markdown content.
+# Markdown content must start with: <title>文档标题</title>
+# @file must be relative path from CWD — cd to file dir first
 cd /tmp && lark-cli docs +create --api-version v2 --doc-format markdown \
-  --title "文档标题" --content @file.md \
+  --content @file.md \
   --parent-token KVPTwrbOKiQMUkkUPlscaEKfnUd \
   --as bot
 ```
@@ -1061,7 +1063,7 @@ lark-cli docs +update --api-version v2 --doc DOC_ID --command overwrite --conten
 |------|------|
 | 创建文档（应用云空间） | `lark-cli docs +create --api-version v2 --doc-format xml --content @file.xml --as bot` |
 | 创建文档（知识库，XML） | `lark-cli docs +create --api-version v2 --doc-format xml --content @file.xml --parent-token TOKEN --as bot` |
-| 创建文档（知识库，Markdown） | `cd /tmp && lark-cli docs +create --api-version v2 --doc-format markdown --title "标题" --content @file.md --parent-token TOKEN --as bot` |
+| 创建文档（知识库，Markdown） | `cd /tmp && lark-cli docs +create --api-version v2 --doc-format markdown --content @file.md --parent-token TOKEN --as bot`（标题以 `<title>标题</title>` 写在内容首行，`--title` 已废弃） |
 | 读取文档 | `lark-cli docs +fetch --api-version v2 --doc DOC --as bot` |
 | 读取文档（含 block ID） | `lark-cli docs +fetch --api-version v2 --doc DOC --detail with-ids --as bot` |
 | 追加内容 | `lark-cli docs +update --api-version v2 --doc DOC --command append --content @file.xml --as bot` |

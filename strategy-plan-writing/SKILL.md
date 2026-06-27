@@ -1,7 +1,6 @@
 ---
 name: strategy-plan-writing
 description: Write business strategy, operations planning, market analysis, and 运营策划案 documents — multi-dimensional analysis, data-supported, actionable plans for non-software business domains.
-related_skills: [double-evolution]
 ---
 
 # Strategy & Operations Plan Writing

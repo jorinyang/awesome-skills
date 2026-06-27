@@ -1,7 +1,6 @@
 ---
 name: image-analysis
 description: Analyze images users send — MiniMax VLM, resize workarounds, common failures.
-related_skills: [double-evolution]
 ---
 
 # Image Analysis

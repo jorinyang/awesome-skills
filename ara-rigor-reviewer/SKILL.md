@@ -14,7 +14,7 @@ triggers:
 metadata:
   hermes:
     tags: [research, review, quality, epistemology]
-    related_skills: [ara-research-manager, ara-compiler, double-evolution]
+    related_skills: [ara-research-manager, ara-compiler]
     scope: research-only
   upstream: https://github.com/AmberLJC/Agent-Native-Research-Artifact
 ---

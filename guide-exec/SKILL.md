@@ -10,7 +10,6 @@ triggers:
 version: 1.0.0
 metadata:
   hermes:
-      related_skills: [double-evolution]
     related_skills:
       - supply-check
 ---
@@ -29,10 +28,59 @@ metadata:
 - 本地备份：`~/.hermes-feishu/cache/guide_exec_{团号}.md`
 - 受众：导游、计调（内部文档）
 
-## 使用
+## 执行流程
+
+### Step 1: 验证输入
+
+🔴 **CHECKPOINT** — 验证输入完整性：
+
+- [ ] `trip_json_path` 文件存在且可读
+- [ ] JSON 格式合法（`python3 -m json.tool` 不报错）
+- [ ] 包含必填字段 `guide.name` / `guide.phone`
+- [ ] `customers` 数组非空且每人有 `name` + `id_card`
+
+如果任一检查失败 → 报错终止，提示缺失字段名。
+
+### Step 2: 生成文档
+
 ```bash
 python3 scripts/generate_guide_exec.py <trip_json_path> [--parent-token <wiki_node_token>]
 ```
+
+### Step 3: 验证输出
+
+🛑 **STOP — 生成后验证**：
+
+- [ ] 飞书文档已创建（返回 token）
+- [ ] 本地备份已写入 `~/.hermes-feishu/cache/guide_exec_{团号}.md`
+- [ ] 12 模块逐项检查无空节
+
+验证不通过 → 报告缺失模块，不继续下一步。
+
+## 陷阱
+
+### trip.json 必须字段
+
+脚本强制要求以下字段，缺失会报 `KeyError`：
+
+```json
+"guide": {
+  "name": "...",
+  "phone": "...",
+  "assistant_name": "",    ← 必须存在，可为空字符串
+  "assistant_phone": ""    ← 必须存在，可为空字符串
+}
+```
+
+如果新增 trip.json 不包含 `assistant_name` / `assistant_phone`，即使为空也必须写出。
+
+## 常见陷阱
+
+| 陷阱 | 症状 | 修复 |
+|------|------|------|
+| trip.json 缺少 `guide.assistant_name` / `assistant_phone` | `KeyError: 'assistant_name'` | 即使无助理也需提供空字符串 `"assistant_name": "", "assistant_phone": ""` |
+
+---
 
 ## 关联技能指引
 

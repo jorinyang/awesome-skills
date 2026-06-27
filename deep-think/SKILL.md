@@ -7,7 +7,7 @@ metadata:
   hermes:
     tags: [thinking, analysis, critical-thinking, methodology, depth]
     category: methodology
-    related_skills: [domain-decompose, book-deconstruct, qa-extract, relationship-analysis, advanced-elicitation, double-evolution]
+    related_skills: [domain-decompose, book-deconstruct, qa-extract, relationship-analysis, advanced-elicitation]
     calls: [domain-decompose]
     called_by: [domain-decompose, book-deconstruct, qa-extract, relationship-analysis, answer]
 ---

@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [AMap, LBS, POI, Route, Travel, API]
-    related_skills: [amap-cli, maps, double-evolution]
+    related_skills: [amap-cli, maps]
 ---
 
 # 高德 LBS 综合服务 SKILL

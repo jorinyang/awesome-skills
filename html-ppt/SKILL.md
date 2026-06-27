@@ -1,7 +1,6 @@
 ---
 name: html-ppt
 description: HTML PPT Studio — 用 36 套主题 × 31 种布局 × 47 个动效 × 15 套完整模板快速生成 HTML 演示文稿。纯静态 HTML/CSS/JS，键盘操控，零构建。触发词：PPT、幻灯片、演示、deck、slides、演讲、分享稿、pitch、小红书图文、keynote、reveal、slideshow、演讲稿、做一份 PPT、做一份 slides。
-related_skills: [double-evolution]
 ---
 
 # html-ppt · HTML PPT Studio
@@ -80,6 +79,19 @@ html-ppt 是一个**纯静态 HTML 演示文稿工厂**，与以下 Hermes 技�
 - **永远从模板开始**，不要手写空 slide
 - **用 CSS 变量，不用裸色值**：`color: var(--text-1)` ✅，`color: #111` ❌
 - **不新建布局文件**，优先组合现有 31 种
+
+### ⚠️ 缺失 assets 时的回退
+
+如果技能目录下仅有 `SKILL.md` 而没有 `assets/`、`templates/`、`runtime.js` 等文件（例如通过 `skill_manage` 创建但未同步上游仓库），**不要报错终止**。回退方案：
+
+1. 手写一个完整的内联 HTML 文件，包含所有 CSS/JS
+2. 使用简化 slide 架构：`position:absolute` 叠加 + `display:none/active` 切换
+3. 键盘翻页用原生 `keydown` 事件监听（← → Space Home End）
+4. 移动端触控用 `touchstart/touchend` 检测 swipe
+5. 配色用内联 CSS 变量（`var(--c-*) `），从推荐主题中人工移植 3-5 个核心色
+6. 部署仍走 `feishu-html` 的 OSS 流程
+
+此回退方案的交付质量（15 页 PPT，Playwright 全验证通过，0 控制台错误）已验证可行。但首次使用仍需尝试 `find ~/.hermes/skills/html-ppt/ -name 'deck.html'` 确认文件是否存在，不存在再回退。
 - **每张 slide 必须带 notes**：`<div class="notes">…</div>`
 - **禁止把演讲者备注放在 slide 可见区域**：描述性文字（"这一页的重点是…"）必须进 `.notes`
 - **保留 chrome 插槽**：`.deck-header`、`.deck-footer`、`.slide-number` 由 runtime 自动管理
@@ -235,6 +247,21 @@ html-ppt/
 │   └── render.sh                # PNG 导出（macOS；Hermes 用 Playwright）
 └── examples/demo-deck/          # 完整示例
 ```
+
+## 常见陷阱
+
+### 模板文件缺失
+
+html-ppt 技能通过 `skill_manage` 创建时，仅 SKILL.md 被同步。`assets/`、`templates/`、`scripts/` 目录不会自动附带。检测方法：`ls ~/.hermes/skills/html-ppt/templates/` 为空或不存在。
+
+**回退方案**：手写内联 HTML PPT。结构如下：
+- 单文件 HTML，所有 CSS/JS 内联
+- 每页一个 `<div class="slide">`，通过 `display:none/block` 切换
+- 键盘 ← → Space 翻页，Home/End 首尾
+- 移动端 touch swipe
+- 响应式：`@media (max-width:768px)` 单列布局
+
+参考产出：profit-sharing-ppt（15页内部版）和 profit-sharing-ppt-lecturer（6页讲师精简版），均在 `gzzhike.cn/web-spa/` 下。
 
 ## 上游与许可
 

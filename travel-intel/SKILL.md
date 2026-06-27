@@ -15,7 +15,6 @@ version: 1.5.6
 dependencies:
   skills: [feishu-wiki, opencli]
   commands: [lark-cli, agent-browser, opencli]
-  related_skills: [travel-itinerary, travel-workflow, double-evolution]
 ---
 
 # travel-intel — 贵州之客旅游情报系统
@@ -175,7 +174,9 @@ L1 通用搜索:
 
 ```bash
 # L2 站点直抓 → /tmp/l2_results.json
-python3 scripts/l2_collect.py $(date +%Y-%m-%d) > /tmp/l2_results.json
+# ⚠️ 不要加重定向——脚本内部已用 json.dump() 写文件到 /tmp/l2_results.json
+# 更不要加 2>&1——状态信息走 stderr，混入 JSON 文件会导致解析失败
+python3 scripts/l2_collect.py $(date +%Y-%m-%d)
 
 # 三阶段预过滤 → /tmp/l2_ingest.json
 python3 scripts/l2_prefilter.py
@@ -314,7 +315,7 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 
 | 名称 | Hermes Job ID | 调度 | 通道 | 环境 |
 |------|:------------:|------|:--:|:--:|
-| travel-intel-collect | `07ceed5fc5a8` | 0 7 * * * | **L2+L3-dispatch** (不执行 L1) | ☁️ agent |
+| travel-intel-collect | `07ceed5fc5a8` | 0 7 * * * | **L2 collect+prefilter+ingest + L3-dispatch** | ☁️ agent |
 | travel-intel-l1-local | *(WSL crontab)* | 30 6 * * * | **L1a**(百度+夸克)+**L1b**(微博+知乎) | 🏠 l3_cron.sh |
 | travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 WSL `no_agent` script |
 | travel-intel-expire | `09c5407d9244` | 0 3 * * * | 过期校验 | ☁️ agent |
@@ -361,6 +362,29 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 5. **WSL crontab 必须包含 lark-cli/node 路径** — `l3_cron.sh` 已添加 `export PATH="$HOME/.local/bin:$HOME/.hermes/node/bin:$PATH"`，否则推送 100% 失败（FileNotFoundError）
 
 ## 实测陷阱
+
+### lark-cli 响应格式差异 (2026-05-30, 更新 2026-06-03)
+
+### l2_collect.py 重定向陷阱 (2026-06-25) ★
+
+`l2_collect.py` 内部已通过 `json.dump()` 直接写入 `/tmp/l2_results.json`，状态信息全部输出到 `stderr`。运行时**不要加任何 shell 重定向**：
+
+```bash
+# ❌ 错误 — stdout 为空，2>&1 将 stderr 混入 JSON 导致解析失败
+python3 scripts/l2_collect.py DATE > /tmp/l2_results.json 2>&1
+# → json.decoder.JSONDecodeError: Invalid control character
+
+# ❌ 也会出错 — > 重定向创建空文件，后被脚本覆盖，看似正常但 2>&1 仍致命
+python3 scripts/l2_collect.py DATE > /tmp/l2_results.json 2>&1
+
+# ✅ 正确 — 脚本自行管理文件，无需任何重定向
+python3 scripts/l2_collect.py DATE
+```
+
+**如需同时保留日志**，只重定向 stderr：
+```bash
+python3 scripts/l2_collect.py DATE 2>/tmp/l2_collect.log
+```
 
 ### lark-cli 响应格式差异 (2026-05-30, 更新 2026-06-03)
 
@@ -559,7 +583,7 @@ terminal python3 -u l2_ingestor.py ...  # foreground, timeout=600
 
 **⚠️ background+foreground 重叠导致重复入库 (2026-06-11 验证):** 先 background (736s 无输出→被 kill)、再 foreground (59/82 超时) 的两段式恢复会产生重复文档。background 进程在静默期间可能已完成部分入库，foreground 从第1条开始会重复创建。本次 130 条总数 vs 71 条去重唯一，重复率 45%。**正确恢复顺序：必须先 kill background，再验证 wiki 存量，最后仅入库缺失条目。**
 
-### wiki +node-list --page-all 静默截断陷阱 (2026-06-11 发现, 2026-06-15 更新) ★
+### wiki +node-list --page-all 静默截断陷阱 (2026-06-11 发现, 2026-06-27 更新) ★
 
 `lark-cli wiki +node-list --page-all` 的 **默认 `--page-limit 10`**（10页×50条=**500条封顶**）。超过 500 条的知识库会被静默截断，后续文档不可见。
 
@@ -567,21 +591,19 @@ terminal python3 -u l2_ingestor.py ...  # foreground, timeout=600
 # ❌ 默认 — 最多返回500条，后面的看不见
 lark-cli wiki +node-list --space-id SPACE --parent-node-token TOKEN --page-all --as bot
 
-# ✅ 必须 — 咨询洞察节点已 750+ 条，--page-limit 20 为当前最佳值
-lark-cli wiki +node-list --space-id SPACE --parent-node-token TOKEN --page-all --page-limit 20 --as bot
+# ✅ 必须 — 咨询洞察节点已 1100+ 条，--page-limit 25 为当前最佳值
+lark-cli wiki +node-list --space-id SPACE --parent-node-token TOKEN --page-all --page-limit 25 --as bot
 
-# ⚠️ 不推荐 — --page-limit 0（不限）在 750+ 条节点上实测超时（60s+）
+# ⚠️ 不推荐 — --page-limit 0（不限）在 1100+ 条节点上可能超时
 ```
 
-**`--page-limit 0` 超时问题 (2026-06-15 实测):** `--page-limit 0` 理论上不限页数，但 750+ 条节点的全量拉取会超时（60s+）。**当前最佳折中：`--page-limit 20`（1000 条），覆盖 2-3 周的数据量。**
-
-**影响范围**：
+**⚠️ 维护提醒**：节点每月增长 ~700 条（日均48×22工作日），需每月检查 `--page-limit` 是否足够。预计 7 月中旬需升至 30（1500条），8 月初需升至 35。
 - 过期校验 (`expiry_checker.py`)：可能漏检文档
 - 每日简报/周度分析：统计计数偏低，无法发现当日新增文档（新文档排在列表末尾）
 - 入库恢复 (`find_missing.py`)：误判"0 today docs" → 重新入库已存在条目 → 产生大量重复
 - **weekly/insight cron 直接失败（Broken pipe）— 找不到本周数据**
 
-**2026-06-15 确认**：咨询洞察节点 ~750 条，`--page-limit 10` 只能看到 06-05~06-09，06-10 起的每日简报完全不可见。`--page-limit 15` 可见 06-11，`--page-limit 20` 应覆盖 2-3 周。
+**2026-06-27 确认**：咨询洞察节点 ~1100 条，`--page-limit 20` 仅可见至 06-16，06-17 起新文档完全不可见。已升至 `--page-limit 25`。
 
 ### L2 站点直抓 — 品橙/闻旅 采集修正 (2026-06-03)
 
@@ -860,7 +882,9 @@ lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/ch
 | kanban-daily-review | agent | 2026-06-05 delivery error |
 | zhike-morning | no_agent script | ✅ 正常 |
 
-**缓解措施**：已将 `travel-intel-daily` 和 `travel-intel-weekly` 调度从 `0 9 * * *` 错开至 `5 9 * * *`（09:05），避开整点争抢窗口（2026-06-08 应用）。
+**缓解措施**：
+1. 已将 `travel-intel-daily` 和 `travel-intel-weekly` 调度从 `0 9 * * *` 错开至 `5 9 * * *`（09:05），避开整点争抢窗口（2026-06-08 应用）。
+2. **2026-06-24 二次修复**：`travel-intel-daily/weekly/insight` 三个报告 job 加载巨型 travel-intel skill（SKILL.md 2000+ 行）导致 DeepSeek context 膨胀 → 流式 180s 超时断管。已将所有三个 job 的 `enabled_toolsets` 收紧为 `["terminal","file","feishu_doc","feishu_drive"]`，砍掉 browser/vision/web_search 等重型工具定义以减少 context 体积。
 
 ### `docs +create` CLI 命令格式变更 ☆ (2026-06-20 发现+修复) ★
 

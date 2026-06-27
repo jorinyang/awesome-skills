@@ -17,7 +17,6 @@ triggers:
   - "排序框架"
 tags: [prioritization, decision-making, frameworks, pm, reference]
 category: productivity
-related_skills: [double-evolution]
 version: 1.0.0
 ---
 

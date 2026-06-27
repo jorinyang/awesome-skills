@@ -6,7 +6,6 @@ source: 吸收自 lijigang/ljg-skills (ljg-writes)，作为 humanizer 的认知�
 metadata:
   hermes:
     tags: [writing, voice, style, methodology, companion]
-      related_skills: [double-evolution]
     category: methodology
     companion_to: [humanizer]
     co_load_with: [humanizer, zhike-content-output]

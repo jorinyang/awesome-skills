@@ -19,6 +19,19 @@ KB_NODES = {
     "05-归档结算": {"token": "KuyvwJWGki1D7vkBslWchymWn2f", "docs": ["团后总结", "财务结算"]},
 }
 
+# English prefix → (doc_type, node_name) mapping for files with English prefixes
+PREFIX_MAP = {
+    "quote": ("报价单", "02-销售转化"),
+    "briefing": ("出团通知书", "03-出团执行"),
+    "guide_exec": ("导游执行单", "03-出团执行"),
+    "supply_check": ("物资核对", "03-出团执行"),
+    "vendor_hotel": ("酒店对接", "04-供应商对接"),
+    "vendor_transport": ("车辆对接", "04-供应商对接"),
+    "vendor_guide": ("地接对接", "04-供应商对接"),
+    "cost": ("成本核算", "01-产品研发"),
+    "route": ("路线方案", "01-产品研发"),
+}
+
 def esc(t): return str(t).replace("\\","\\\\").replace("|","\\|")
 
 def build_summary(trip, archive_links):
@@ -81,13 +94,43 @@ def main():
     
     for f in cache_files:
         name = f.stem
+        matched = False
+        
+        # 1) Try English prefix mapping first
+        for prefix, (doc_type, node_name) in PREFIX_MAP.items():
+            if name.lower().startswith(prefix.lower() + "_") or name.lower().startswith(prefix.lower() + "."):
+                if node_name not in archive_links:
+                    archive_links[node_name] = []
+                archive_links[node_name].append((doc_type, f"file://{f}"))
+                matched = True
+                break
+        
+        if matched:
+            continue
+        
+        # 2) Fallback: Chinese keyword match in filename
         for node_name, info in KB_NODES.items():
             for doc_type in info["docs"]:
-                if doc_type.replace(" ","").lower() in name.lower():
+                if doc_type.replace(" ", "").lower() in name.lower():
                     if node_name not in archive_links:
                         archive_links[node_name] = []
                     archive_links[node_name].append((doc_type, f"file://{f}"))
+                    matched = True
                     break
+            if matched:
+                break
+    
+    # Deduplicate: prefer .pdf over .html for same doc_type in same node
+    deduped = {}
+    for node_name, docs in archive_links.items():
+        seen = {}
+        for doc_type, url in docs:
+            ext = Path(url.replace("file://", "")).suffix.lower()
+            key = (node_name, doc_type)
+            if key not in seen or ext == ".pdf":
+                seen[key] = (doc_type, url)
+        deduped[node_name] = list(seen.values())
+    archive_links = deduped
     
     # Build summary and create Feishu doc
     md = build_summary(trip, archive_links if archive_links else {n: [("待补充", "")] for n in KB_NODES})

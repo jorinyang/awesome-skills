@@ -1,7 +1,6 @@
 ---
 name: feishu-wiki
 description: 飞书知识库（space_id=7643710721485753535）的每日巡检、首页生成、文档总结、分类检测与变更日志管理。触发：知识库巡检/wiki inspection/飞书首页更新/feishu wiki 巡检。
-related_skills: [double-evolution]
 tags: [feishu, wiki, cron, curation]
 ---
 
@@ -9,6 +8,9 @@ tags: [feishu, wiki, cron, curation]
 
 ## 触发条件
 用户提及"知识库巡检"、"wiki inspection"、"飞书首页更新"或 cron job 触发 `feishu-wiki` 技能。
+
+## 快速决策（补充）
+- 用户要把外部文件（PDF/图片/Word 等）保存到知识库根目录或指定节点下，不要用 `drive +upload --wiki-token`（它要求 wiki node token）；正确流程：`drive +upload` → `wiki +move`，详见 [`references/kb-file-upload.md`](references/kb-file-upload.md)。
 
 ## 关键常量
 - **Space ID**: `7643710721485753535`
@@ -154,6 +156,10 @@ python3 -c "import py_compile; py_compile.compile('file.py', doraise=True)"
 ## 图片型 PDF 内容提取与入库（见 references/image-pdf-extraction.md）
 
 当用户发来图片型画册/宣传册 PDF 需要学习入库时，PyPDF2/pymupdf 无法提取文字，需用 pymupdf 转 PNG + vision 工具逐页 OCR。完整工作流见 [references/image-pdf-extraction.md](references/image-pdf-extraction.md)。
+
+## Wiki 文件类型节点读取（见 references/wiki-file-type-read.md）
+
+Wiki 节点可能是 docx / file / folder 三种类型。`docs +fetch` 只能读 docx；遇到 file 类型（上传的 PDF/Word/图片）会报 `3380002`，需走 Drive 下载路径。完整诊断+解决流程见 [references/wiki-file-type-read.md](references/wiki-file-type-read.md)。
 
 ## 飞书电子表格 API（见 references/sheets-api-patterns.md）
 当遇到 sheet 类型文档（非 docx），`feishu_doc_read` 和 `lark-cli docs fetch` 均不可用。需通过 wiki API 获取 `obj_token`，再通过 Sheets v2/v3 API 读写。详见 [references/sheets-api-patterns.md](references/sheets-api-patterns.md)。

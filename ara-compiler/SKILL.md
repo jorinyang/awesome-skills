@@ -12,7 +12,7 @@ triggers:
 metadata:
   hermes:
     tags: [research, compiler, paper-to-ara]
-    related_skills: [ara-research-manager, ara-rigor-reviewer, double-evolution]
+    related_skills: [ara-research-manager, ara-rigor-reviewer]
     scope: research-only
   upstream: https://github.com/AmberLJC/Agent-Native-Research-Artifact
 ---

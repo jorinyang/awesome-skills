@@ -1,0 +1,93 @@
+# 旅游信息过期规则（15 类）
+# 字段: type=类型, days=有效期(天), weight=降权系数(0-1), label=过期标记文本, node=归属节点
+
+rules:
+  - type: "政策法规（国家级）"
+    days: 365
+    weight: 1.0
+    label: ""
+    node: "行业"
+
+  - type: "政策法规（地方/临时）"
+    days: 180
+    weight: 0.7
+    label: "⚠️ 政策可能已更新，建议核实"
+    node: "行业"
+
+  - type: "文旅厅通知/文件"
+    days: null  # 动态计算：截止日+3
+    weight: 0.1
+    label: "❌ 通知已失效"
+    node: "行业"
+
+  - type: "景点基础信息"
+    days: null  # 永久
+    weight: 1.0
+    label: "最后核实"
+    node: "行业"
+
+  - type: "门票/开放时间"
+    days: 90
+    weight: 0.5
+    label: "⚠️ 价格/时间可能变动，请核实最新"
+    node: "行业"
+
+  - type: "酒店/交通价格"
+    days: 30
+    weight: 0.2
+    label: "❌ 价格信息已过期"
+    node: "行业"
+
+  - type: "酒店设施/交通线路"
+    days: 180
+    weight: 0.7
+    label: "⚠️ 设施/线路可能变动"
+    node: "行业"
+
+  - type: "节庆/活动"
+    days: null  # 活动结束+7
+    weight: 0.1
+    label: "❌ 活动已结束"
+    node: "行业"
+
+  - type: "季节性信息"
+    days: null  # 跨季当天
+    weight: 0.4
+    label: "❌ 季节已过"
+    node: "行业"
+
+  - type: "攻略/游记/评价"
+    days: 180
+    weight: 0.6
+    label: "⚠️ 时效性降低"
+    node: "行业"
+
+  - type: "行业报告/趋势"
+    days: 90
+    weight: 0.6
+    label: "⚠️ 趋势时效性降低"
+    node: "行业"
+
+  - type: "竞品价格"
+    days: 30
+    weight: 0.3
+    label: "❌ 价格信息已过期"
+    node: "竞品"
+
+  - type: "竞品新品/营销"
+    days: 90
+    weight: 0.5
+    label: "⚠️ 上线已超3月"
+    node: "竞品"
+
+  - type: "竞品社媒动态"
+    days: 14
+    weight: 0.1
+    label: "❌ 信息已过期"
+    node: "竞品"
+
+  - type: "社媒热议话题"
+    days: 7
+    weight: 0.1
+    label: "❌ 话题热度已过"
+    node: "竞品"

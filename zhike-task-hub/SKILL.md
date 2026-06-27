@@ -29,7 +29,6 @@ triggers:
   - "进展如何"
 tags: [feishu, task, bitable, cron, report]
 category: productivity
-related_skills: [double-evolution]
 version: 1.0.0
 ---
 

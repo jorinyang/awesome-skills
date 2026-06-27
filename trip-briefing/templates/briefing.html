@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 12mm 16mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Noto Sans SC", sans-serif; color: #1a1a1a; font-size: 10pt; line-height: 1.5; }
+
+  .header { background: #1B8C3E; color: #fff; padding: 18px 20px; border-radius: 6px; margin-bottom: 16px; }
+  .header h1 { font-size: 20pt; letter-spacing: 2px; }
+  .header .sub { font-size: 9pt; opacity: 0.85; margin-top: 4px; }
+
+  .alert { background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px 14px; margin-bottom: 16px; font-size: 9pt; }
+  .alert strong { color: #856404; }
+
+  .info-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .info-item { flex: 0 0 calc(50% - 4px); background: #f5f5f5; padding: 8px 12px; border-radius: 4px; font-size: 9pt; }
+  .info-item .label { color: #888; font-size: 7.5pt; }
+  .info-item .value { font-weight: 600; }
+
+  h2 { font-size: 13pt; color: #1B8C3E; border-bottom: 2px solid #1B8C3E; padding-bottom: 4px; margin: 16px 0 10px; }
+
+  .day-block { margin-bottom: 14px; }
+  .day-title { background: #e8f5e9; padding: 6px 12px; border-radius: 4px 4px 0 0; font-weight: 700; font-size: 10.5pt; color: #1B8C3E; }
+  .day-items { border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 4px 4px; }
+  .day-items .row { display: flex; border-bottom: 1px solid #f0f0f0; padding: 6px 10px; font-size: 9pt; }
+  .day-items .row:last-child { border-bottom: none; }
+  .day-items .time { width: 65px; font-weight: 600; color: #1B8C3E; flex-shrink: 0; }
+  .day-items .act { width: 120px; flex-shrink: 0; }
+  .day-items .loc { width: 100px; color: #666; flex-shrink: 0; }
+  .day-items .detail { flex: 1; color: #444; }
+
+  .packing { display: flex; gap: 16px; }
+  .packing-col { flex: 1; }
+  .packing-col h3 { font-size: 10pt; margin-bottom: 6px; color: #333; }
+  .packing-col ul { list-style: none; font-size: 9pt; }
+  .packing-col li { padding: 2px 0; }
+  .packing-col li::before { content: "✓ "; color: #1B8C3E; font-weight: 700; }
+
+  .contact-card { background: #f9f9f9; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+  .contact-card .name { font-size: 12pt; font-weight: 700; color: #1B8C3E; }
+  .contact-card .role { font-size: 8pt; color: #888; }
+  .contact-card .phone { font-size: 10pt; }
+
+  .footer { border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; font-size: 8pt; color: #999; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>出团通知书</h1>
+  <div class="sub">团号：{{group.id}} · {{group.dates.start}} — {{group.dates.end}}</div>
+</div>
+
+<div class="alert">
+  <strong>📋 出行确认：</strong>{{group.name}} · {{group.size.total}}人团 · {{group.customer.company}}
+</div>
+
+<div class="info-grid">
+  <div class="info-item"><div class="label">集合时间</div><div class="value">{{group.dates.start}} {{group.dates.departure_time}}</div></div>
+  <div class="info-item"><div class="label">集合地点</div><div class="value">贵阳北站</div></div>
+  <div class="info-item"><div class="label">返回时间</div><div class="value">{{group.dates.end}} {{group.dates.return_time}}</div></div>
+  <div class="info-item"><div class="label">团队人数</div><div class="value">{{group.size.total}}人</div></div>
+  <div class="info-item"><div class="label">导游</div><div class="value">{{group.guide.name}} {{group.guide.phone}}</div></div>
+  <div class="info-item"><div class="label">计调</div><div class="value">{{group.planner.name}} {{group.planner.phone}}</div></div>
+</div>
+
+<h2>行程安排</h2>
+{{itinerary_html}}
+
+<h2>住宿信息</h2>
+{{hotels_html}}
+
+<h2>餐饮安排</h2>
+{{meals_html}}
+
+<h2>交通信息</h2>
+<div class="contact-card">
+  <div class="name">{{transport.company}}</div>
+  <div class="role">{{transport.type}} · {{transport.seats}}座 · {{transport.plate}}</div>
+  <div class="phone">司机：{{transport.driver}} {{transport.phone}}</div>
+</div>
+
+<h2>物品清单</h2>
+<div class="packing">
+  <div class="packing-col">
+    <h3>🧳 建议自备</h3>
+    <ul>
+      <li>防晒霜、太阳镜、遮阳帽</li>
+      <li>换洗衣物（水上活动后会湿）</li>
+      <li>手机防水袋</li>
+      <li>运动鞋+凉鞋各一双</li>
+      <li>个人常用药品</li>
+      <li>薄外套（早晚温差）</li>
+    </ul>
+  </div>
+  <div class="packing-col">
+    <h3>🎒 基地提供</h3>
+    <ul>
+      <li>桨板、桨、救生衣、脚绳</li>
+      <li>头盔、头灯、SRT装备、手套</li>
+      <li>防水袋</li>
+      <li>矿泉水</li>
+      <li>急救包、驱蚊水、防晒霜（公用）</li>
+    </ul>
+  </div>
+</div>
+
+<h2>安全须知</h2>
+<div style="font-size:9pt; line-height:1.6;">
+  <p>✅ 所有活动均有专业教练全程陪同，教练与队员配比不低于1:5</p>
+  <p>✅ 已购买户外运动保险（{{group.dates.start}}至{{group.dates.end}}），保险单号详见导游执行单</p>
+  <p>✅ 水上活动必须全程穿着救生衣，探洞活动必须佩戴头盔和头灯</p>
+  <p>✅ 如有高血压、心脏病、怀孕等情况请提前告知，部分项目不宜参加</p>
+  <p>🚨 紧急联系人：{{group.emergency_contact.name}} {{group.emergency_contact.phone}}</p>
+</div>
+
+<h2>天气参考</h2>
+<p style="font-size:9pt;">{{weather.forecast}}</p>
+<p style="font-size:8pt;color:#888;">{{weather.advice}}</p>
+
+<h2>费用说明</h2>
+<table style="width:100%;font-size:9pt;border-collapse:collapse;margin-top:8px;">
+  <tr style="background:#e8f5e9;"><th style="text-align:left;padding:6px 8px;">费用包含</th><th style="text-align:left;padding:6px 8px;">费用不含</th></tr>
+  <tr>
+    <td style="padding:6px 8px;vertical-align:top;">{{includes_text}}</td>
+    <td style="padding:6px 8px;vertical-align:top;color:#666;">个人消费、酒水饮料、上述未列明的自费项目</td>
+  </tr>
+</table>
+
+<div class="footer">
+  贵州之客旅行社有限公司 · {{group.planner.phone}} · 祝旅途愉快！
+</div>
+
+</body>
+</html>

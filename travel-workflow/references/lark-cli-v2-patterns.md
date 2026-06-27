@@ -22,6 +22,18 @@ lark-cli docs +create --api-version v2 --doc-format markdown \
 - `--as bot` 创建后会自动授权当前 CLI user `full_access`
 - 创建后验证：`lark-cli docs +fetch --api-version v2 --doc <doc_id> --as bot`，确认 `revision_id > 1`
 
+## 文档追加写入
+
+```bash
+lark-cli docs +update --api-version v2 --doc <doc_id> \
+  --command append --doc-format markdown --content '追加内容...' --as bot
+```
+
+**陷阱**：
+- `--mode append` 已废弃，必须用 `--command append`
+- append 可能返回 `ok: true` 但 `result: failed`（block ID transform 失败），需检查 `result` 字段
+- 追加内容中的 markdown 标题（`#`）和表格（`| |`）在飞书渲染中可能格式异常，复杂追加建议用 overwrite 全量替换
+
 ## 文档覆盖写入
 
 ```bash

@@ -16,7 +16,7 @@ triggers:
 metadata:
   hermes:
     tags: [design, quality, anti-slop, audit, study]
-    related_skills: [huashu-design, feishu-html, design-md, humanizer, double-evolution]
+    related_skills: [huashu-design, feishu-html, design-md, humanizer]
   upstream: https://github.com/Nutlope/hallmark (MIT, by Together AI)
 ---
 

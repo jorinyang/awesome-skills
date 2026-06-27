@@ -8,7 +8,6 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [comic, knowledge-comic, creative, image-generation]
-      related_skills: [double-evolution]
     homepage: https://github.com/JimLiu/baoyu-skills#baoyu-comic
 ---
 

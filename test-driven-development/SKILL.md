@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [testing, tdd, development, quality, red-green-refactor]
-    related_skills: [systematic-debugging, subagent-driven-development, double-evolution]
+    related_skills: [systematic-debugging, plan, subagent-driven-development]
 ---
 
 # Test-Driven Development

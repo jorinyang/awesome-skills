@@ -379,6 +379,8 @@ Agent 在以下时刻隐性记录信号（不打断对话、不向用户展示�
 
 **🤖 AI 工程 (5)**：`agent-tool-system`、`benchmark-generator`、`double-evolution`、`skill-ab-test`、`skill-evaluator`
 
+**📱 平台工具 (1)**：`feishu-voice`
+
 **📋 飞书系列 (5)**：`feishu-doc`、`feishu-table`、`feishu-wiki`、`project-kanban`、`zhike-task-hub`
 
 **🏔️ 贵州之客 (18)**：`amap-lbs`、`cost-engine`、`customer-view`、`guide-exec`、`jimeng-video`、`supply-check`、`travel-intel`、`travel-itinerary`、`travel-workflow`、`trip-archive`、`trip-briefing`、`trip-landing`、`trip-quote`、`vendor-brief`、`wechat-article-archive`、`zhike-content-output`、`windows-troubleshooting-from-wsl`、`ocr-and-documents`
@@ -387,7 +389,7 @@ Agent 在以下时刻隐性记录信号（不打断对话、不向用户展示�
 
 **🎨 创意内容 (6)**：`baoyu-article-illustrator`、`baoyu-comic`、`baoyu-cover-image`、`baoyu-infographic`、`baoyu-translate`、`image-analysis`
 
-> 新增需要追踪的技能时，只需在其 `related_skills` 中添加 `double-evolution` 即可。
+> **新增技能**：① 在新技能的 `related_skills` 加 `double-evolution`；② 更新上方的分类列表。**批量同步**：当追踪列表与仓库脱节时，用 `references/bulk-sync.md` 脚本一键对齐全部技能。
 
 ---
 
@@ -400,7 +402,12 @@ Agent 在以下时刻隐性记录信号（不打断对话、不向用户展示�
 - ❌ 对同一技能同时注入 ≥2 个未 solidify 的 patch — 无法归因哪个有效
 - ❌ 手动修改 signals.jsonl / ledger.jsonl — 破坏审计完整性
 - ❌ 把本技能用于非技能文件的修改 — 进化范围严格限定在 SKILL.md
+- ❌ 在目标技能 SKILL.md 中嵌入信号采集代码 — 应使用 `related_skills` 声明关联，Agent 自主记录信号。嵌入代码污染技能文件且无法统一管理
+- ❌ **在被追踪技能中嵌入信号采集代码** — 应通过 `related_skills` 引用方式，由 Agent 自主记录信号。用户明确纠正过此错误（已回滚嵌入方案）
+- ❌ 在其他技能 SKILL.md 中嵌入信号采集代码块 — 用户明确拒绝此方案。正确做法是核心技能在 `related_skills` 中声明 `double-evolution`，Agent 按本技能 schema 自主记录信号到 signals.jsonl。已嵌入的必须回滚。
+- ❌ 创建 Slow Loop Cron 时不指定 `repeat` — `cronjob(action='create')` 默认 `repeat='once'`（只跑一次）。必须显式传 `repeat=0`（forever）或正整数。否则 30 分钟后 cron 静默停止，进化中断
 - ❌ 创建 Slow Loop Cron 时不检查 `repeat` 参数 — 默认 `once` 只跑一次，必须显式 `repeat=0` 设为 forever
+- ❌ 让追踪列表与仓库脱节 — 新增技能到 `awesome-skills` 时必须同步：① 在新技能的 `related_skills` 加 `double-evolution`；② 更新本文件的"已关联技能"列表。批量同步脚本见 `references/bulk-sync.md`
 
 ---
 

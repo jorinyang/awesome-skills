@@ -11,7 +11,6 @@ triggers:
 version: 1.0.0
 metadata:
   hermes:
-      related_skills: [double-evolution]
     related_skills:
       - trip-quote
       - cost-engine
@@ -47,6 +46,21 @@ trip.json (共享数据模型)
     ├─ S5 vendor-brief  → 供应商对接   → PDF×3 (酒店/车辆/地接)
     └─ S7 trip-archive  → 团后归档     → 飞书 docx (05-归档结算) [script: scripts/trip_archive.py]
 ```
+
+## 定制方案（非标准产品）
+
+研学/夏令营/企业定制的设计方案不走 `trip.json` 管线，而是 5 阶段结构化设计流程。详见 `references/study-tour-design.md`。
+
+## 家庭聚会型方案
+
+当方案受众是双方家长（亲家见面/迎亲/家庭聚会）时，内容风格必须从**展示视角**写作，禁止操作备忘录视角。详见 `references/family-trip-content-style.md`。
+
+关键规则：
+- 去掉所有第一人称（"我的车""我带""妹妹开"）
+- 用欢迎语气（"专车接站""欢迎来到兴义"）
+- 食物写"什么来头"而非营养成分
+- 住宿写体验而非操作参数
+- 不暴露内部角色分工
 
 ## 子技能
 
@@ -89,6 +103,7 @@ lark-cli docs +create --api-version v2 --doc-format markdown \
 ```
 
 关键约束见 `references/lark-cli-v2-patterns.md`
+- 变体生成（从基案派生命名方案）：`references/variant-generation.md`
 
 ## 使用
 
@@ -123,3 +138,5 @@ python3 ~/.hermes-feishu/skills/travel/pipeline.py trip.json
 - **行程归档** → 加载 `trip-archive`，将全部执行文档归档至飞书知识库 05-归档结算
 - **调整行程方案** → 加载 `travel-itinerary`，生成/修改每日行程明细
 - **生成行程落地页** → 加载 `trip-landing`，生成客户侧行程展示页
+- **家庭聚会/亲家见面方案** → 先读 `references/family-trip-content-style.md`，切换展示视角
+- **生成老年友好 PPT** → 参考 `references/elderly-ppt-pattern.md`，大字暖色调

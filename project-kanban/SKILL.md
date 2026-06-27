@@ -10,11 +10,6 @@ triggers:
   - "XX项目进度"
 tags: [feishu, kanban, calendar, task, project-management]
 category: productivity
-metadata:
-  hermes:
-      related_skills: [double-evolution]
-    related_skills:
-      - zhike-task-hub
 ---
 
 # 项目看板 (Project Kanban)
@@ -178,9 +173,3 @@ zhike-task-hub 技能已全面验证 Feishu Task v2 API（Bot 可用），推荐
 - `references/task-api.md` — Task v1 API 创建/分配格式
 - `references/task-v2-api.md` — **Task v2 API** 端点矩阵、Bot 可用性、陷阱（2026-05-30 端到端探测）
 - `.hermes/plans/2026-05-27_project-kanban-plan.md` — 完整实施方案
-
-## 关联技能指引
-
-> 以下指引由 `github-absorb` Phase 6 自动生成
-
-- **sibling → `zhike-task-hub`**：本技能覆盖项目级视角（飞书多维表格看板 + 日历 + 任务分配），`zhike-task-hub` 覆盖个人级视角（Todo 存档 + 早晚周月报）。两技能服务于同一业务体系（贵州之客），协同使用可覆盖项目全景 + 个人执行全貌。

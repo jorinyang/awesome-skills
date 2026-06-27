@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [agent-native, cli-design, bridge-patterns, methodology, reference]
-    related_skills: [opencli, hermes-agent-skill-authoring, comfyui, obsidian, double-evolution]
+    related_skills: [opencli, hermes-agent-skill-authoring, comfyui, obsidian]
 ---
 
 # Agent-Native CLI 设计原则

@@ -6,7 +6,6 @@ source: 吸收自 lijigang/ljg-skills (ljg-learn + ljg-roundtable + ljg-rank)，
 metadata:
   hermes:
     tags: [elicitation, critique, methodology, companion]
-      related_skills: [double-evolution]
     category: methodology
     companion_to: [advanced-elicitation]
     co_load_with: [advanced-elicitation]

@@ -1,13 +1,10 @@
 ---
 name: fireworks-tech-graph
 description: >-
-  NL→SVG+PNG 技术图表生成（渲染型）。自然语言描述需求，直接输出生产级 SVG/PNG 图表。
-  触发词："SVG技术图" "程序化出图" "生成SVG图" "generate diagram" "visualize" "序列图" "状态机" "类图"。
+  NL→SVG+PNG 技术图表生成。自然语言描述需求，直接输出生产级技术图表。
+  触发词："画图" "架构图" "流程图" "序列图" "类图" "ER图" "状态机"
+  "可视化" "出图" "generate diagram" "draw" "visualize"。
   7种风格×14种图表类型×40+产品图标库。
-  需要可编辑格式（Draw.io XML）→ drawio-generation；暗色主题架构图 → architecture-diagram。
-metadata:
-  hermes:
-    related_skills: [drawio-generation, architecture-diagram, double-evolution]
 ---
 
 # Fireworks Tech Graph (Hermes 适配版)

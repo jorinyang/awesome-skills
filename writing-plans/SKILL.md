@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [planning, design, implementation, workflow, documentation]
-    related_skills: [subagent-driven-development, test-driven-development, requesting-code-review, double-evolution]
+    related_skills: [subagent-driven-development, test-driven-development, requesting-code-review]
 ---
 
 # Writing Plans

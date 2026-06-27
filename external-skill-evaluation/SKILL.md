@@ -10,7 +10,7 @@ triggers:
 tags: [evaluation, skill-absorption, methodology, external-skill, two-phase-strategy]
 category: methodology
 version: 1.3.0
-related_skills: [github-absorb, double-evolution]
+related_skills: [github-absorb]
 ---
 
 # 外部技能评估 (External Skill Evaluation)

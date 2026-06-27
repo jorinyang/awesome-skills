@@ -16,7 +16,6 @@ triggers:
   - "stakeholder mapping"
 tags: [stakeholder, project-management, communication, consulting, enterprise]
 category: productivity
-related_skills: [double-evolution]
 version: 1.0.0
 ---
 

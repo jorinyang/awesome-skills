@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-91-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-95-blue)](.)
 
 ---
 
@@ -57,7 +57,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
-### 🏗️ 构建与设计 (22)
+### 🏗️ 构建与设计 (24)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -82,9 +82,11 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [strategy-plan-writing](strategy-plan-writing/SKILL.md) | 写战略/写方案/商业计划 | 商业战略、运营规划、市场分析方案写作 |
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
+| [plan](plan/SKILL.md) 🆕 | plan一下/规划方案/架构设计 | 纯规划模式——7领域21场景，bite-sized任务/路径/代码，不执行 |
+| [spike](spike/SKILL.md) 🆕 | spike一下/快速验证/原型实验 | 一次性验证实验——7领域21场景，验证可行性后再构建 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
-### 🔧 开发工程 (12)
+### 🔧 开发工程 (13)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -92,6 +94,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [cross-project-adaptation](cross-project-adaptation/SKILL.md) | 跨项目借鉴/模式迁移 | 跨项目适配——概念/模式/算法迁移 |
 | [coding-agents](coding-agents/SKILL.md) | 派Agent干活/并行开发 | 自主AI编码Agent编排 |
 | [dingtalk-cli](dingtalk-cli/SKILL.md) | 钉钉/dingtalk/dws | 钉钉 CLI——19服务+PAT授权 |
+| [dingtalk-channel](dingtalk-channel/SKILL.md) 🆕 | 钉钉/dd推送/dingtalk channel | Hermes Agent 钉钉消息通道——Stream Mode配置+展示调优+故障排查 |
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
@@ -110,13 +113,14 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
 | [agent-tool-system](agent-tool-system/SKILL.md) 🆕 | Agent工具/工具系统/defineTool/toolsToAI | defineTool→registry→toolsToAI三层架构+ToolLog调试+StepBudget步数预算 |
 
-### 📋 飞书系列 (5)
+### 📋 飞书系列 (6)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
 | [feishu-doc](feishu-doc/SKILL.md) | 创建飞书文档/归档 | 飞书文档创建/修改/评论/归档 |
 | [feishu-table](feishu-table/SKILL.md) | 新建多维表格/查询 | 飞书多维表格 + 电子表格 CRUD |
 | [feishu-wiki](feishu-wiki/SKILL.md) | 知识库巡检/首页更新 | 每日巡检+文档总结+分类检测+变更日志（space=7643710721485753535） |
+| [feishu-voice](feishu-voice/SKILL.md) 🆕 | 飞书语音/语音消息/转录语音 | 飞书语音消息转录——OGG→ASR秒级识别/妙记回落，自动返回逐字稿 |
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
 
@@ -160,6 +164,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [baoyu-infographic](baoyu-infographic/SKILL.md) | 信息图/可视化 | 信息图——21布局×21风格 |
 | [baoyu-translate](baoyu-translate/SKILL.md) | 翻译/精翻/快翻 | 三模式翻译——快翻/标准/精翻 + 受众×风格参数化 |
 | [image-analysis](image-analysis/SKILL.md) 🆕 | 分析图片/图片内容识别 | MiniMax VLM 图片分析——JPEG/PNG/WebP，URL或本地文件 |
+| [ocr-and-documents](ocr-and-documents/SKILL.md) 🆕 | OCR/提取文字/PDF转文本 | PDF/扫描件OCR文本提取——pymupdf+marker-pdf，支持中英文 |
 
 ---
 
@@ -544,10 +549,10 @@ for dir in */; do
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|spike|baoyu-*|image-analysis|ocr-and-documents) category="creative" ;;
     ara-*) category="research" ;;
-    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl) category="software-development" ;;
-    supabase-backend|dingtalk-cli) category="devops" ;;
+    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|plan|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl) category="software-development" ;;
+    supabase-backend|dingtalk-cli|dingtalk-channel) category="devops" ;;
     skill-evaluator|skill-ab-test|benchmark-generator|agent-tool-system) category="ai-engineering" ;;
     requirement-alignment-analysis) category="productivity" ;; 
   esac
@@ -581,7 +586,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| v5.3.0 | 2026-06-27 | 91技能 — +2 新增：double-evolution(双速技能进化引擎——Fast Loop /evolve + Slow Loop 30min Cron，吸收自MOMO CODE/Pioneer Agent方法论) + ocr-and-documents(重加)；+10 更新：全技能关联 double-evolution 追踪网络(agent-tool-system/benchmark-generator/blue-team/drawio-generation/github-absorb/skill-ab-test/skill-evaluator/author-methodology-analysis/dynamic-workflow/wechat-article-archive)；方法论20→21、创意内容6→7 |
+| v5.4.0 | 2026-06-28 | 95技能 — +4 重新纳入(plan/spike/dingtalk-channel/feishu-voice 自v5.1.0移除后重建) + ocr-and-documents补全README条目；构建与设计22→24、开发工程12→13、飞书系列5→6、创意内容6→7；+74技能内容同步更新 |
 | v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |
 | v5.0.0 | 2026-06-24 | 102技能 — README重构：去重7跨类技能(brandkit/huashu-design等)→每技能唯一分类；+12缺失条目补全(codebase-inspection/dingtalk-channel/dogfood/hermes-instance-sync/technical-documentation-production/windows-troubleshooting-from-wsl/github-release-readme/yuanbao/ocr-and-documents/pdf-content-generation/image-analysis/travel-workflow)；新增📋工具与集成分类；贵州之客12→9、创意内容6→7、开发工程12→17、构建与设计23→22；github-release-readme v2.0.1 symlink穿透规则 |

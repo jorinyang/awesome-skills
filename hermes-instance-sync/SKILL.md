@@ -4,7 +4,6 @@ description: >
   Synchronize skills between Hermes instances using symlinks, or from a GitHub
   skills repo. Compare, classify, backup, and link skill directories. Trigger:
   sync skills from another instance, align skill libraries, clone repo skills.
-related_skills: [double-evolution]
 ---
 
 # Hermes Skill Sync
@@ -14,6 +13,28 @@ Two sync modes: **instance-to-instance** (symlink) and **repo-to-local** (copy f
 ## Mode A: Instance-to-Instance Sync
 
 Synchronize skills between Hermes instances using symlinks. Source is authority.
+
+### Phase 0: Source Integrity Check (MANDATORY — run first)
+
+Before touching any target files, verify the source is actually authoritative. The most common failure mode: source has symlinks pointing back to target, creating circular chains when you try to link target→source.
+
+Run `scripts/check-source-integrity.py <source_dir> <target_dir>`. See `references/source-integrity-check.md` for the full logic.
+
+The script produces three classifications:
+| Class | Meaning | Action |
+|-------|---------|--------|
+| `REAL` | Source has real content (directory, not symlink) | ✅ Safe to use as authority |
+| `BACKLINK` | Source is a symlink pointing TO the target dir | 🛑 BLOCKED — circular. Fix source first |
+| `EXTERNAL` | Source is a symlink pointing elsewhere | ⚠️ Note it, skip this entry |
+
+**If any BACKLINK entries exist, ABORT the sync.** Report which entries need their canonical content migrated into the source first. Do NOT attempt workarounds — this is structural, not a per-entry issue.
+
+Quick shell one-liner for spot checks:
+```bash
+# Count backlinks from source to target
+find ~/.hermes-feishu/skills/ -maxdepth 1 -type l -exec readlink {} \; | grep -c '/hermes/skills/'
+# If > 0: source is NOT authoritative — abort
+```
 
 ### Phase 1: Discovery
 
@@ -59,7 +80,7 @@ ln -s ~/.hermes-feishu/skills/$CAT ~/.hermes/skills/$CAT
 
 ### Phase 4: Handle Target-Unique Sub-Skills
 
-When a category has sub-skills only in target (e.g., a document extraction skill):
+When a category has sub-skills only in target (e.g., `ocr-and-documents`):
 
 ```bash
 cp -a "$BACKUP/$CAT/unique-sub" ~/.hermes-feishu/skills/$CAT/
@@ -134,6 +155,18 @@ Repo skills may collide with existing categorized skills. After sync, run `skill
 ### find -type d misses symlinks
 
 `find -type d` returns actual directories only. Use `find -type l` for symlink counts.
+
+### Circular symlink chains (silent breakage)
+
+The most dangerous failure: source has symlinks pointing back to target. When you then create a symlink from target to source, you get a circular chain that `test -e` reports as broken (too many symlink levels):
+
+```
+target/A → source/A → target/A  (💥 broken, no error on creation)
+```
+
+**Do NOT create any symlinks until Phase 0 passes clean.** If Phase 0 finds backlinks, the fix is always: migrate real content into source FIRST, then retry the sync. Never attempt to work around by linking in the opposite direction unless the user explicitly redesigns the architecture.
+
+See `scripts/check-source-integrity.py` and `references/source-integrity-check.md` for the full detection logic and a real-world example.
 
 ### cp -a double nesting
 

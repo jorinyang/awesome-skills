@@ -16,7 +16,6 @@ triggers:
   - "Teresa Torres"
 tags: [discovery, product-management, opportunity, framework, JTBD]
 category: productivity
-related_skills: [double-evolution]
 version: 1.0.0
 ---
 

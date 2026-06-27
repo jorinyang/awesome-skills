@@ -7,7 +7,7 @@ metadata:
   hermes:
     tags: [analysis, decomposition, systems-thinking, strategy, methodology]
     category: methodology
-    related_skills: [deep-think, book-deconstruct, qa-extract, advanced-elicitation, answer, strategy-plan-writing, double-evolution]
+    related_skills: [deep-think, book-deconstruct, qa-extract, advanced-elicitation, answer, strategy-plan-writing]
     calls: [deep-think]
     called_by: [answer, strategy-plan-writing, book-deconstruct, advanced-elicitation]
 ---

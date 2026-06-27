@@ -1,16 +1,12 @@
 ---
 name: answer
-description: >-
-  AI Native'S Workflow(er) — 7 阶段结构化工作流编排器（飞书集成版）。
-  适用于任何从零开始的复杂构建任务。产出为飞书 Wiki 完整文档套件+本地文件。
-  独立/离线场景请使用 answer-standalone。
-  触发：answer / 梳理思路 / 从零开始 / 帮我规划 / 设计方案 等 100+ 关键词。
+description: AI Native'S Workflow(er) — 7 阶段结构化工作流编排器。适用于任何从零开始的复杂构建任务：新业务/新产品/新技能/新方案/新流程/新系统/调研分析/策略规划/项目启动/决策支持/汇报演示/预算规划/复盘总结/运营营销/品牌策划/架构设计/迭代优化。以 design-flow 编排范式为核心，串联 clarify → brief → architect → standards → decompose → build → review。触发：answer / 梳理思路 / 从零开始 / 帮我规划 / 设计方案 / 启动项目 / 拆解问题 / 写方案 / 做BP / SOP / 做复盘 / 运营方案 / 营销计划 / from scratch / plan this 等 100+ 关键词。
 version: 1.6.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [workflow, design-flow, builder, orchestrator]
-    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree, answer-standalone, double-evolution]
+    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree]
 triggers:
   # 显式调用
   - "answer"
@@ -366,15 +362,16 @@ J4EewYIT2ieFuwkRWbxcgWbFnhe (AI Native 工作流)
 
 ```bash
 # ✅ 一步法（唯一可靠方式）
-cd /tmp
-cat > doc.md << 'EOF'
-# {标题}
+# ⚠️ lark-cli v1.0.53+ 已废弃 --title：标题必须以 <title>Title</title> 写入 content
+# ⚠️ @file 只接受 cwd 下的相对路径（绝对路径如 @/tmp/x.md 报 unsafe file path）
+cat > ./_content.md << 'ENDOFFILE'
+<title>{文档标题}</title>
 
 {markdown 内容}
-EOF
+ENDOFFILE
 
 lark-cli docs +create --api-version v2 --doc-format markdown \
-  --title "{文档标题}" --content @doc.md \
+  --content @_content.md \
   --parent-token {parent_node_token} --as bot
 ```
 
@@ -666,6 +663,12 @@ lark-cli docs +fetch --api-version v2 --doc {document_id} --as bot
 |---|--------|------|
 | 1 | {anti-pattern} | {why bad} |
 ```
+
+### 领域特定 Standards 变体
+
+> 🔴 **内部制度/财务文档**（非技术受众）→ 加载 `references/standards-for-policy-docs.md`。
+> 该变体强制：中文全称变量、自然语言公式、"在算什么→公式→为什么"三步解释、手机计算器可验算。
+> 当用户说"非财务人员也要看懂""用叙述性语言"时自动切换到此变体。
 
 **过渡语**："标准已建立。下面将简报拆解为可独立构建的增量任务。继续？"
 
@@ -1036,13 +1039,33 @@ Date: {date}
 
 | # | 陷阱 | 后果 | 正确做法 |
 |---|------|------|---------|
-| 0 | **用两步法创建文档（Wiki API 建节点 + v2 update 写内容）** | 返回 `ok:true` revision_id 递增但 blocks=0，文档永远为空。lark-cli v1.0.40–v1.0.44 均存在此 bug | 必须用一步法：`docs +create --api-version v2 --doc-format markdown --title \"标题\" --content @file.md --parent-token TOKEN --as bot`。详见 feishu-doc 技能「两步法陷阱」 |
+| 0 | **用两步法创建文档（Wiki API 建节点 + v2 update 写内容）** | 返回 `ok:true` revision_id 递增但 blocks=0，文档永远为空。lark-cli v1.0.40–v1.0.44 均存在此 bug | 必须用一步法：`docs +create --api-version v2 --doc-format markdown --content @_content.md --parent-token TOKEN --as bot`，标题以 `<title>Title</title>` 写入 content（lark-cli v1.0.53+ 已废弃 `--title`）。@file 只接受 cwd 下的相对路径。详见 feishu-doc 技能「两步法陷阱」 |
 | 1 | 跳过 Clarify 直接写 Brief | 后续阶段基于未验证假设 | 至少确认 3 个核心假设 |
 | 2 | Brief 写成功能列表 | 失去方向一致性 | 用"体验/流程"语言描述，不用"功能"语言 |
 | 3 | Architect 过于抽象 | 拆解时无法落地 | 每个模块必须有具体的内容描述 |
 | 4 | Standards 写了不用 | Build 产出与 Standards 矛盾——最典型的是 Standards 写"以内容需求为准"但 Build 产出写了具体数字（如"8-45s""8-15s"），用户一眼发现。定性标准被 Build 偷换成定量捷径 | Build 每完成一个任务对照 Standards 逐条检查，尤其警惕"数值化改写"——Standards 说"以内容为准"就不能在产出里写任何时长范围 |
 | 4a | **训练/教学类文档的 Standards 写成"讲师备课用的提词器/教学备注"** | 用户会说"内容的规范应当是讲师面对学员要表达的内容"。Standards 定义了全文档的写作基调，写错则全篇语气偏离 | Standards 的「内容规范」必须写"讲师口吻，面向学员——文档=讲师张嘴就能念的逐字稿"，禁止写"此处讲师引导""讲师应在此处强调"等幕后备注。详见 `references/training-proposal-template.md` 常见陷阱第二条 |
 | 5 | Review 只挑问题不说不好的 | 团队不知道自己什么做对了 | 必须包含 "What Works Well" |
+
+### 财务/分润类框架的表达模式
+
+> 🆕 从企业管理培训分润体系项目中沉淀——财务公式的表达方式显著影响可读性。
+
+**公式优先用"恒等式"而非"序列流"**：
+- ❌ 序列流：`合同→扣A→扣B→得C→分D→算E→扣F→到手`
+- ✅ 恒等式：`合同总价 − 业务渠道 − 开票税费 − 机构利润 = 讲师课酬 + 资金占用`
+- 恒等式让读者一眼看清"谁从总价里分走了什么"，剩余就是讲师的。不需要追踪九步才能理解结构。
+
+**结算公式用"实得比例"而非"扣除比例"**：
+- ❌ 扣除式：`资金占用费 = 应结 × 50% × (1 − 已等/周期)` —— 读者要先算占用费再减
+- ✅ 实得式：`实际结算 = 应得 × (50% + 50% × 已等/周期)` —— 直接告诉你拿到百分之多少
+- 验证：立即(0天)→50%，正常(满周期)→100%，中间线性增长。手机计算器一步出结果。
+
+**术语用"应得/实际"比"应结/实收"更直观**：
+- "应得课酬"比你分到的名义金额，"实际结算"是结算时点决定的到手金额（扣占用前），"实收"是扣完税后打入卡里的金额。三步层层递进。
+
+**简化时以"表"为单元砍**：
+- 用户说"只保留分润结构+比例+公式"时，用五张表覆盖全文档：分润结构表/层级比例表/计算公式表/结算规则表/一个示例表。每张表独立可读，删除所有叙述段落。
 
 ### ⛔ 反例与禁止操作
 
@@ -1216,6 +1239,7 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 | `pricing-estimation.md` | `references/pricing-estimation.md` | 软件功能报价方法论：Fibonacci+RICE 双因子定价，双 Sheet Excel 输出 |
 | `distribution.md` | `references/distribution.md` | 分发包指南：tar.gz 打包、目标安装、GitHub Token 推送陷阱 |
 | `lark-cli-v2-quickref.md` | `references/lark-cli-v2-quickref.md` | lark-cli v2 API 命令速查：创建/写入/删除/验证 Wiki 文档的正确 flags |
-| marketing-funnel-template.md | `references/marketing-funnel-template.md` | 运营营销方案漏斗数学模板：GMV反推、渠道矩阵、内容复用流、私域承接时间线、预算分配参考 |
+| `lark-cli-v2-create-pitfalls.md` | `references/lark-cli-v2-create-pitfalls.md` | lark-cli v2 `docs +create` 三大坑：--title 废弃、@file 路径限制、两步法空文档 |
+| `standards-for-policy-docs.md` | `references/standards-for-policy-docs.md` | Phase 4 Standards 变体：内部制度/财务文档——中文变量、人话公式、计算器可验算 |
 | CHANGELOG.md | GitHub 仓库 | 版本变更记录（v1.0 → v1.1.1） |
 | LICENSE | GitHub 仓库 | MIT 开源许可 |

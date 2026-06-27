@@ -10,7 +10,7 @@ triggers:
   - 钉钉AI表格
   - 钉钉审批
   - 宜搭
-related_skills: [feishu-table, supabase-backend, double-evolution]
+related_skills: [feishu-table, supabase-backend]
 ---
 
 # DingTalk Workspace CLI (dws)

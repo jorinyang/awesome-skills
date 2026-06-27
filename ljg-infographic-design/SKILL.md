@@ -6,7 +6,6 @@ source: 吸收自 lijigang/ljg-skills (ljg-card)，作为 baoyu-infographic 的�
 metadata:
   hermes:
     tags: [infographic, design, methodology, companion]
-      related_skills: [double-evolution]
     category: methodology
     companion_to: [baoyu-infographic]
     co_load_with: [baoyu-infographic]

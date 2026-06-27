@@ -1,0 +1,163 @@
+{
+  "$schema": "https://gzzhike.cn/trip-schema/v1",
+  "group": {
+    "id": "GZ-2026-0622-001",
+    "name": "犀牛洞探险+白水河桨板 2日团",
+    "type": "团建",
+    "dates": {
+      "start": "2026-07-04",
+      "end": "2026-07-05",
+      "departure_time": "08:00",
+      "return_time": "18:00"
+    },
+    "size": {
+      "adults": 15,
+      "children": 0,
+      "total": 15
+    },
+    "customer": {
+      "company": "某科技公司",
+      "contact_name": "张总",
+      "contact_phone": "13800001111",
+      "contact_wechat": "zhangzong_wx",
+      "special_requests": "有1位素食者、2位不吃辣"
+    },
+    "guide": {
+      "name": "陈教练",
+      "phone": "13900002222",
+      "assistant_name": "小李",
+      "assistant_phone": "13900003333"
+    },
+    "planner": {
+      "name": "余媛天",
+      "phone": "18386880520"
+    },
+    "emergency_contact": {
+      "name": "夏与",
+      "phone": "18600004444"
+    }
+  },
+  "itinerary": [
+    {
+      "day": 1,
+      "date": "2026-07-04",
+      "title": "白水河桨板初体验",
+      "items": [
+        {"time": "08:00", "duration": "2h", "activity": "集合出发", "location": "贵阳北站", "detail": "大巴前往马鞭田基地，车上讲解安全事项"},
+        {"time": "10:00", "duration": "0.5h", "activity": "到达基地", "location": "马鞭田白水河桨板基地", "detail": "换装、存物、发放装备"},
+        {"time": "10:30", "duration": "2.5h", "activity": "桨板教学+水上体验", "location": "白水河峡谷段", "detail": "教练带队，从跪姿到站姿逐步教学，峡谷穿行约3公里"},
+        {"time": "13:00", "duration": "1h", "activity": "午餐", "location": "基地餐厅", "detail": "农家菜8菜1汤，含素食专餐"},
+        {"time": "14:00", "duration": "1.5h", "activity": "桨板自由划行+趣味比赛", "location": "白水河开阔段", "detail": "分组趣味赛、水上合影"},
+        {"time": "15:30", "duration": "0.5h", "activity": "上岸整理", "location": "基地", "detail": "冲凉换装、装备回收"},
+        {"time": "16:00", "duration": "1.5h", "activity": "前往犀牛洞营地", "location": "凹胜秘境基地", "detail": "入住帐篷/民宿，分配房间"},
+        {"time": "18:00", "duration": "1.5h", "activity": "晚餐+篝火", "location": "营地", "detail": "烧烤+火锅，篝火晚会"}
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2026-07-05",
+      "title": "犀牛洞探险+天坑速降",
+      "items": [
+        {"time": "07:30", "duration": "0.5h", "activity": "早餐", "location": "营地", "detail": "粉面+鸡蛋+豆浆"},
+        {"time": "08:00", "duration": "3h", "activity": "犀牛洞探险", "location": "犀牛洞", "detail": "SRT绳索下降入洞、洞穴穿越、地下河体验，全程教练1:3配比"},
+        {"time": "11:00", "duration": "1h", "activity": "天坑速降体验", "location": "凹胜天坑", "detail": "30米绳索速降，每人1次"},
+        {"time": "12:00", "duration": "1h", "activity": "午餐", "location": "营地", "detail": "简餐"},
+        {"time": "13:00", "duration": "0.5h", "activity": "总结分享", "location": "营地", "detail": "团队分享感受、合影"},
+        {"time": "13:30", "duration": "3h", "activity": "返程", "location": "→贵阳北站", "detail": "大巴送回"}
+      ]
+    }
+  ],
+  "pricing": {
+    "items": [
+      {"category": "交通", "name": "贵阳往返大巴（35座）", "unit_price": 2800, "quantity": 1, "unit": "辆", "includes_in_price": true},
+      {"category": "住宿", "name": "营地帐篷/民宿（双人间）", "unit_price": 180, "quantity": 8, "unit": "间", "includes_in_price": true},
+      {"category": "餐饮", "name": "Day1午餐（农家菜）", "unit_price": 60, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "餐饮", "name": "Day1晚餐（烧烤+火锅）", "unit_price": 120, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "餐饮", "name": "Day2早餐", "unit_price": 25, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "餐饮", "name": "Day2午餐（简餐）", "unit_price": 40, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "活动", "name": "桨板体验（含装备+教练）", "unit_price": 200, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "活动", "name": "犀牛洞探险（含SRT装备+教练1:3）", "unit_price": 380, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "活动", "name": "天坑速降体验", "unit_price": 150, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "保险", "name": "户外运动保险（2天）", "unit_price": 30, "quantity": 15, "unit": "人", "includes_in_price": true},
+      {"category": "其他", "name": "篝火晚会+物料", "unit_price": 500, "quantity": 1, "unit": "场", "includes_in_price": true},
+      {"category": "其他", "name": "摄影跟拍", "unit_price": 800, "quantity": 1, "unit": "天", "includes_in_price": false, "note": "可选项目"}
+    ],
+    "market_reference": {
+      "fliggy_similar_route": {"name": "贵州桨板+探洞2日团建", "price_per_person": 1680, "source": "飞猪参考"},
+      "notes": "市场参考价为飞猪同类产品均价，仅供参考"
+    }
+  },
+  "suppliers": {
+    "transport": {"type": "大巴", "company": "贵阳安达客运", "driver": "王师傅", "phone": "13700001111", "plate": "贵A·88888", "seats": 35},
+    "hotels": [
+      {"name": "凹胜秘境营地", "type": "帐篷/民宿", "contact": "马老师", "phone": "13600002222", "checkin": "16:00", "checkout": "次日12:00", "rooms_booked": 8, "room_types": ["双人帐篷×5", "双人民宿×3"]}
+    ],
+    "restaurants": [
+      {"day": 1, "meal": "午餐", "name": "基地餐厅", "contact": "唐总", "phone": "13500003333", "menu": "8菜1汤", "special": "素食专餐×1"},
+      {"day": 1, "meal": "晚餐", "name": "营地厨房", "contact": "马老师", "phone": "13600002222", "menu": "烧烤+火锅", "special": ""},
+      {"day": 2, "meal": "早餐", "name": "营地厨房", "contact": "马老师", "phone": "13600002222", "menu": "粉面+鸡蛋+豆浆", "special": ""},
+      {"day": 2, "meal": "午餐", "name": "营地厨房", "contact": "马老师", "phone": "13600002222", "menu": "简餐", "special": ""}
+    ],
+    "attractions": [
+      {"name": "马鞭田白水河桨板基地", "contact": "唐总", "phone": "13500003333", "tickets": "无需门票"},
+      {"name": "犀牛洞", "contact": "凹胜基地", "phone": "13600002222", "tickets": "含在活动费中"},
+      {"name": "凹胜天坑", "contact": "凹胜基地", "phone": "13600002222", "tickets": "含在活动费中"}
+    ]
+  },
+  "supplies": [
+    {"category": "桨板装备", "items": [
+      {"name": "桨板", "qty": 16, "unit": "块", "note": "含备用1块"},
+      {"name": "桨", "qty": 16, "unit": "支", "note": "含备用1支"},
+      {"name": "救生衣", "qty": 16, "unit": "件", "note": "含备用1件"},
+      {"name": "脚绳", "qty": 15, "unit": "条", "note": ""}
+    ]},
+    {"category": "探洞装备", "items": [
+      {"name": "头盔", "qty": 20, "unit": "个", "note": "含教练5个"},
+      {"name": "头灯", "qty": 20, "unit": "个", "note": "含备用电池"},
+      {"name": "SRT套装", "qty": 8, "unit": "套", "note": "含安全带+下降器+主锁+牛尾"},
+      {"name": "手套", "qty": 20, "unit": "双", "note": ""}
+    ]},
+    {"category": "安全装备", "items": [
+      {"name": "急救包", "qty": 2, "unit": "个", "note": "检查有效期"},
+      {"name": "对讲机", "qty": 4, "unit": "台", "note": "充足电"},
+      {"name": "救生绳", "qty": 2, "unit": "条", "note": "30m"}
+    ]},
+    {"category": "文件", "items": [
+      {"name": "出团通知书（打印版）", "qty": 1, "unit": "份", "note": "导游携带"},
+      {"name": "客户名单", "qty": 1, "unit": "份", "note": "含保险单号"},
+      {"name": "保险确认单", "qty": 1, "unit": "份", "note": ""}
+    ]},
+    {"category": "其他", "items": [
+      {"name": "矿泉水", "qty": 2, "unit": "箱", "note": ""},
+      {"name": "防水袋", "qty": 15, "unit": "个", "note": "发放客户"},
+      {"name": "防晒霜", "qty": 3, "unit": "瓶", "note": "公用"},
+      {"name": "驱蚊水", "qty": 3, "unit": "瓶", "note": "营地使用"}
+    ]}
+  ],
+  "customers": [
+    {"name": "张总", "phone": "13800001111", "id": "5201**********0012", "insurance": "PA20260704001", "diet": "正常", "roommate": "李工", "notes": "团队负责人"},
+    {"name": "李工", "phone": "13800002222", "id": "5201**********0034", "insurance": "PA20260704002", "diet": "素食", "roommate": "张总", "notes": "全素食"},
+    {"name": "小王", "phone": "13800003333", "id": "5201**********0056", "insurance": "PA20260704003", "diet": "不吃辣", "roommate": "小赵", "notes": ""}
+  ],
+  "weather": {
+    "forecast": "Day1 多云 22-28°C / Day2 多云转晴 23-30°C",
+    "warning": "无极端天气预警",
+    "advice": "建议携带防晒、薄外套"
+  },
+  "emergency_plan": {
+    "weather_rain": {
+      "light": "继续活动，发放一次性雨衣",
+      "heavy": "桨板改为室内团建游戏，探洞照常（洞内不受影响）"
+    },
+    "injury": {
+      "minor": "急救包处理，基地有常备药品",
+      "serious": "最近医院：安龙县人民医院（车程25分钟），急救电话120"
+    },
+    "transport": {
+      "breakdown": "备用车辆联系：安达客运 王师傅备用车 贵A·99999"
+    },
+    "lost_contact": {
+      "procedure": "各教练对讲机保持通讯，每30分钟点名一次，失联10分钟启动搜索"
+    }
+  }
+}

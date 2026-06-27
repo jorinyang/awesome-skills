@@ -1,0 +1,777 @@
+{
+  "$schema": "https://gzzhike.cn/trip-schema/v1",
+  "group": {
+    "id": "GZ-2026-0710-001",
+    "name": "兴义6日慢游·银发定制",
+    "type": "私人定制",
+    "dates": {
+      "start": "2026-07-10",
+      "end": "2026-07-15",
+      "departure_time": "全天接站",
+      "return_time": "14:00前送站"
+    },
+    "size": {
+      "adults": 4,
+      "children": 0,
+      "total": 4
+    },
+    "customer": {
+      "company": "私人定制",
+      "contact_name": "待确认",
+      "contact_phone": "待确认",
+      "special_requests": "4位50-70岁老人，慢节奏，少步行，安排电梯/观光车/游船，餐饮清淡易消化"
+    },
+    "guide": {
+      "name": "待安排",
+      "phone": "待确认",
+      "assistant_name": "",
+      "assistant_phone": ""
+    },
+    "planner": {
+      "name": "余媛天",
+      "phone": "18386880520"
+    },
+    "emergency_contact": {
+      "name": "夏与",
+      "phone": "18600004444"
+    }
+  },
+  "itinerary": [
+    {
+      "day": 1,
+      "date": "2026-07-10",
+      "title": "抵达兴义·休整适应",
+      "theme": "{抵达}",
+      "items": [
+        {
+          "time": "全天",
+          "duration": "-",
+          "activity": "接站/接机",
+          "location": "兴义万峰林机场/兴义站",
+          "detail": "7座商务车接站，司机举牌等候。车上备矿泉水、湿毛巾"
+        },
+        {
+          "time": "抵达后",
+          "duration": "1h",
+          "activity": "入住酒店",
+          "location": "兴义市区四星酒店",
+          "detail": "办理入住，分发行程单、雨具。房间提前开好空调，低楼层优先"
+        },
+        {
+          "time": "下午",
+          "duration": "2h",
+          "activity": "酒店周边散步",
+          "location": "酒店附近街区",
+          "detail": "熟悉环境，不安排远途。推荐逛附近水果市场、步行街"
+        },
+        {
+          "time": "18:30",
+          "duration": "1h",
+          "activity": "欢迎晚餐",
+          "location": "酒店中餐厅/推荐羊肉粉老店",
+          "detail": "兴义特色：羊肉粉、刷把头、鸡肉汤圆。清淡口味为主"
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2026-07-11",
+      "title": "万峰林 · 阳光谷 · 峰林布依夜景",
+      "theme": "{自然}",
+      "items": [
+        {
+          "time": "08:00",
+          "duration": "0.5h",
+          "activity": "早餐",
+          "location": "酒店自助餐",
+          "detail": "粥、粉面、鸡蛋、豆浆"
+        },
+        {
+          "time": "09:00",
+          "duration": "2.5h",
+          "activity": "万峰林观光车游览",
+          "location": "万峰林景区",
+          "detail": "全程坐观光车，途经八卦田→纳灰河→万佛寺。定点停车拍照，不下车走长路。老人免票或半票"
+        },
+        {
+          "time": "11:30",
+          "duration": "1h",
+          "activity": "纳灰村寨午餐",
+          "location": "下纳灰村布依餐厅",
+          "detail": "布依五色糯米饭、酸汤鱼、腊肉炒蕨菜。安排包间安静用餐"
+        },
+        {
+          "time": "12:30",
+          "duration": "1h",
+          "activity": "村寨闲逛",
+          "location": "纳灰村",
+          "detail": "平坦村道散步，看百年古榕、布依吊脚楼。走累了随时上车休息"
+        },
+        {
+          "time": "14:00",
+          "duration": "1.5h",
+          "activity": "返回酒店午休",
+          "location": "酒店",
+          "detail": "夏季午后雷雨多发，回酒店休息避雨"
+        },
+        {
+          "time": "16:00",
+          "duration": "1.5h",
+          "activity": "阳光谷·花园漫步",
+          "location": "阳光谷旅游度假区（贵州醇景区）",
+          "detail": "平路花园，蘑菇街拍照，如有雨则改室内品茶"
+        },
+        {
+          "time": "17:30",
+          "duration": "1h",
+          "activity": "晚餐",
+          "location": "峰林布依附近餐厅",
+          "detail": "推荐布依酸汤鱼、灰豆腐鸡"
+        },
+        {
+          "time": "19:00",
+          "duration": "1.5h",
+          "activity": "峰林布依夜景",
+          "location": "峰林布依景区（丰都街道赵家渡村）",
+          "detail": "贵州新晋网红打卡地，600余栋布依传统建筑嵌入喀斯特峰林之间。夜晚灯火辉煌，浪哨湖倒映月亮桥。看八音坐唱、布依戏表演，平坦石板路适合老人慢逛。被誉为'一眼繁华满天，一梦峰林布依'"
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2026-07-12",
+      "title": "马岭河峡谷·地质博物馆",
+      "theme": "{峡谷·文化}",
+      "items": [
+        {
+          "time": "08:00",
+          "duration": "0.5h",
+          "activity": "早餐",
+          "location": "酒店",
+          "detail": ""
+        },
+        {
+          "time": "09:00",
+          "duration": "2h",
+          "activity": "马岭河峡谷",
+          "location": "马岭河峡谷景区",
+          "detail": "乘观光电梯上下，仅走核心步道1.5km（平坦栈道）。看钙华瀑布群。老人免票或半票"
+        },
+        {
+          "time": "11:00",
+          "duration": "1h",
+          "activity": "午餐",
+          "location": "峡谷附近餐厅",
+          "detail": ""
+        },
+        {
+          "time": "12:30",
+          "duration": "1.5h",
+          "activity": "三叠纪博物馆",
+          "location": "兴义市区凤凰路",
+          "detail": "室内参观，有座椅休息区。看贵州龙化石、三叠纪海洋生物。空调环境"
+        },
+        {
+          "time": "14:30",
+          "duration": "1.5h",
+          "activity": "返回酒店午休",
+          "location": "酒店",
+          "detail": ""
+        },
+        {
+          "time": "16:30",
+          "duration": "1h",
+          "activity": "兴义地质公园博物馆",
+          "location": "乌沙馆",
+          "detail": "室内，化石修复体验（可选）。如有雨也不影响"
+        },
+        {
+          "time": "18:00",
+          "duration": "1h",
+          "activity": "晚餐",
+          "location": "市区",
+          "detail": "推荐：鸡肉汤圆、兴义烙锅"
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "date": "2026-07-13",
+      "title": "万峰湖·吉隆堡·南龙古寨",
+      "theme": "{湖泊·城堡}",
+      "items": [
+        {
+          "time": "08:00",
+          "duration": "0.5h",
+          "activity": "早餐",
+          "location": "酒店",
+          "detail": ""
+        },
+        {
+          "time": "09:00",
+          "duration": "1h",
+          "activity": "前往万峰湖",
+          "location": "则戎乡码头",
+          "detail": "商务车40分钟，沿途看东峰林"
+        },
+        {
+          "time": "10:00",
+          "duration": "1.5h",
+          "activity": "万峰湖游船",
+          "location": "万峰湖",
+          "detail": "乘坐游船览湖光山色，船上座位舒适，全程不走路。看水上峰林奇观"
+        },
+        {
+          "time": "11:30",
+          "duration": "1h",
+          "activity": "吉隆堡打卡",
+          "location": "吉隆堡旅游度假区",
+          "detail": "湖畔欧式城堡外观拍照，平路步行。不进堡内爬楼梯"
+        },
+        {
+          "time": "12:30",
+          "duration": "1h",
+          "activity": "湖鲜午餐",
+          "location": "万峰湖边渔家乐",
+          "detail": "万峰湖鲜鱼，清蒸为主"
+        },
+        {
+          "time": "14:00",
+          "duration": "2h",
+          "activity": "返回酒店午休",
+          "location": "酒店",
+          "detail": ""
+        },
+        {
+          "time": "16:30",
+          "duration": "1.5h",
+          "activity": "南龙布依古寨（可选）",
+          "location": "巴结镇南龙村",
+          "detail": "如体力允许，古寨平坦区域散步。如累则取消，酒店休息"
+        },
+        {
+          "time": "18:00",
+          "duration": "1h",
+          "activity": "晚餐",
+          "location": "酒店或市区",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "date": "2026-07-14",
+      "title": "鲁屯古镇 · 何应钦故居 · 温泉放松",
+      "theme": "{文化·放松}",
+      "items": [
+        {
+          "time": "08:00",
+          "duration": "0.5h",
+          "activity": "早餐",
+          "location": "酒店",
+          "detail": ""
+        },
+        {
+          "time": "09:00",
+          "duration": "1h",
+          "activity": "前往鲁屯",
+          "location": "鲁屯镇",
+          "detail": "商务车50分钟"
+        },
+        {
+          "time": "10:00",
+          "duration": "1.5h",
+          "activity": "鲁屯古镇",
+          "location": "鲁屯古镇",
+          "detail": "明清古镇，平坦石板路。看古牌坊、石墙。节奏慢，走走坐坐"
+        },
+        {
+          "time": "11:30",
+          "duration": "1h",
+          "activity": "午餐",
+          "location": "鲁屯镇",
+          "detail": ""
+        },
+        {
+          "time": "13:00",
+          "duration": "1.5h",
+          "activity": "何应钦故居",
+          "location": "泥凼社区",
+          "detail": "民国建筑，庭院式参观。室内有座椅休息"
+        },
+        {
+          "time": "15:00",
+          "duration": "2h",
+          "activity": "栖梦泽温泉",
+          "location": "栖梦泽温泉酒店（鲁屯镇明镜一路）",
+          "detail": "鲁屯镇上的温泉度假酒店，古镇逛完步行可达。泡天然温泉缓解多日旅途疲劳"
+        },
+        {
+          "time": "18:00",
+          "duration": "1h",
+          "activity": "告别晚餐",
+          "location": "兴义特色餐厅",
+          "detail": "丰盛黔菜，为旅程收尾"
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "date": "2026-07-15",
+      "title": "返程",
+      "theme": "{返程}",
+      "items": [
+        {
+          "time": "08:00",
+          "duration": "0.5h",
+          "activity": "早餐",
+          "location": "酒店",
+          "detail": ""
+        },
+        {
+          "time": "09:00",
+          "duration": "1h",
+          "activity": "早市采购特产",
+          "location": "兴义早市/特产店",
+          "detail": "兴义饵块粑、红糖、薏仁米、腊肉等"
+        },
+        {
+          "time": "10:00",
+          "duration": "0.5h",
+          "activity": "退房",
+          "location": "酒店",
+          "detail": "整理行李"
+        },
+        {
+          "time": "10:30",
+          "duration": "0.5h",
+          "activity": "送站/送机",
+          "location": "兴义万峰林机场/兴义站",
+          "detail": "商务车送至，协助搬运行李，挥手告别"
+        }
+      ]
+    }
+  ],
+  "pricing": {
+    "items": [
+      {
+        "category": "交通",
+        "name": "7座商务车全程包车（6天含接送站）",
+        "unit_price": 4800,
+        "quantity": 1,
+        "unit": "辆",
+        "includes_in_price": true,
+        "note": "含司机食宿"
+      },
+      {
+        "category": "住宿",
+        "name": "四星酒店双人间×5晚",
+        "unit_price": 380,
+        "quantity": 10,
+        "unit": "间·晚",
+        "includes_in_price": true,
+        "note": "2间×5晚"
+      },
+      {
+        "category": "住宿",
+        "name": "单人间差价（如需）",
+        "unit_price": 200,
+        "quantity": 0,
+        "unit": "间·晚",
+        "includes_in_price": false,
+        "note": "可选"
+      },
+      {
+        "category": "餐饮",
+        "name": "全程用餐（含早中晚）",
+        "unit_price": 150,
+        "quantity": 24,
+        "unit": "人·天",
+        "includes_in_price": true,
+        "note": "4人×6天"
+      },
+      {
+        "category": "门票",
+        "name": "万峰林门票+观光车",
+        "unit_price": 85,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true,
+        "note": "60岁以上半票或免票"
+      },
+      {
+        "category": "门票",
+        "name": "马岭河峡谷门票+观光电梯",
+        "unit_price": 70,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true,
+        "note": "含电梯"
+      },
+      {
+        "category": "门票",
+        "name": "万峰湖游船",
+        "unit_price": 60,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true
+      },
+      {
+        "category": "门票",
+        "name": "阳光谷旅游度假区",
+        "unit_price": 30,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true
+      },
+      {
+        "category": "门票",
+        "name": "三叠纪博物馆",
+        "unit_price": 40,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true
+      },
+      {
+        "category": "门票",
+        "name": "何应钦故居",
+        "unit_price": 20,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true
+      },
+      {
+        "category": "门票",
+        "name": "栖梦泽温泉",
+        "unit_price": 128,
+        "quantity": 0,
+        "unit": "人",
+        "includes_in_price": false,
+        "note": "可选项目，鲁屯镇上"
+      },
+      {
+        "category": "导游",
+        "name": "全程司机兼向导服务（6天）",
+        "unit_price": 600,
+        "quantity": 6,
+        "unit": "天",
+        "includes_in_price": true
+      },
+      {
+        "category": "保险",
+        "name": "旅游意外险（6天）",
+        "unit_price": 25,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true
+      },
+      {
+        "category": "其他",
+        "name": "雨具+矿泉水+应急药品包",
+        "unit_price": 200,
+        "quantity": 1,
+        "unit": "团",
+        "includes_in_price": true
+      },
+      {
+        "category": "门票",
+        "name": "峰林布依景区",
+        "unit_price": 60,
+        "quantity": 4,
+        "unit": "人",
+        "includes_in_price": true,
+        "note": "含夜景"
+      }
+    ],
+    "market_reference": {
+      "fliggy_similar_route": {
+        "name": "兴义万峰林马岭河6日跟团游",
+        "price_per_person": 3280,
+        "source": "飞猪参考"
+      },
+      "notes": "飞猪同类产品为30人大巴团均价，本方案为4人私享小团，全程7座商务车"
+    }
+  },
+  "suppliers": {
+    "transport": {
+      "type": "7座商务车",
+      "company": "待确认",
+      "driver": "待安排",
+      "phone": "待确认",
+      "plate": "待确认",
+      "seats": 7
+    },
+    "hotels": [
+      {
+        "name": "兴义市区四星酒店",
+        "type": "四星",
+        "contact": "待确认",
+        "phone": "待确认",
+        "checkin": "14:00",
+        "checkout": "12:00",
+        "rooms_booked": 2,
+        "room_types": [
+          "标准双人间×2"
+        ],
+        "note": "低楼层、安静朝向"
+      }
+    ],
+    "restaurants": [
+      {
+        "day": 1,
+        "meal": "晚餐",
+        "name": "酒店中餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": "兴义特色菜"
+      },
+      {
+        "day": 2,
+        "meal": "午餐",
+        "name": "纳灰村布依餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": "五色糯米饭、酸汤鱼"
+      },
+      {
+        "day": 2,
+        "meal": "晚餐",
+        "name": "市区餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": ""
+      },
+      {
+        "day": 3,
+        "meal": "午餐",
+        "name": "峡谷附近餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": ""
+      },
+      {
+        "day": 3,
+        "meal": "晚餐",
+        "name": "市区餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": ""
+      },
+      {
+        "day": 4,
+        "meal": "午餐",
+        "name": "万峰湖渔家乐",
+        "contact": "",
+        "phone": "",
+        "menu": "清蒸湖鱼"
+      },
+      {
+        "day": 5,
+        "meal": "午餐",
+        "name": "鲁屯镇餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": ""
+      },
+      {
+        "day": 5,
+        "meal": "晚餐",
+        "name": "兴义特色餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": "黔菜风味"
+      },
+      {
+        "day": 2,
+        "meal": "晚餐",
+        "name": "峰林布依附近餐厅",
+        "contact": "",
+        "phone": "",
+        "menu": "布依酸汤鱼、灰豆腐鸡"
+      }
+    ],
+    "attractions": [
+      {
+        "name": "万峰林景区",
+        "contact": "",
+        "phone": "",
+        "tickets": "门票70+观光车50，60岁以上半票"
+      },
+      {
+        "name": "马岭河峡谷",
+        "contact": "",
+        "phone": "",
+        "tickets": "门票60+电梯40"
+      },
+      {
+        "name": "万峰湖",
+        "contact": "",
+        "phone": "",
+        "tickets": "游船60"
+      },
+      {
+        "name": "阳光谷旅游度假区",
+        "contact": "",
+        "phone": "",
+        "tickets": "30"
+      },
+      {
+        "name": "三叠纪博物馆",
+        "contact": "",
+        "phone": "",
+        "tickets": "40"
+      },
+      {
+        "name": "何应钦故居",
+        "contact": "",
+        "phone": "",
+        "tickets": "20"
+      },
+      {
+        "name": "峰林布依景区",
+        "contact": "",
+        "phone": "",
+        "tickets": "60元/人，含夜景"
+      },
+      {
+        "name": "栖梦泽温泉酒店",
+        "contact": "",
+        "phone": "",
+        "tickets": "约128元/人",
+        "note": "鲁屯镇明镜一路，距古镇步行可达"
+      }
+    ]
+  },
+  "supplies": [
+    {
+      "category": "文件",
+      "items": [
+        {
+          "name": "出团通知书",
+          "qty": 1,
+          "unit": "份",
+          "note": "含行程+天气+注意事项"
+        },
+        {
+          "name": "客户名单",
+          "qty": 1,
+          "unit": "份",
+          "note": "含紧急联系人"
+        },
+        {
+          "name": "保险确认单",
+          "qty": 1,
+          "unit": "份"
+        }
+      ]
+    },
+    {
+      "category": "应急",
+      "items": [
+        {
+          "name": "急救包",
+          "qty": 1,
+          "unit": "个",
+          "note": "含创可贴、消毒水、晕车药、速效救心丸"
+        },
+        {
+          "name": "雨伞",
+          "qty": 5,
+          "unit": "把",
+          "note": "每人1把+备用1把"
+        },
+        {
+          "name": "一次性雨衣",
+          "qty": 8,
+          "unit": "件",
+          "note": "应急备用"
+        }
+      ]
+    },
+    {
+      "category": "日常",
+      "items": [
+        {
+          "name": "矿泉水",
+          "qty": 2,
+          "unit": "箱",
+          "note": "车上常备"
+        },
+        {
+          "name": "湿毛巾",
+          "qty": 10,
+          "unit": "条",
+          "note": "每日更换"
+        },
+        {
+          "name": "晕车药",
+          "qty": 1,
+          "unit": "盒",
+          "note": "防盘山路晕车"
+        },
+        {
+          "name": "老花镜（备用）",
+          "qty": 2,
+          "unit": "副",
+          "note": "看菜单/行程单用"
+        }
+      ]
+    }
+  ],
+  "customers": [
+    {
+      "name": "待确认-客户1",
+      "phone": "待确认",
+      "id": "待确认",
+      "insurance": "待确认",
+      "diet": "正常",
+      "roommate": "客户2",
+      "notes": ""
+    },
+    {
+      "name": "待确认-客户2",
+      "phone": "待确认",
+      "id": "待确认",
+      "insurance": "待确认",
+      "diet": "正常",
+      "roommate": "客户1",
+      "notes": ""
+    },
+    {
+      "name": "待确认-客户3",
+      "phone": "待确认",
+      "id": "待确认",
+      "insurance": "待确认",
+      "diet": "正常",
+      "roommate": "客户4",
+      "notes": ""
+    },
+    {
+      "name": "待确认-客户4",
+      "phone": "待确认",
+      "id": "待确认",
+      "insurance": "待确认",
+      "diet": "正常",
+      "roommate": "客户3",
+      "notes": ""
+    }
+  ],
+  "weather": {
+    "forecast": "7/10雷阵雨21-28°C | 7/11雷阵雨21-28°C | 7/12零星雷暴21-28°C | 7/13-15待更新",
+    "warning": "夏季午后多雷雨，早上天气较好",
+    "advice": "早上安排户外活动，下午室内/半室内。备雨具，注意防滑。穿防滑运动鞋"
+  },
+  "emergency_plan": {
+    "weather_rain": {
+      "light": "继续活动，发放雨伞/雨衣",
+      "heavy": "转入室内博物馆/回酒店休息，调整行程顺序"
+    },
+    "medical": {
+      "minor": "随车急救包处理",
+      "serious": "最近医院：黔西南州人民医院（车程15分钟），急救电话120"
+    },
+    "transport": {
+      "breakdown": "备用车辆调度（联系本地租车公司）"
+    }
+  }
+}

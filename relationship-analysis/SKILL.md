@@ -7,7 +7,7 @@ metadata:
   hermes:
     tags: [analysis, psychology, relationships, coaching, methodology]
     category: methodology
-    related_skills: [deep-think, double-evolution]
+    related_skills: [deep-think]
     calls: [deep-think]
     called_by: []
 ---

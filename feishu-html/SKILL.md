@@ -5,7 +5,7 @@ triggers:
   - 用户要求创建内部方案+对外宣传两个版本（双轨交付）
 metadata:
   hermes:
-    related_skills: [ai-native-workflow, huashu-design, trip-landing, blue-team, hallmark, double-evolution]
+    related_skills: [ai-native-workflow, huashu-design, trip-landing, feishu-doc, blue-team, hallmark]
 ---
 
 # Feishu HTML · 内容制作与 OSS 部署
@@ -15,8 +15,8 @@ metadata:
 - **Bucket**：`clawshell-vault`
 - **OSS Endpoint**：`https://oss-cn-hongkong.aliyuncs.com`
 - **绑定域名**：`https://gzzhike.cn`
-- **AccessKey ID**：`<YOUR_OSS_ACCESS_KEY_ID>`
-- **AccessKey Secret**：`<YOUR_OSS_ACCESS_KEY_SECRET>`
+- **AccessKey ID**：`<YOUR_OSS_ACCESS_KEY_ID>` — **从 `~/.ossutilconfig` 提取**（`cat ~/.ossutilconfig`），见 `references/oss-credentials.md`
+- **AccessKey Secret**：`<YOUR_OSS_ACCESS_KEY_SECRET>` — 同上
 - **部署目录前缀**：`web-spa/`
 - **OSS SDK**：`oss2`（`pip install oss2`）
 
@@ -712,6 +712,26 @@ def deploy_static_package(local_file, project_name):
 - 没有 Node.js 时用 `pip install playwright && playwright install chromium` 的 Python 版
 
 ---
+
+## 内容极简原则（用户偏好）
+
+当用户说"太复杂""简化""只保留核心"时，执行以下裁剪规则——不仅在 HTML 页面内生效，飞书文档、PPT 等所有对外/对讲师的产出均适用：
+
+**保留项**（必须留）：
+- 核心结构/框架总览表
+- 比例/数值表
+- 公式链路（自然语言，不要代码块）
+- 一个完整示例（一张表走完）
+
+**裁剪项**（一律删除）：
+- 背景叙事/设计理念/哲学阐述
+- "为什么需要这套制度"类问题陈述
+- 多场景示例（只保留一个）
+- FAQ 问答
+- 长段叙述性文字 → 改为表格
+- 任何"在算什么/为什么"三段式解释 → 改为单行公式
+
+**极简交付标准**：读者打开页面/文档，滚动一次看完所有关键信息，无需翻页寻找。表格优先于段落，公式优先于解释。
 
 ## 错误处理
 
