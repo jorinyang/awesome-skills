@@ -7,7 +7,7 @@ description: >-
   需要可编辑格式（Draw.io XML）→ drawio-generation；暗色主题架构图 → architecture-diagram。
 metadata:
   hermes:
-    related_skills: [drawio-generation, architecture-diagram]
+    related_skills: [drawio-generation, architecture-diagram, double-evolution]
 ---
 
 # Fireworks Tech Graph (Hermes 适配版)

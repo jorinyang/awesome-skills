@@ -10,6 +10,7 @@ triggers:
   - 比价
   - 定价建议
   - 利润测算
+related_skills: [double-evolution]
 version: 1.0.0
 ---
 

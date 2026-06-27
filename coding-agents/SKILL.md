@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [Coding-Agent, Claude, Codex, OpenCode, Delegation, PTY, Automation]
-    related_skills: [hermes-agent]
+    related_skills: [hermes-agent, double-evolution]
 ---
 
 # Coding Agent Delegation

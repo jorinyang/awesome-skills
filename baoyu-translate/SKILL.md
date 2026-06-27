@@ -8,6 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [translation, localization, content, writing]
+      related_skills: [double-evolution]
     category: creative
     homepage: https://github.com/JimLiu/baoyu-skills#baoyu-translate
 ---

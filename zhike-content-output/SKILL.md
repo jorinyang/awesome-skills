@@ -13,6 +13,7 @@ triggers:
   - 海报/单页/推介材料/基地介绍/B2B材料 (面向旅行社/研学机构的单页设计——加载 references/b2b-poster-design.md 获取设计规范和迭代陷阱)
   - 小红书/小红书笔记/小红书文案/产品笔记/种草笔记/小红书发什么 (小红书内容策划→加载 references/xiaohongshu-post-framework.md)
   - 小红书攻略/产品笔记/种草笔记/小红书文案/搜索关键词 (小红书产品笔记框架——加载 references/xiaohongshu-product-note-framework.md)
+related_skills: [double-evolution]
 tags: [贵州之客, content-output, 价值观, 方法论, 产出准则, 内容审核]
 category: productivity
 ---

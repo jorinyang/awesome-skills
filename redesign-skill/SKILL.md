@@ -16,7 +16,7 @@ triggers:
 metadata:
   hermes:
     tags: [redesign, audit, upgrade, quality, anti-slop]
-    related_skills: [huashu-design, hallmark, taste-skill]
+    related_skills: [huashu-design, hallmark, taste-skill, double-evolution]
     scope: interface-upgrade
   upstream: https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill (MIT)
 ---

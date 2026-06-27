@@ -10,7 +10,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [workflow, design-flow, builder, orchestrator]
-    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree, answer-standalone]
+    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree, answer-standalone, double-evolution]
 triggers:
   # 显式调用
   - "answer"

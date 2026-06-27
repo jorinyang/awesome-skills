@@ -4,6 +4,7 @@ description: >
   Synchronize skills between Hermes instances using symlinks, or from a GitHub
   skills repo. Compare, classify, backup, and link skill directories. Trigger:
   sync skills from another instance, align skill libraries, clone repo skills.
+related_skills: [double-evolution]
 ---
 
 # Hermes Skill Sync

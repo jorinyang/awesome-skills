@@ -1,6 +1,7 @@
 ---
 name: requirement-alignment-analysis
 description: 多轮需求对齐差异分析。将PRD及多轮会议对齐结果以需求项为核心逐项对比，标注原有/差异/新增/待确定状态。适用于系统开发中与客户进行多次信息同步后产出差异分析文档。触发：需求对齐差异分析/PRD对比/需求变更分析/需求项追踪/需求对齐结果对比。
+related_skills: [double-evolution]
 ---
 
 # 需求对齐差异分析

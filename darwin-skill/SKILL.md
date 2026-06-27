@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [skill-optimizer, evaluation, quality, meta-skill, darwin]
-    related_skills: [hermes-agent-skill-authoring]
+    related_skills: [hermes-agent-skill-authoring, double-evolution]
 ---
 
 # Darwin Skill 2.0 (Hermes Edition)

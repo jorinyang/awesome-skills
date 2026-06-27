@@ -8,6 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [cover-image, creative, image-generation, article]
+      related_skills: [double-evolution]
     category: creative
     homepage: https://github.com/JimLiu/baoyu-skills#baoyu-cover-image
 ---

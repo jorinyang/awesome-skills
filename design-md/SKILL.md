@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [design, brand, tokens, design-system, reference, ui]
-    related_skills: [claude-design, huashu-design, popular-web-designs]
+    related_skills: [claude-design, huashu-design, popular-web-designs, double-evolution]
 ---
 
 # Design MD — 品牌风格参考库

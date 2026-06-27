@@ -1,6 +1,7 @@
 ---
 name: html-ppt
 description: HTML PPT Studio — 用 36 套主题 × 31 种布局 × 47 个动效 × 15 套完整模板快速生成 HTML 演示文稿。纯静态 HTML/CSS/JS，键盘操控，零构建。触发词：PPT、幻灯片、演示、deck、slides、演讲、分享稿、pitch、小红书图文、keynote、reveal、slideshow、演讲稿、做一份 PPT、做一份 slides。
+related_skills: [double-evolution]
 ---
 
 # html-ppt · HTML PPT Studio

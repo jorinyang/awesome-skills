@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [feishu, bitable, spreadsheet, table, database, crm, lark-cli]
-    related_skills: [feishu-doc, feishu-wiki, kanban-orchestrator]
+    related_skills: [feishu-doc, feishu-wiki, kanban-orchestrator, double-evolution]
 ---
 
 # Feishu Table — 飞书多维表格 + 电子表格

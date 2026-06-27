@@ -15,7 +15,7 @@ version: 1.5.6
 dependencies:
   skills: [feishu-wiki, opencli]
   commands: [lark-cli, agent-browser, opencli]
-  related_skills: [travel-itinerary, travel-workflow]
+  related_skills: [travel-itinerary, travel-workflow, double-evolution]
 ---
 
 # travel-intel — 贵州之客旅游情报系统

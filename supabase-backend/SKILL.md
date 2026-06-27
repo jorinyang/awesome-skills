@@ -10,7 +10,7 @@ triggers:
   - 数据持久化
   - 多人共享数据
   - SPA 后端
-related_skills: [feishu-html, trip-landing]
+related_skills: [feishu-html, trip-landing, double-evolution]
 ---
 
 # Supabase Backend — SPA 数据层最佳实践

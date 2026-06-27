@@ -22,7 +22,7 @@ triggers:
 metadata:
   hermes:
     tags: [github, release, readme, sync, pipeline, dual-source]
-    related_skills: [github-absorb, hermes-instance-sync]
+    related_skills: [github-absorb, hermes-instance-sync, double-evolution]
     repo: jorinyang/awesome-skills
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: windows-troubleshooting-from-wsl
 description: Diagnose and repair Windows components (services, Store, AppX packages, registry) from a WSL session by bridging to Windows PowerShell. Use when a user reports a Windows-side problem but the agent's shell is WSL.
+related_skills: [double-evolution]
 category: devops
 ---
 

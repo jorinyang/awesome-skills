@@ -8,6 +8,7 @@ triggers:
   - 团后归档
   - 存档
   - 整理团档
+related_skills: [double-evolution]
 version: 1.0.0
 ---
 

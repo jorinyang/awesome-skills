@@ -1,6 +1,7 @@
 ---
 name: feishu-wiki
 description: 飞书知识库（space_id=7643710721485753535）的每日巡检、首页生成、文档总结、分类检测与变更日志管理。触发：知识库巡检/wiki inspection/飞书首页更新/feishu wiki 巡检。
+related_skills: [double-evolution]
 tags: [feishu, wiki, cron, curation]
 ---
 

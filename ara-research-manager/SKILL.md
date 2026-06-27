@@ -12,7 +12,7 @@ triggers:
 metadata:
   hermes:
     tags: [research, capture, trace, provenance]
-    related_skills: [ara-rigor-reviewer]
+    related_skills: [ara-rigor-reviewer, double-evolution]
     scope: research-only
   upstream: https://github.com/AmberLJC/Agent-Native-Research-Artifact
 ---

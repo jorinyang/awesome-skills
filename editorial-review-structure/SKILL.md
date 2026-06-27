@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [editorial, structure, review, organization, information-architecture]
-    related_skills: [editorial-review-prose, feishu-html, answer, feishu-wiki]
+    related_skills: [editorial-review-prose, feishu-html, answer, feishu-wiki, double-evolution]
 ---
 
 # Editorial Review — 文档结构编辑

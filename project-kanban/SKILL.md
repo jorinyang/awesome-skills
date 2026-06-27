@@ -12,6 +12,7 @@ tags: [feishu, kanban, calendar, task, project-management]
 category: productivity
 metadata:
   hermes:
+      related_skills: [double-evolution]
     related_skills:
       - zhike-task-hub
 ---

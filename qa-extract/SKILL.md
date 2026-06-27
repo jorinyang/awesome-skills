@@ -7,7 +7,7 @@ metadata:
   hermes:
     tags: [analysis, extraction, qa, methodology, training]
     category: methodology
-    related_skills: [deep-think, book-deconstruct, domain-decompose]
+    related_skills: [deep-think, book-deconstruct, domain-decompose, double-evolution]
     calls: [deep-think]
     called_by: [book-deconstruct, domain-decompose]
 ---

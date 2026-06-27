@@ -8,7 +8,7 @@ version: 2.0.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
-    related_skills: [answer]
+    related_skills: [answer, double-evolution]
 triggers:
   - "answer"
   - "AI原生工作流"

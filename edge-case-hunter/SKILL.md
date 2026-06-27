@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [edge-case, testing, review, boundaries, quality, security]
-    related_skills: [github-code-review, systematic-debugging, feishu-html]
+    related_skills: [github-code-review, systematic-debugging, feishu-html, double-evolution]
 ---
 
 # Edge Case Hunter — 边界条件穷举审查

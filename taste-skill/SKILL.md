@@ -4,7 +4,7 @@ description: 设计方向指引——在huashu-design执行前，通过Brief推�
 metadata:
   hermes:
     tags: [design, direction, pre-generation, tuning, anti-slop]
-    related_skills: [huashu-design, hallmark, design-md]
+    related_skills: [huashu-design, hallmark, design-md, double-evolution]
     scope: design-direction
     pipeline: brandkit(策略) → taste-skill(方向) → huashu-design(执行) → hallmark(门禁)
   upstream: https://github.com/Leonxlnx/taste-skill (MIT, by Leonxlnx)

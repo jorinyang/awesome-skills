@@ -7,6 +7,7 @@ triggers:
   - 视频素材自动生成
   - prompt工程/视频提示词/分镜脚本/情绪导演
   - 写prompt/优化prompt/视频prompt
+related_skills: [double-evolution]
 tags: [jimeng, video-generation, image-generation, ai-native, capcut, dreamina, prompt-engineering, emotion-director]
 category: travel
 ---

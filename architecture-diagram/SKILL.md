@@ -9,7 +9,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [architecture, diagrams, SVG, HTML, visualization, infrastructure, cloud]
-    related_skills: [drawio-generation, fireworks-tech-graph]
+    related_skills: [drawio-generation, fireworks-tech-graph, double-evolution]
 ---
 
 # Architecture Diagram Skill

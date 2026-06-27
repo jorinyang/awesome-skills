@@ -2,6 +2,7 @@
 name: wsl-browser-cdp
 description: Connect Hermes browser tools to Windows Chrome via CDP when running in WSL — fix the Node.js PATH issue, start Chrome with remote debugging, configure browser.cdp_url, and verify connectivity.
 category: devops
+related_skills: [double-evolution]
 tags: [wsl, browser, cdp, chrome, hermes]
 ---
 

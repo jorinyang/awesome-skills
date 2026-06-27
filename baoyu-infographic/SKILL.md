@@ -8,6 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [infographic, visual-summary, creative, image-generation]
+      related_skills: [double-evolution]
     homepage: https://github.com/JimLiu/baoyu-skills#baoyu-infographic
 ---
 

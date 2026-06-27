@@ -11,6 +11,7 @@ triggers:
 version: 1.0.0
 metadata:
   hermes:
+      related_skills: [double-evolution]
     related_skills:
       - trip-quote
       - cost-engine

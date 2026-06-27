@@ -369,11 +369,23 @@ Agent 在以下时刻隐性记录信号（不打断对话、不向用户展示�
 
 ### 已关联技能
 
-以下技能已声明 `double-evolution` 关联（共 11 个）：
+以下技能已声明 `double-evolution` 关联（共 91 个，全量追踪 `jorinyang/awesome-skills` 仓库）。
 
-**自建 (7)**：`agent-tool-system`、`benchmark-generator`、`blue-team`、`drawio-generation`、`github-absorb`、`skill-ab-test`、`skill-evaluator`
+**🧠 方法论 (20)**：`advanced-elicitation`、`author-methodology-analysis`、`blue-team`、`book-deconstruct`、`darwin-skill`、`deep-think`、`domain-decompose`、`edge-case-hunter`、`editorial-review-prose`、`editorial-review-structure`、`external-skill-evaluation`、`github-absorb`、`ljg-elicitation-modes`、`ljg-infographic-design`、`ljg-writing-voice`、`opportunity-solution-tree`、`pm-prioritization-frameworks`、`qa-extract`、`relationship-analysis`、`stakeholder-mapping`
 
-**三方吸收 (4)**：`author-methodology-analysis`、`dynamic-workflow`、`ocr-and-documents`、`wechat-article-archive`
+**🏗️ 构建与设计 (22)**：`answer`、`answer-standalone`、`architecture-diagram`、`brandkit`、`claude-design`、`design-md`、`drawio-generation`、`feishu-html`、`fireworks-tech-graph`、`hallmark`、`html-ppt`、`huashu-design`、`humanizer`、`pretext`、`redesign-skill`、`requesting-code-review`、`requirement-alignment-analysis`、`sketch`、`strategy-plan-writing`、`taste-skill`、`writing-plans`、`dynamic-workflow`
+
+**🔧 开发工程 (11)**：`agent-native-cli-design`、`coding-agents`、`cross-project-adaptation`、`dingtalk-cli`、`github-release-readme`、`hermes-instance-sync`、`subagent-driven-development`、`supabase-backend`、`technical-documentation-production`、`test-driven-development`、`wsl-browser-cdp`
+
+**🤖 AI 工程 (5)**：`agent-tool-system`、`benchmark-generator`、`double-evolution`、`skill-ab-test`、`skill-evaluator`
+
+**📋 飞书系列 (5)**：`feishu-doc`、`feishu-table`、`feishu-wiki`、`project-kanban`、`zhike-task-hub`
+
+**🏔️ 贵州之客 (18)**：`amap-lbs`、`cost-engine`、`customer-view`、`guide-exec`、`jimeng-video`、`supply-check`、`travel-intel`、`travel-itinerary`、`travel-workflow`、`trip-archive`、`trip-briefing`、`trip-landing`、`trip-quote`、`vendor-brief`、`wechat-article-archive`、`zhike-content-output`、`windows-troubleshooting-from-wsl`、`ocr-and-documents`
+
+**🔬 研究 (4)**：`ara-compiler`、`ara-research-manager`、`ara-rigor-reviewer`、`systematic-debugging`
+
+**🎨 创意内容 (6)**：`baoyu-article-illustrator`、`baoyu-comic`、`baoyu-cover-image`、`baoyu-infographic`、`baoyu-translate`、`image-analysis`
 
 > 新增需要追踪的技能时，只需在其 `related_skills` 中添加 `double-evolution` 即可。
 

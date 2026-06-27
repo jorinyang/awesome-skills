@@ -4,7 +4,7 @@ description: 品牌策略与Logo设计方法论——品牌策略推导、5种Lo
 metadata:
   hermes:
     tags: [brand, identity, logo, design-strategy, visual-system]
-    related_skills: [taste-skill, huashu-design, hallmark, design-md, jimeng-video]
+    related_skills: [taste-skill, huashu-design, hallmark, design-md, jimeng-video, double-evolution]
     scope: brand-identity-design
     pipeline: brandkit(策略) → taste-skill(方向) → huashu-design(执行) → hallmark(门禁)
   upstream: https://github.com/Leonxlnx/taste-skill/tree/main/skills/brandkit (MIT)

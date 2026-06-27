@@ -8,6 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [article-illustration, creative, image-generation]
+      related_skills: [double-evolution]
     category: creative
     homepage: https://github.com/JimLiu/baoyu-skills#baoyu-article-illustrator
 ---
