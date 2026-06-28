@@ -45,7 +45,8 @@ metadata:
 
 | 类型 | 识别方式 | 示例 |
 |------|---------|------|
-| **官方/插件技能** | 来自 Hermes 内置/插件，或 SKILL.md 含 plugin/superpowers 标记。**同步时强制过滤，绝不推送到 GitHub。** | lark-* (27个), coding-agents, creative-ideation, kanban, plan, spike, dogfood, yuanbao, youtube-content, model-comparison, memos-cloud |
+| **官方/插件技能** | 来自 Hermes 内置/插件，或 SKILL.md 含 plugin/superpowers 标记。**同步时强制过滤，绝不推送到 GitHub。** | lark-* (27个), coding-agents, creative-ideation, kanban, dogfood, yuanbao, youtube-content, model-comparison, memos-cloud |
+| **永久排除（用户指定）** | 用户明确要求从 GitHub 仓库移除且永不加入。即使后续本地有更新也不同步。 | plan, spike, dingtalk-channel, ocr-and-documents |
 | **平台专属技能** | 含飞书内部 API token/space_id 等敏感信息 | feishu-wiki (含 space_id), clawshell-cloud-brain |
 
 > 🔴 原则：GitHub 仓库 = 公开可复用的技能资产。平台绑定/含密钥/纯执行工具的技能留在本地。
@@ -95,7 +96,16 @@ def classify_skill(skill_md_path):
     """
     content = read(skill_md_path)
     
-    # 1. 官方/插件标记（最高优先级）
+    # 0. 永久排除（用户指定，最高优先级）
+    # 这些技能即使满足后续条件，也绝不纳入 GitHub 同步
+    PERMANENTLY_EXCLUDED = [
+        'plan', 'spike', 'dingtalk-channel', 'ocr-and-documents'
+    ]
+    for skill_name in PERMANENTLY_EXCLUDED:
+        if f'/skills/{skill_name}/' in skill_md_path or skill_md_path.endswith(f'/{skill_name}/SKILL.md'):
+            return 'official'  # 作为官方/插件类排除
+    
+    # 1. 官方/插件标记
     if any(m in content for m in [
         'plugin:', 'superpowers:', 'hermes builtin',
         'hermes官方', 'from hermes core'
@@ -286,6 +296,7 @@ gh release view "v{M}.{m}.{p}" --repo jorinyang/awesome-skills
 
 - [ ] 双源扫描已完成（本地 vs GitHub）
 - [ ] 官方/插件技能已过滤（不在同步列表中）
+- [ ] **永久排除技能检查**：plan/spike/dingtalk-channel/ocr-and-documents 确认不在同步列表中（classify_skill 第0步强制拦截）
 - [ ] **Symlink 解析**：所有源路径已通过 `readlink -f` 解析
 - [ ] 软链接已解除（`cp -rL` 而非 `cp -a`；GitHub 端 `find -type l` 必须为 0）
 - [ ] `__pycache__/` 已删除
