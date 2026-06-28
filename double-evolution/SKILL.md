@@ -383,7 +383,7 @@ Agent 在以下时刻隐性记录信号（不打断对话、不向用户展示�
 
 **📋 飞书系列 (5)**：`feishu-doc`、`feishu-table`、`feishu-wiki`、`project-kanban`、`zhike-task-hub`
 
-**🏔️ 贵州之客 (18)**：`amap-lbs`、`cost-engine`、`customer-view`、`guide-exec`、`jimeng-video`、`supply-check`、`travel-intel`、`travel-itinerary`、`travel-workflow`、`trip-archive`、`trip-briefing`、`trip-landing`、`trip-quote`、`vendor-brief`、`wechat-article-archive`、`zhike-content-output`、`windows-troubleshooting-from-wsl`、`ocr-and-documents`
+**🏔️ 贵州之客 (17)**：`amap-lbs`、`cost-engine`、`customer-view`、`guide-exec`、`jimeng-video`、`supply-check`、`travel-intel`、`travel-itinerary`、`travel-workflow`、`trip-archive`、`trip-briefing`、`trip-landing`、`trip-quote`、`vendor-brief`、`wechat-article-archive`、`zhike-content-output`、`windows-troubleshooting-from-wsl`
 
 **🔬 研究 (4)**：`ara-compiler`、`ara-research-manager`、`ara-rigor-reviewer`、`systematic-debugging`
 
