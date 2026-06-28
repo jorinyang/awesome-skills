@@ -117,6 +117,8 @@ metadata:
 
 ### 1. 建立样本清单
 
+🔴 CHECKPOINT — 样本建立前确认：样本数量是否 ≥3 篇（<3 不输出报告）？是否 ≥5 篇（<5 只做描述性分析）？输入目录格式是否支持（Markdown/TXT/DOCX/PDF/飞书文档）？
+
 ```bash
 python3 scripts/analyze_corpus.py \
   --input "<input_dir>" \
@@ -167,6 +169,8 @@ python3 scripts/analyze_corpus.py \
 
 ### 4. 提炼方法论
 
+🔴 CHECKPOINT — 方法论提炼前确认：21 维度数据是否已全部完成？`<博主>-分析数据.json` 和 `<博主>-文章特征.csv` 是否已由脚本生成？主观标签是否都包含 `annotations` 含证据？样本是否 ≥5 篇（<5 禁出趋势/演化/稳定风格结论）？
+
 主报告至少包含 13 个模块：
 
 1. 作者定位与内容人设
@@ -193,6 +197,8 @@ python3 scripts/analyze_corpus.py \
 
 ### 6. 自动生成 HTML 看板
 
+🔴 CHECKPOINT — HTML 生成前确认：`<博主>-分析数据.json` 是否完整（21 维度数据齐全）？用户是否明确要求关闭 HTML 生成？输出目录是否可写？
+
 ```bash
 python3 scripts/generate_dashboard.py \
   --data "<output_dir>/<博主>-分析数据.json" \
@@ -209,6 +215,18 @@ python3 scripts/generate_dashboard.py \
 通过 `lark-doc` 技能同步。先完成本地 Markdown，再创建/更新飞书文档。飞书失败不得影响本地文件完成状态。
 
 ---
+
+## 失败模式与恢复
+
+| 触发条件 | 症状 | 一线修复 | 仍失败兜底 |
+|---|---|---|---|
+| 样本数量 <3 篇 | `analyze_corpus.py` 报告样本不足 | 向用户说明最少需要 3 篇，请求补充更多文章 | 只做描述性统计（字数/篇幅），不出方法论报告 |
+| 输入格式不支持 | `analyze_corpus.py` 报 "unsupported format" | 确认文件格式（MD/TXT/DOCX/PDF），对 PDF 先用 `ocr-and-documents` 提取文本 | 请求用户提供 Markdown 或纯文本版本 |
+| 21 维度数据不完整 | `validate_outputs.py` 报缺少字段 | 确认维度条件是否满足（如 ≥5 篇才做关键词/论证分析），检查脚本输出日志 | 补充缺失维度的脚本执行，或标记为 "N/A（样本不足）" |
+| HTML 生成失败 | `generate_dashboard.py` 报错 | 检查 `<博主>-分析数据.json` 是否完整且格式正确，确认输出目录可写 | 先生成 Markdown 报告，HTML 稍后手动补生成 |
+| 飞书同步失败 | `lark-doc` 接口返回错误 | 检查飞书 token 是否有效，文档权限是否正确 | 本地 Markdown 已完成，飞书记录失败原因，不阻塞交付 |
+| 文章编码/乱码 | 中文变为乱码 | 确认文件编码为 UTF-8，用 `chardet` 检测后转码 | 请求用户提供 UTF-8 编码版本 |
+| 分析结论与常识矛盾 | 某维度结论明显不合理 | 检查该维度的 `annotations` 证据，确认分类规则是否正确应用 | 标记该维度为 "需要人工审核"，不输出该结论 |
 
 ## 质量门槛
 
@@ -234,12 +252,27 @@ python3 scripts/generate_dashboard.py \
 
 ## 资源
 
-> ⚠️ Python 脚本和参考模板需从上游仓库安装。详见 [`references/script-setup.md`](references/script-setup.md)。测试结果见 [`references/test-results.md`](references/test-results.md)。
+> ⚠️ Python 脚本需从上游仓库安装。详见 [`references/script-setup.md`](references/script-setup.md)。测试结果见 [`references/test-results.md`](references/test-results.md)。
 
 本技能 Python 脚本源自 `freestylefly/author-methodology-analysis-skill`：
-- `scripts/analyze_corpus.py` — 解析语料并生成确定性特征数据
-- `scripts/generate_dashboard.py` — 从共享数据源生成离线 HTML 看板
-- `scripts/validate_outputs.py` — 校验数据、报告、HTML 和同步元数据
+
+| 脚本 | 路径 | 用途 | 验证 |
+|---|---|---|---|
+| `analyze_corpus.py` | `scripts/analyze_corpus.py` | 解析语料生成特征数据（JSON + CSV） | `python3 scripts/analyze_corpus.py --help` |
+| `generate_dashboard.py` | `scripts/generate_dashboard.py` | 从 JSON 数据生成 HTML 看板 | `python3 scripts/generate_dashboard.py --help` |
+| `validate_outputs.py` | `scripts/validate_outputs.py` | 校验数据/报告/HTML/同步元数据完整性 | `python3 scripts/validate_outputs.py "<output_dir>"` |
+
+### 安装步骤
+
+```bash
+git clone https://github.com/freestylefly/author-methodology-analysis-skill.git /tmp/ama
+cp /tmp/ama/scripts/analyze_corpus.py scripts/
+cp /tmp/ama/scripts/generate_dashboard.py scripts/
+cp /tmp/ama/scripts/validate_outputs.py scripts/
+chmod +x scripts/*.py
+```
+
+Python 依赖：`pandas`, `jieba`（中文分词）, `python-docx`, `pypdf`。参考文件：`references/script-setup.md` 含完整环境配置，`references/test-results.md` 含测试用例与预期输出。
 
 ## 常见陷阱
 
@@ -259,3 +292,15 @@ python3 scripts/generate_dashboard.py \
 - [ ] HTML 看板十章节结构正确
 - [ ] 飞书同步完成（或记录跳过原因）
 - [ ] `validate_outputs.py` 通过
+
+## ⛔ 反例与禁止
+
+以下行为明确禁止，违反将导致分析质量严重下降或误导性结论：
+
+- ❌ **样本 <3 篇时输出完整报告** — 少于 3 篇不得输出趋势、演化或稳定风格结论，只做描述性分析
+- ❌ **混淆"学习"与"抄袭"** — 框架只学结构，标注"抽象模板""非作者原文"，不得复刻作者独特表达
+- ❌ **主观标签无证据** — 每条标注必须写入 `annotations` 含文章 ID 和证据片段，不能凭空断言
+- ❌ **跳过 HTML 看板生成** — HTML 是标准交付物，只有用户明确说"不生成 HTML"才可跳过
+- ❌ **数据口径不透明** — 每项统计必须说明分母、分类规则或计算方式，禁止只给数字不给口径
+- ❌ **词频等同于作者态度** — 高频词不代表作者立场，主题/金句/情绪标签必须说明分类规则
+- ❌ **跨样本推断超出边界** — 不得从 5 篇文章推断"该博主一贯风格"，必须披露样本覆盖的时间范围和边界

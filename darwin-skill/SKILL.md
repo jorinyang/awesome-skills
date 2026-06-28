@@ -35,7 +35,9 @@ Cron job 通过本技能每日自动执行技能巡检与优化，无人在回�
 ### 约束
 
 - 并行优化 ≤3 子 agent，toolsets: `["terminal", "file"]`
+- 每个子 agent ≤3 技能（4+ 技能 × 3 轮易超 leaf 子 agent max_iterations ~50次 tool call）
 - 回滚用 `git revert`，不用 `git reset --hard`（cron 安全策略拦截）
 - 体积上限 150%，小技能（<100 行）接受天花板（~40-50）
+- 父 agent 在子 agent 返回后检查 `git status`，补提未提交变更
 
 → 实战案例：[references/cron-execution-pattern.md](references/cron-execution-pattern.md)

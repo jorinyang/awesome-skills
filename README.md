@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-91-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-93-blue)](.)
 
 ---
 
@@ -84,7 +84,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
-### 🔧 开发工程 (12)
+### 🔧 开发工程 (14)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -99,6 +99,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [hermes-instance-sync](hermes-instance-sync/SKILL.md) 🆕 | 同步技能/实例间同步/技能对齐 | Hermes实例间Skill同步——双源对比+分类+备份+软链接 |
 | [technical-documentation-production](technical-documentation-production/SKILL.md) 🆕 | 产出技术文档/PRD/ER图/架构图 | 技术文档套件——PRD+ER图+架构图+流程图+交叉校验 |
 | [windows-troubleshooting-from-wsl](windows-troubleshooting-from-wsl/SKILL.md) 🆕 | Windows修复/服务诊断/WSL修复 | WSL→Windows PowerShell桥接——服务/Store/AppX/注册表诊断修复 |
+| [wsl-docker-deploy](wsl-docker-deploy/SKILL.md) 🆕 | 部署docker/自托管/docker pull超时/拉取镜像失败 | WSL2 Docker Desktop代理部署——crane代理拉取→docker load→compose up |
+| [firecrawl-web](firecrawl-web/SKILL.md) 🆕 | 搜索/查资料/抓取/爬取/提取数据 | Firecrawl自托管MCP——搜索网页/抓取内容/爬取网站/结构化数据提取 |
 | [github-release-readme](github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
 
 ### 🤖 AI 工程 (4) 🆕
@@ -547,7 +549,7 @@ for dir in */; do
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
     huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
     ara-*) category="research" ;;
-    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl) category="software-development" ;;
+    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
     skill-evaluator|skill-ab-test|benchmark-generator|agent-tool-system) category="ai-engineering" ;;
     requirement-alignment-analysis) category="productivity" ;; 
@@ -582,6 +584,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.2 | 2026-06-29 | 93技能 — +2新增(wsl-docker-deploy: WSL2 Docker代理部署+firecrawl-web: Firecrawl自托管MCP) +9更新(author-methodology-analysis/benchmark-generator/darwin-skill/double-evolution/dynamic-workflow/hermes-instance-sync/skill-ab-test/travel-intel/wechat-article-archive)；开发工程12→14 |
 | v5.4.1 | 2026-06-28 | 91技能 — 移除4个非核心技能(plan/spike/dingtalk-channel/ocr-and-documents v5.1.0已清但v5.4.0误加回)，永久排除；构建与设计24→22、开发工程13→12、创意内容7→6；清理4处交叉引用 |
 | v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |

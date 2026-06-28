@@ -223,6 +223,15 @@ Phase 1: Classify（内部推理，不输出）
 Phase 2: Build（构建 delegate_task 调用，不输出表格）
   └─ 按下方的执行模板生成具体的 task goals + toolsets + context
 
+🔴 **CHECKPOINT** — 工作流已构建。确认后执行：
+>- [ ] 选择的模式组合是否匹配 Layer 1 默认 + Layer 2 上调？
+>- [ ] 子 Agent 数量是否在并发限制内（≤3/批）？
+>- [ ] 每个 task 的 goal 是否有明确验收标准？
+>- [ ] toolsets 分配是否符合分配规则？
+>- [ ] 若配置不当 → 回到 Phase 1 重新计分
+
+🛑 确认通过 → 进入 Phase 3 执行
+
 Phase 3: Execute（实际执行，用户可见）
   ├─ delegate_task 并行分派 → 汇总 → 质量门验证
   └─ 每步完成后输出状态
@@ -276,6 +285,8 @@ Step 4: 最终交付
 Step 1: Rubric 先行（必须在生成前定义）
   明确评分标准: 维度1(权重) / 维度2(权重) / 维度3(权重)
   向用户确认 rubric 是否合理
+
+🔴 **CHECKPOINT** — Rubric 需用户确认后才能继续。若用户未确认，暂停并等待。
 
 Step 2: 并行生成（④ Generate）
   delegate_task(tasks=[
@@ -366,6 +377,8 @@ Step 1: 逐层排查（⑥ Loop）
 Step 2: 修复方案
   delegate_task(goal: "根据根因 <X> 给出修复方案，含具体代码变更和回滚方案")
 
+🔴 **CHECKPOINT** — 修复方案需审查后才能部署验证。确认修复不引入副作用后继续。
+
 Step 3: 独立验证（③ Adversarial）
   delegate_task(
     goal: "验证修复方案是否真正解决根因，且不引入新问题。检查边界情况",
@@ -446,6 +459,32 @@ Step 3: 整合交付
 4. rubric 在生成之前定义
 
 ---
+
+## ⛔ 反例与禁止
+
+以下行为违反隔离原则，导致多 Agent 工作流失效：
+
+| ❌ 反例 | 正确做法 |
+|---------|---------|
+| 用单一 Agent 假装多个角色顺序对话 | 必须用 `delegate_task` spawn 独立子进程 |
+| ③ verifier 能看到 worker 的推理过程 | verifier 只接收最终产出，上下文声明独立性 |
+| ④ rubric 在生成后再定义 | rubric 必须在生成前定义并确认 |
+| ⑥ Loop 的 max_iter 不设上限 | 必须写死 max_iter = D6×3（上限 10） |
+| 总分 ≤ 5 的任务强行触发工作流 | 静默跳过，直接单 Agent 执行 |
+| 把 ② Fanout 的子任务 prompt 降级简写 | 所有并行任务 prompt 必须同质完整 |
+| 子 Agent 失败后静默跳过 | 必须标记 `✗ FAILED`，在最终交付中声明 |
+| D7=3 时不等 Clarify 结果就直接执行 | 必须先 Clarify 再重新分类计分 |
+
+---
+
+## 参考文件
+
+| 文件 | 用途 | 何时查阅 |
+|------|------|---------|
+| `references/business-triggers.md` | 业务上下文触发矩阵（6 领域 × 场景） | Phase 1 Classify 阶段做业务上下文匹配 |
+| `references/isolation-patterns.md` | Claude Code Harness 六模式详解 | Phase 2 Build 时确认模式语义细节 |
+
+> 以上文件为本 Skill 运行时依赖。若缺失，使用 SKILL.md 内嵌的六模式描述和领域矩阵。
 
 ## Attribution
 

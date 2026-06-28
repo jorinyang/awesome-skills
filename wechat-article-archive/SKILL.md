@@ -122,9 +122,13 @@ output/<safe-author-name>/
 
 ### 1. 解析入口并锁定身份
 
+🔴 CHECKPOINT — 入口解析前确认：提供的文章链接是否为公开的 `mp.weixin.qq.com` URL？是否可公开访问（无需登录/付费）？
+
 从入口文章提取：标题（`#activity-name` / `msg_title`）、公众号名（`#js_name` / `nickname`）、`__biz` / `biz`、`mid` / `appmsgid`、`idx`、`sn`、发布时间、合集信息。
 
 ### 2. 锁定候选列表
+
+🔴 CHECKPOINT — 候选列表生成前确认：是否需要扫码登录微信公众平台？扫码人是否就位（手机在身边）？采集篇数是否已指定（默认 50）？
 
 候选字段至少包括：`title, url, publish_time, source_type, accessible, biz, mid, idx, sn`
 
@@ -150,6 +154,8 @@ python3 scripts/discover_account_articles.py \
 首次运行会生成二维码，用户扫码确认后，登录态保存到 `~/.cache/wechat-article-archive/session.json`。
 
 ### 3. 抓取正文与图片
+
+🔴 CHECKPOINT — 抓取启动前确认：候选列表是否已去重？是否只包含 `mp.weixin.qq.com` 公开 URL？`author_root` 目录是否已创建且不与已有公众号冲突？采集延迟和并发设置是否合理（串行 + 2s 延迟）？
 
 ```bash
 python3 scripts/collect_articles.py \
@@ -187,6 +193,8 @@ Markdown 顶部元数据：
 
 ### 5. 分析编排（可选）
 
+🔴 CHECKPOINT — 方法论分析启动前确认：用户是否明确要求分析作者方法论？是否已归档 ≥3 篇文章（不足则跳过分析）？HTML 看板和飞书同步是否需关闭（默认开启）？
+
 用户要求方法论分析时，调用 `author-methodology-analysis`，传入：
 - `input_dir = <author_root>/articles`
 - `output_dir = <author_root>`
@@ -196,6 +204,8 @@ Markdown 顶部元数据：
 - `sync_lark = true`（除非用户明确关闭）
 
 ### 6. 校验与打包
+
+🔴 CHECKPOINT — 打包前确认：所有文章正文是否已抓取完成？图片是否已本地化且引用正确？CSV 是否 UTF-8 BOM 格式？是否已排除不可访问的候选？
 
 ```bash
 python3 scripts/validate_archive.py "<author_root>"
@@ -213,7 +223,17 @@ python3 scripts/validate_archive.py "<author_root>" --zip "<zip_path>"
 - 不可访问的搜索结果不得进入最终包
 - 转载内容不得标记为公众号原文
 
----
+## 失败模式与恢复
+
+| 触发条件 | 症状 | 一线修复 | 仍失败兜底 |
+|---|---|---|---|
+| QR 扫码超时 | `discover_account_articles.py` 超时退出（exit≠0） | 删除 `wechat-login-qr.jpg` 和本地缓存，用 `--login-timeout 300` 重新运行 | 改用公开搜索/合集/内链等无需扫码的来源 |
+| Session 缓存被 kill 丢失 | 进程被 kill 后 `~/.cache/wechat-article-archive/session.json` 不存在 | 确认进程正常 exit 0 退出（非 kill），session 只在正常退出时写入 | 重新扫码获取新 session |
+| 文章页面触发验证码 | `collect_articles.py` 返回空正文或验证码页面 | 立即停止该 URL 的请求，标记为不可访问 | 跳过该文章，继续采集其他可访问文章 |
+| 公众号名称精确匹配失败 | `discover` 脚本输出 "未找到匹配的公众号" | 用 `--fakeid` 精确选择（从候选列表中获取） | 让用户提供该公众号的 `biz` 或直接文章链接 |
+| 图片下载失败 | `images/` 目录下图片缺失或 404 | 重试 2 次（脚本默认），检查图片 URL 是否过期 | 标记图片失败数，正文中用 `[图片获取失败]` 占位 |
+| 候选列表为空 | `collect_articles.py` 收到空 CSV | 检查 `discover` 脚本是否正常完成，尝试不同来源优先级 | 让用户提供更多公开文章链接，手动构建候选列表 |
+| 微信改版导致选择器失效 | `#js_content` / `.rich_media_content` 均无匹配 | 检查页面源码是否变更，尝试通用内容选择器 | 用 `firecrawl_scrape` 替代直接抓取，等待脚本更新 |
 
 ## 最终回复
 
@@ -314,3 +334,13 @@ python3 scripts/validate_archive.py "<author_root>" --zip "<zip_path>"
 - [ ] 图片本地化无失效引用
 - [ ] ZIP 二次校验通过
 - [ ] 若分析：方法论报告/HTML/飞书均存在
+
+## ⛔ 反例与禁止
+
+- ❌ **采集需要登录/付费/验证码的内容** — 只采集公开可访问文章，遇到验证码立即停止
+- ❌ **在 foreground 跑 QR 登录** — 用户看不到终端 stdout，必须用 background 模式 + 发飞书 QR
+- ❌ **QR 扫码用默认 180s 超时** — 从发 QR 到用户扫码经常超过 180s，必须用 `--login-timeout 300`
+- ❌ **并发采集或缩短延迟** — 默认串行 + 2s 延迟，调高并发或缩短延迟会触发风控
+- ❌ **依赖 `process poll` 判断 QR 是否生成** — background Python 输出被缓冲，用 `ls wechat-login-qr.jpg` 检测文件
+- ❌ **kill 进程后期望 session 可用** — session 只在正常 exit 0 时写入，kill 会导致缓存丢失
+- ❌ **伪造\"最近 N 篇\"或\"完整历史\"** — 公开来源不足时交付实际数量，不虚构

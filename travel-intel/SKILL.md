@@ -917,6 +917,40 @@ cd /tmp && lark-cli docs +create --api-version v2 \
 **已修复**：`references/insight-execution-guide.md` 步骤 5 已更新为新格式。
 **检测方法**：运行时若看到 `validation: invalid_argument` + `legacy v1 flag(s) --title, --wiki-node, --wiki-space` 即确认版本升级。
 
+### 两步入库修复：docs+create --parent-token 不挂载 wiki 树 (2026-06-28 定位+修复) ★★★
+
+**根因**：`lark-cli docs +create --parent-token <wiki_node>` 只设置 Drive 父目录，**不将文档挂载到 wiki 知识库树**。导致 6月23-28日采集结果全部创建为孤立 Drive 文档（api 返回 success 但 wiki +node-list 不可见）。
+
+**验证**：
+```bash
+# docs+create 返回 doc_id=xxx，document 存在
+lark-cli api GET "/open-apis/docx/v1/documents/{doc_id}" --as bot  # ✅ code=0
+# 但 wiki 树中查不到
+lark-cli api GET "/open-apis/wiki/v2/spaces/7643710721485753535/nodes/{doc_id}" --as bot  # ❌ 131005 not found
+```
+
+**修复（两步入库）**：
+```python
+# Step 1: docs+create (只在 Drive 创建文档)
+r = subprocess.run(["lark-cli", "docs", "+create", "--api-version", "v2",
+    "--doc-format", "xml", "--content", "@file.xml",
+    "--parent-token", TOKEN, "--as", "bot"], ...)
+doc_id = r.json()["data"]["document"]["document_id"]
+
+# Step 2: wiki+move (将文档移入知识库树)
+r2 = subprocess.run(["lark-cli", "wiki", "+move",
+    "--obj-token", doc_id, "--obj-type", "docx",
+    "--target-parent-token", TOKEN, "--target-space-id", SPACE_ID,
+    "--as", "bot"], ...)
+```
+
+**影响范围（全量修复 2026-06-28）**：
+- `l2_ingestor.py` ✅ — 两步入库 + WIKI_SPACE_ID 常量
+- `browser_collector.py` ✅ — v1→v2 API + wiki+move + WIKI_NODES 回退 token
+- `hotlist_collector.py` ✅ — --wiki-node/--title/--markdown 废弃标志修复 + wiki+move
+- `l3_poller.py` ✅ — lark-cli 路径修复（PATH 不含 ~/.local/bin）
+- Cron prompts ✅ — `travel-intel-collect/daily/weekly` --page-limit 升至 40
+
 ### 周编号歧义：`%W` vs `%V` (2026-06-20)
 
 `date +%W` 和 `date +%V`（ISO 8601）返回不同的周编号：

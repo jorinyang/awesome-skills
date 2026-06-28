@@ -27,13 +27,15 @@ The script produces three classifications:
 | `BACKLINK` | Source is a symlink pointing TO the target dir | 🛑 BLOCKED — circular. Fix source first |
 | `EXTERNAL` | Source is a symlink pointing elsewhere | ⚠️ Note it, skip this entry |
 
-**If any BACKLINK entries exist, ABORT the sync.** Report which entries need their canonical content migrated into the source first. Do NOT attempt workarounds — this is structural, not a per-entry issue.
+**If any BACKLINK entries exist, ABORT the sync for those entries.** BACKLINK entries (source symlink → target) cannot be synced source→target without creating circular chains. However, REAL entries (actual directories in source) can still be synced safely — BACKLINK only blocks the entries it affects, not the entire sync. EXTERNAL entries (source symlink → elsewhere) are also skipped.
+
+**Partial sync rule**: classify ALL source entries first, then sync only REAL entries. Skip BACKLINK and EXTERNAL. This is the normal operating mode for cron-driven syncs where the source is a mixed view (categories + aggregated symlinks from other instances).
 
 Quick shell one-liner for spot checks:
 ```bash
 # Count backlinks from source to target
-find ~/.hermes-feishu/skills/ -maxdepth 1 -type l -exec readlink {} \; | grep -c '/hermes/skills/'
-# If > 0: source is NOT authoritative — abort
+find ~/.hermes-feishu/skills/ -maxdepth 1 -type l -exec readlink {} \; | grep -c 'hermes/skills/'
+# If > 0: BACKLINK entries exist — skip them, sync only REAL entries
 ```
 
 ### Phase 1: Discovery
@@ -80,18 +82,48 @@ ln -s ~/.hermes-feishu/skills/$CAT ~/.hermes/skills/$CAT
 
 ### Phase 4: Handle Target-Unique Sub-Skills
 
-When a category has sub-skills only in target (e.g., `feishu-voice`):
+When a category has sub-skills only in target (e.g., `codebase-inspection` in target's `github/` but not source's):
 
 ```bash
-cp -a "$BACKUP/$CAT/unique-sub" ~/.hermes-feishu/skills/$CAT/
+# Step 4a: Identify target-unique sub-skills (compare basenames only!)
+source_subs=$(find "$SOURCE/$CAT" -maxdepth 2 -name "SKILL.md" -printf '%f\n' -exec dirname {} \; | sort -u)
+target_subs=$(find "$TARGET/$CAT" -maxdepth 2 -name "SKILL.md" -printf '%f\n' -exec dirname {} \; | sort -u)
+# Get basenames of dirs containing SKILL.md, not the SKILL.md files themselves
+unique=$(comm -13 <(echo "$source_subs") <(echo "$target_subs"))
+
+# Step 4b: Remove stale symlinks in source that would collide
+for sub in $unique; do
+  src_path="$SOURCE/$CAT/$sub"
+  if [ -L "$src_path" ]; then
+    rm -f "$src_path"   # must replace symlink with real content
+  fi
+done
+
+# Step 4c: Copy real content from target (before target is deleted!)
+for sub in $unique; do
+  cp -a "$TARGET/$CAT/$sub" "$SOURCE/$CAT/"
+done
+
+# Step 4d: Now safe to backup, delete target, and symlink (Phase 3)
 ```
+
+**PITFALL**: Do NOT use `find ... -exec dirname {} \;` directly with `comm` — it outputs mixed full-paths and `SKILL.md` filenames. Use `basename` of the parent directory instead. See `references/target-unique-injection.md` for the full recipe with recovery steps.
+
+**PITFALL**: If source already has symlinks for the target-unique sub-skills (e.g., BACKLINK symlinks inside the category), `cp -a` will silently fail because the symlink target no longer exists after Phase 3. Always remove stale symlinks FIRST (Step 4b), then copy real content while target is still a real directory.
 
 ### Phase 5: Verify
 
 ```bash
+# Top-level broken links
 find ~/.hermes/skills/ -maxdepth 1 -type l -not -exec test -e {} \; -print
-# Empty = no broken links
+# Empty = no broken links at top level
+
+# Internal category broken symlinks (circular chains from re-linking)
+find ~/.hermes-feishu/skills/ -type l -not -exec test -e {} \; -print
+# Empty = no broken links anywhere in source categories
 ```
+
+If internal broken symlinks are found, they are stale BACKLINK residues — remove them with `-delete`. See `references/target-unique-injection.md` for the full recovery workflow when injection fails.
 
 ## Mode B: Repo-to-Local Sync
 
@@ -171,6 +203,28 @@ See `scripts/check-source-integrity.py` and `references/source-integrity-check.m
 ### cp -a double nesting
 
 `cp -a src/ target/sub/` creates `target/sub/sub/` if `target/sub/` doesn't exist. Use `cp -a src/ target/` and rename, or check existence first.
+
+### Internal category symlinks break after re-linking
+
+Category directories may contain symlinks that point inside the same category on the other side:
+
+```
+source/github/codebase-inspection → /home/aorus/.hermes/skills/github/codebase-inspection
+```
+
+After Phase 3 replaces target with a symlink to source, these become circular:
+
+```
+source/github/codebase-inspection → target/github/codebase-inspection → source/github/codebase-inspection (💥)
+```
+
+**Fix**: During Phase 4, BEFORE deleting target, scan source for internal symlinks pointing into target's copy of the same category. Remove them and replace with real content from target. After the sync, also scan for any remaining broken symlinks inside source categories:
+
+```bash
+# After all sync ops complete
+find "$SOURCE" -type l -not -exec test -e {} \; -print  # list broken
+find "$SOURCE" -type l -not -exec test -e {} \; -delete # clean them
+```
 
 ## Rollback
 

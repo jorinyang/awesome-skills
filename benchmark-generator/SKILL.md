@@ -115,6 +115,14 @@ triggers:
 }
 ```
 
+🔴 **CHECKPOINT** — Routing 测试集已生成。验证通过后继续：
+>- [ ] 正面/负面用例比例是否在 60-70% / 30-40% 范围内？
+>- [ ] 每条数据是否都有 `should_match` 字段？
+>- [ ] difficulty 分布是否覆盖 easy/medium/hard？
+>- [ ] 若验证失败 → 调整 Phase 2 参数后重新生成
+>
+>🛑 验证通过 → 继续 Phase 3
+
 ### Phase 3: 生成 Outcome 测试集
 
 对于 outcome 测试集，构造典型成功场景：
@@ -153,6 +161,14 @@ triggers:
 └── 人工标记: 若检测到可能重复但不确定，保留但标注 potential_duplicate_of
 ```
 
+🔴 **CHECKPOINT** — 去重完成。验证通过后继续：
+>- [ ] 去重后 routing 用例数 ≥ 原始建议数下限？
+>- [ ] 去重后 outcome 用例数 ≥ 原始建议数下限？
+>- [ ] 是否所有 `potential_duplicate_of` 都有明确标注？
+>- [ ] 若数量不足 → 回到 Phase 2/3 补生成差额用例
+
+🛑 验证通过 → 继续 Phase 5 入库
+
 ### Phase 5: 入库
 
 将去重后的测试数据写入 `~/.hermes-feishu/benchmarks/{skill_name}/`:
@@ -181,6 +197,14 @@ manifest.json 格式：
 }
 ```
 
+🔴 **CHECKPOINT** — 测试数据已入库。最终验证：
+>- [ ] `manifest.json` 中 `total_routing_cases` 与 `total_outcome_cases` 与实际文件一致？
+>- [ ] `routing.json` 与 `outcome.json` 格式合法（JSON 校验通过）？
+>- [ ] `changelog.md` 已记录本次变更？
+>- [ ] 若入库失败 → 检查磁盘空间与目录权限，重试写入
+
+🛑 全部通过 → 交付测试集，输出 `manifest.json` 摘要
+
 ---
 
 ## 生成策略
@@ -203,20 +227,41 @@ manifest.json 格式：
 
 ---
 
-## 反例（禁止）
+## 失败模式与恢复
 
-- ❌ 生成与 Skill 定义无关的测试数据 — 必须基于 SKILL.md 内容
-- ❌ routing 和 outcome 混在一起 — 必须分开生成
-- ❌ 不检查去重就直接入库 — 重复数据污染评测结果
-- ❌ standardAnswer 空泛 — 必须足够具体才能评测
-- ❌ 只生成正面用例 — 必须包含边界和负面用例
+| # | 触发条件 | 症状 | 一线修复 | 仍失败兜底 |
+|---|---------|------|---------|-----------|
+| 1 | Skill 定义缺失/损坏 | `SKILL.md` 不存在或 YAML frontmatter 解析失败 | 检查路径是否正确，确认 Skill 名拼写无误 | 回退到手工造用例，输出模板让用户自行填写 |
+| 2 | Phase 2 生成数量不足 | routing 用例 < 建议数下限 50% | 降低语义相似度阈值（0.85 → 0.75），扩充 trigger 组合变体 | 标记 `insufficient_coverage`，在 manifest 中声明缺口 |
+| 3 | Phase 3 outcome 标准答案空洞 | `standard_answer` 字数 < 20 或仅包含泛化描述 | 从 SKILL.md 步骤中提取具体预期产出，重新构造 | 标记该用例 difficulty=hard，在 changelog 中备注 |
+| 4 | Phase 4 去重冲突 | 去重阈值导致大量误判（>30% 标记为重复但实际不同） | 提高语义相似度阈值（0.85 → 0.92），人工抽查边界案例 | 跳过自动去重，全部保留但标注 `manual_dedup_required` |
+| 5 | Phase 5 磁盘空间不足 | `write` 操作报 ENOSPC | 清理 `~/.hermes-feishu/benchmarks/` 中旧测试数据（保留最近 3 次） | 输出 JSON 到终端，提示用户手动保存 |
+| 6 | Phase 5 目录权限不足 | `EACCES` 创建目录失败 | `mkdir -p` 重试，若仍失败则写入 `/tmp/` 备用路径 | 输出完整文件路径，提示用户移动 |
+
+## ⛔ 反例与禁止
+
+违反以下任何一条将导致生成的测试集不可用于评测：
+
+| ❌ 反例 | 正确做法 |
+|---------|---------|
+| 生成与 Skill 定义无关的测试数据 | 必须基于 SKILL.md 内容构造 |
+| routing 和 outcome 混在一起 | 必须分开生成，独立文件 |
+| 不检查去重就直接入库 | 必须先执行 Phase 4 去重 |
+| standardAnswer 空泛 | 必须包含具体的诊断结论/操作步骤 |
+| 只生成正面用例 | 必须包含边界和负面用例，比例见 Phase 2 |
+| 跳过 manifest.json 生成 | 每次入库必须更新 manifest |
+| 靠人工记忆测试集内容来去重 | 必须用 Phase 4 定义的语义相似度算法 |
 
 ---
 
 ## 参考文件
 
-- `references/case-template.md` — 测试用例模板
-- `references/dedup-strategy.md` — 去重策略详解
+| 文件 | 用途 | 何时查阅 |
+|------|------|---------|
+| `references/case-template.md` | 测试用例模板（routing + outcome 完整 schema） | Phase 2/3 生成前确认字段规范 |
+| `references/dedup-strategy.md` | 去重策略详解（语义相似度算法、阈值调优） | Phase 4 去重时遇到边界案例 |
+
+> 以上文件均为本 Skill 的运行时依赖。若缺失或损坏，回退到 SKILL.md 内嵌的默认格式与阈值。
 
 ## 关联技能指引
 
