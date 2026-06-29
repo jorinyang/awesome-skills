@@ -72,8 +72,8 @@ unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
 cd /tmp && rm -rf awesome-skills
 git clone --depth 1 https://github.com/jorinyang/awesome-skills.git
 
-# 扫描本地 + GitHub 双源
-python3 /tmp/scan_inventory.py
+# 扫描本地 + GitHub 双源（使用 skill 自带的 scan_inventory.py）
+python3 scripts/scan_inventory.py
 ```
 
 **扫描输出示例**：
@@ -205,8 +205,8 @@ agent-native-cli-design, coding-agents, cross-project-adaptation,
 dingtalk-cli, subagent-driven-development, supabase-backend,
 test-driven-development, wsl-browser-cdp, hermes-instance-sync,
 technical-documentation-production, windows-troubleshooting-from-wsl,
-github-release-readme
-  → 🔧 开发工程 (12)
+github-release-readme, wsl-docker-deploy, firecrawl-web
+  → 🔧 开发工程 (14)
 
 skill-evaluator, skill-ab-test, benchmark-generator, agent-tool-system
   → 🤖 AI 工程 (4)
@@ -341,7 +341,7 @@ A: 以 GitHub 实际目录结构为准。README 中的分类表是面向读者�
 > 只有「≥3 技能新增/删除」或「分类/目录重构」才升级 MINOR。
 > MAJOR 不自行决定，必须用户明确要求。
 
-当前：v5.2.2 (89 技能 — 全根目录，8 分类)
+当前：v5.4.2 (93 技能 — 全根目录，8 分类)
 
 ---
 

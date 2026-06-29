@@ -584,7 +584,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| v5.4.2 | 2026-06-29 | 93技能 — +2新增(wsl-docker-deploy: WSL2 Docker代理部署+firecrawl-web: Firecrawl自托管MCP) +9更新(author-methodology-analysis/benchmark-generator/darwin-skill/double-evolution/dynamic-workflow/hermes-instance-sync/skill-ab-test/travel-intel/wechat-article-archive)；开发工程12→14 |
+| v5.4.3 | 2026-06-30 | 93技能 — 3更新(darwin-skill: 子agent返回后验证+作者扫描规则；github-release-readme: 分类映射表扩至14+脚本路径修正；hermes-instance-sync: Cron Mode简化流水线+symlink loop检测修复) |
 | v5.4.1 | 2026-06-28 | 91技能 — 移除4个非核心技能(plan/spike/dingtalk-channel/ocr-and-documents v5.1.0已清但v5.4.0误加回)，永久排除；构建与设计24→22、开发工程13→12、创意内容7→6；清理4处交叉引用 |
 | v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |

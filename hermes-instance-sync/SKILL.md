@@ -14,6 +14,18 @@ Two sync modes: **instance-to-instance** (symlink) and **repo-to-local** (copy f
 
 Synchronize skills between Hermes instances using symlinks. Source is authority.
 
+### Cron Mode: Pragmatic Sync (for automated jobs)
+
+When running as a scheduled cron job with the constraint "不覆盖目标实例的手动修改", use this simplified pipeline instead of full Phase 2-4:
+
+1. **Phase 0** — source integrity check (same as below)
+2. **Handle SOURCE_ONLY** — create symlinks from target → source for all entries only in source
+3. **Handle REAL shared** — if target has a real directory (not symlink) for a shared entry, **skip it** to preserve manual modifications. Only symlink if target is already a symlink pointing to the wrong place.
+4. **Handle TARGET_ONLY** — keep untouched (these are target's own additions)
+5. **Phase 5** — verify top-level links only (internal category broken links are pre-existing and out of scope for the cron job)
+
+This avoids deep sub-skill comparisons and backup/restore cycles that are unnecessary when source and target maintain independent REAL directories by design.
+
 ### Phase 0: Source Integrity Check (MANDATORY — run first)
 
 Before touching any target files, verify the source is actually authoritative. The most common failure mode: source has symlinks pointing back to target, creating circular chains when you try to link target→source.
@@ -119,11 +131,19 @@ find ~/.hermes/skills/ -maxdepth 1 -type l -not -exec test -e {} \; -print
 # Empty = no broken links at top level
 
 # Internal category broken symlinks (circular chains from re-linking)
-find ~/.hermes-feishu/skills/ -type l -not -exec test -e {} \; -print
+# ⚠️ Use readlink-based detection to avoid ELOOP crashes (see pitfall above)
+find ~/.hermes-feishu/skills/ -type l | while read link; do
+  target=$(readlink "$link" 2>/dev/null)
+  if [ ! -e "$link" ] 2>/dev/null; then
+    echo "BROKEN: $link -> $target"
+  fi
+done
 # Empty = no broken links anywhere in source categories
 ```
 
-If internal broken symlinks are found, they are stale BACKLINK residues — remove them with `-delete`. See `references/target-unique-injection.md` for the full recovery workflow when injection fails.
+If internal broken symlinks are found, they are stale BACKLINK residues — remove them with `rm -f`. See `references/target-unique-injection.md` for the full recovery workflow when injection fails.
+
+**Note**: In cron mode, internal broken symlinks that pre-date the current sync are out of scope — report them but do not attempt to fix. Only fix internal broken links that were created by the current sync operation. See `references/pre-existing-broken-internal-links.md` for the cleanup procedure.
 
 ## Mode B: Repo-to-Local Sync
 
@@ -225,6 +245,24 @@ source/github/codebase-inspection → target/github/codebase-inspection → sour
 find "$SOURCE" -type l -not -exec test -e {} \; -print  # list broken
 find "$SOURCE" -type l -not -exec test -e {} \; -delete # clean them
 ```
+
+### `test -e` on broken symlinks can cause "Symlink loop" errors
+
+When a symlink chain is circular (`A → B → A`), `test -e` does NOT just report "broken" — it raises a "Symlink loop" / ELOOP error that can crash the calling process. This is especially dangerous in `find -exec test -e {} \;` where a single circular chain aborts the entire scan.
+
+**Safe alternative**: use `readlink` (without `-f`) and check existence of the resolved target:
+
+```bash
+# SAFE: detects broken links without following them
+find "$SOURCE" -type l | while read link; do
+  target=$(readlink "$link" 2>/dev/null)
+  if [ ! -e "$link" ] 2>/dev/null; then
+    echo "BROKEN: $link -> $target"
+  fi
+done
+```
+
+Note: `readlink` without `-f` returns the raw symlink target string without resolving chains, so it never encounters ELOOP. The `2>/dev/null` on `[ ! -e "$link" ]` suppresses the ELOOP error message if the kernel does raise it.
 
 ## Rollback
 

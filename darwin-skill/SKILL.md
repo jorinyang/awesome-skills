@@ -39,5 +39,7 @@ Cron job 通过本技能每日自动执行技能巡检与优化，无人在回�
 - 回滚用 `git revert`，不用 `git reset --hard`（cron 安全策略拦截）
 - 体积上限 150%，小技能（<100 行）接受天花板（~40-50）
 - 父 agent 在子 agent 返回后检查 `git status`，补提未提交变更
+- **子 agent 返回后验证**：不要仅信 `git log`（子 agent 可能 stash/pop 清掉提交记录但文件已修改）。必须用 grep 验证优化标记：`grep -c "失败模式\|🔴\|⛔\|🛑" <file>`，确认内容落地。缺失则 `git diff HEAD -- <file>` 判断是否需要补提。
+- **作者扫描**：用 `find ... -exec grep '^author:'` 遍历，不要用 shell glob `**/SKILL.md`（不递归进子目录）
 
 → 实战案例：[references/cron-execution-pattern.md](references/cron-execution-pattern.md)
