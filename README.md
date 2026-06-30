@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-95-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-96-blue)](.)
 
 ---
 
@@ -132,7 +132,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [benchmark-generator](benchmark-generator/SKILL.md) 🆕 | 生成测试集/造benchmark | 从Skill定义自动生成routing+outcome测试集+去重入库 |
 | [agent-tool-system](agent-tool-system/SKILL.md) 🆕 | Agent工具/工具系统/defineTool/toolsToAI | defineTool→registry→toolsToAI三层架构+ToolLog调试+StepBudget步数预算 |
 
-### 📋 飞书系列 (6)
+### 📋 飞书系列 (7)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -140,6 +140,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [feishu-table](feishu-table/SKILL.md) | 新建多维表格/查询 | 飞书多维表格 + 电子表格 CRUD |
 | [feishu-wiki](feishu-wiki/SKILL.md) | 知识库巡检/首页更新 | 每日巡检+文档总结+分类检测+变更日志（space=7643710721485753535） |
 | [feishu-voice](feishu-voice/SKILL.md) 🆕 | 飞书语音/语音消息/转录语音 | 飞书语音消息转录——OGG→ASR秒级识别/妙记回落，自动返回逐字稿 |
+| [feishu-wiki-file-routing](feishu-wiki-file-routing/SKILL.md) 🆕 | 飞书wiki降级/file类型/wiki节点不是文档/wiki路由降级 | 飞书知识库 /wiki/ URL 路由降级——当 lark-doc 无法处理 file 类型节点时的发现→下载→提取流程；与 lark-doc/lark-wiki/lark-drive 协同 |
 | [project-kanban](project-kanban/SKILL.md) | 看板状态/项目进度 | 表格+日历+任务三引擎跟踪 |
 | [zhike-task-hub](zhike-task-hub/SKILL.md) | 今天做了什么/本周总结 | Todo存档 + 早晚周月报 |
 
@@ -604,6 +605,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.5 | 2026-07-01 | 96技能 — +1 新增(feishu-wiki-file-routing: 飞书知识库 /wiki/ URL 路由降级——当 lark-doc 无法处理 file 类型节点时的发现→下载→提取流程；与 lark-doc/lark-wiki/lark-drive 协同)；飞书系列 6→7 |
 | v5.4.4 | 2026-07-01 | 95技能 — +2 新增(ppt-structure-parser + ppt-template-filler: PPT模板拆解→三级标签入库 + 页面库→跨模板拼装生成，四阶段流水线)；构建与设计 22→24 |
 | v5.4.1 | 2026-06-28 | 91技能 — 移除4个非核心技能(plan/spike/dingtalk-channel/ocr-and-documents v5.1.0已清但v5.4.0误加回)，永久排除；构建与设计24→22、开发工程13→12、创意内容7→6；清理4处交叉引用 |
 | v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
