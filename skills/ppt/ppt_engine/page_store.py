@@ -25,7 +25,7 @@ class PageStore:
 
     def __init__(self, path: str | Path | None = None):
         if path is None:
-            path = os.path.expanduser("~/.hermes-feishu/ppt_engine/page_library.json")
+            path = os.path.expanduser("~/.hermes-feishu/skills/ppt/ppt_engine/page_library.json")
         self._path = Path(path)
         self._pages: dict[str, PageEntry] = {}
         self._version: str = "1.0"
