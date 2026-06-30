@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-93-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-95-blue)](.)
 
 ---
 
@@ -57,7 +57,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
-### 🏗️ 构建与设计 (22)
+### 🏗️ 构建与设计 (24)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -83,6 +83,26 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
+| [ppt-structure-parser](ppt-structure-parser/SKILL.md) 🆕 | 解析PPT模板/拆PPT/模板拆解/PPT组件化/建页面库 | 多套PPT模板拆解→独立页面→三级标签分类→入库为可检索数据 |
+| [ppt-template-filler](ppt-template-filler/SKILL.md) 🆕 | 组装PPT/做PPT/大纲转PPT/填充模板/套模板 | 页面库查询→匹配→跨模板形状克隆→内容填充→四阶段流水线 |
+
+#### ppt-structure-parser — PPT 结构解析器
+
+> **触发**：解析PPT模板 / 拆PPT / 模板拆解 / PPT组件化 / 建页面库 / 分析PPT结构
+
+多套PPT模板拆解为独立原子页面，三级标签分类（模板族→页面类型→布局变体），入库为可检索的 JSON 页面数据列表。每页携带完整元数据：元素统计/文本角色/设计令牌/内容约束。
+
+**能力**：python-pptx 逐页解析 | 18种页面类型自动分类 | 元素统图 | 设计令牌提取 | 批量入库
+
+#### ppt-template-filler — PPT 模板填充器
+
+> **触发**：组装PPT / 做PPT / 大纲转PPT / 填充模板 / 套模板 / 内容转PPT
+
+从页面库查询匹配最佳模板页，跨模板形状克隆拼装新PPT。四阶段非破坏性流水线（匹配→分析→组装→校验），源模板文件零修改。
+
+**能力**：智能页面匹配算法 | 内容适配度分析 | 跨模板形状克隆 | 和谐化策略（3种色彩模式）| 逐页逐形状校验
+
+**联动**：依赖 `ppt-structure-parser` 建立的页面库 | 与 `html-ppt` 互补（.pptx vs HTML 生成）
 
 ### 🔧 开发工程 (14)
 
@@ -547,7 +567,7 @@ for dir in */; do
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis|ppt-structure-parser|ppt-template-filler) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
@@ -584,7 +604,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| v5.4.3 | 2026-06-30 | 93技能 — 3更新(darwin-skill: 子agent返回后验证+作者扫描规则；github-release-readme: 分类映射表扩至14+脚本路径修正；hermes-instance-sync: Cron Mode简化流水线+symlink loop检测修复) |
+| v5.4.4 | 2026-07-01 | 95技能 — +2 新增(ppt-structure-parser + ppt-template-filler: PPT模板拆解→三级标签入库 + 页面库→跨模板拼装生成，四阶段流水线)；构建与设计 22→24 |
 | v5.4.1 | 2026-06-28 | 91技能 — 移除4个非核心技能(plan/spike/dingtalk-channel/ocr-and-documents v5.1.0已清但v5.4.0误加回)，永久排除；构建与设计24→22、开发工程13→12、创意内容7→6；清理4处交叉引用 |
 | v5.2.1 | 2026-06-25 | 89技能 — 解决功能重复(answer/answer-standalone区分飞书集成版vs独立版、fireworks/drawio/architecture-diagram触发词去冲突) + 建立11对互补技能双向引用网络(brandkit↔taste-skill↔huashu-design↔hallmark设计管线等) + taste-skill metadata去重 |
 | v5.1.0 | 2026-06-25 | 89技能 — 清理12个非核心技能(creative-ideation/kanban/plan/spike/dogfood/youtube-content/yuanbao/dingtalk-channel/shipinhao-cold-start/pdf-content-generation/codebase-inspection/ocr-and-documents)；工具与集成4→1、开发工程17→11、方法论21→20、贵州之客9→8、创意内容7→6 |
