@@ -69,7 +69,7 @@ triggers:
 pip install python-pptx
 
 # 引擎路径
-PYTHONPATH="$HOME/.hermes-feishu/skills/ppt:$PYTHONPATH"
+PYTHONPATH="$HOME/.hermes-feishu:$PYTHONPATH"
 
 # 确保页面库已建立
 python3 -c "from ppt_engine import PPTEngine; print(PPTEngine().stats())"

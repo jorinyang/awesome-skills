@@ -76,7 +76,7 @@ triggers:
 pip install python-pptx
 
 # 引擎路径
-PYTHONPATH="$HOME/.hermes-feishu/skills/ppt:$PYTHONPATH"
+PYTHONPATH="$HOME/.hermes-feishu:$PYTHONPATH"
 ```
 
 > 📄 核心技术验证报告见 `references/cloning-technique.md`（跨模板形状克隆、背景提取、已知陷阱）
@@ -150,7 +150,7 @@ engine.parse_templates([
 
 ## 数据存储
 
-页面数据存储为 JSON 文件：`~/.hermes-feishu/skills/ppt/ppt_engine/page_library.json`
+页面数据存储为 JSON 文件：`~/.hermes-feishu/ppt_engine/page_library.json`
 
 ```json
 {

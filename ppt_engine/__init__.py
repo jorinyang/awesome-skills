@@ -28,7 +28,7 @@ class PPTEngine:
 
     def __init__(self, page_library_path=None, harmony_mode=HarmonyMode.KEEP_SOURCE):
         if page_library_path is None:
-            page_library_path = os.path.expanduser("~/.hermes-feishu/skills/ppt/ppt_engine/page_library.json")
+            page_library_path = os.path.expanduser("~/.hermes-feishu/ppt_engine/page_library.json")
         self.config = EngineConfig(page_library_path=str(page_library_path), harmony_mode=harmony_mode)
         self.store = PageStore(page_library_path)
         self.parser = StructureParser()
