@@ -605,7 +605,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| v5.4.7 | 2026-07-01 | 96技能 — ppt-template-filler v1.0.0→v1.1.0: 新增Phase 5渲染预览阶段（吸收自GordenSuperPPTSkills「先出图预览确认后再交付」思想；跨模板组装强制预览；LibreOffice headless渲染PNG）；新增6个预览触发词 |
+| v5.4.8 | 2026-07-02 | 96技能 — 11技能内容更新：external-skill-evaluation v1.3.0→v1.4.0(新增借鉴思想吸收轻量模式)；github-release-readme classify_skill顺序修正(author优先)；hermes-instance-sync 新增Phase -1 broken symlink清理；trip-archive 格式规范化+内容扩展；travel-intel 采集层标记修正；wsl-browser-cdp/wsl-docker-deploy 移除WSL-only警告标记；github-absorb/firecrawl-web/image-analysis/ppt-structure-parser 微调 |
 | v5.4.6 | 2026-07-01 | 96技能 — WSL适配：3个WSL技能标记为仅WSL环境适用 + 10个技能移除WSL特定引用(travel-intel/github-release-readme/github-absorb/jimeng-video/feishu-doc/image-analysis/firecrawl-web/dingtalk-cli/strategy-plan-writing/double-evolution) |
 | v5.4.5 | 2026-07-01 | 96技能 — +1 新增(feishu-wiki-file-routing: 飞书知识库 /wiki/ URL 路由降级——当 lark-doc 无法处理 file 类型节点时的发现→下载→提取流程；与 lark-doc/lark-wiki/lark-drive 协同)；飞书系列 6→7 |
 | v5.4.4 | 2026-07-01 | 95技能 — +2 新增(ppt-structure-parser + ppt-template-filler: PPT模板拆解→三级标签入库 + 页面库→跨模板拼装生成，四阶段流水线)；构建与设计 22→24 |

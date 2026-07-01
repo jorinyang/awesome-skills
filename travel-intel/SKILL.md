@@ -25,10 +25,10 @@ dependencies:
 
 ```
 采集层 (Collector)
-  ├─ L1a: agent-browser 百度+夸克 (本地 06:30)
-  ├─ L1b: opencli 微博热搜+知乎热榜 (本地 06:35) ★新增
+  ├─ L1a: agent-browser 百度+夸克 (WSL本地 06:30)
+  ├─ L1b: opencli 微博热搜+知乎热榜 (WSL本地 06:35) ★新增
   ├─ L2: urllib 站点直抓 (云端 07:00)
-  ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (本地 每5分钟)
+  ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (WSL本地 每5分钟)
   ├─ 分类路由：竞品→EAMYw1CPoi / 行业→V0Lhwl7KYi (⚠️ 子分类已失效→回退至UF7Cw5w2Wi)
   └─ 同 URL 去重
       ↓
@@ -65,9 +65,9 @@ dependencies:
 
 | 优先级 | 通道 | 方法 | 环境 | 调度 | 备注 |
 |:--:|------|------|:--:|------|------|
-| L1 | 百度 + 夸克 | agent-browser 通用搜索 | 🏠 本地 | 06:30 | 行业+竞品关键词，双引擎互补 |
+| L1 | 百度 + 夸克 | agent-browser 通用搜索 | 🏠 WSL本地 | 06:30 | 行业+竞品关键词，双引擎互补 |
 | L2 | urllib 站点直抓 | Python urllib.request | ☁️ 云端 | 07:00 | 品橙/迈点/闻旅/执惠 |
-| L3 | 百度/B站/头条 | agent-browser 深度搜索 | 🏠 本地 | 每5分钟轮询 | 云端 cron → Bitable 队列 → 本地 poller |
+| L3 | 百度/B站/头条 | agent-browser 深度搜索 | 🏠 WSL本地 | 每5分钟轮询 | 云端 cron → Bitable 队列 → 本地 poller |
 
 ### L3 Bitable 分发架构 ★
 
@@ -317,13 +317,15 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 |------|:------------:|------|:--:|:--:|
 | travel-intel-collect | `07ceed5fc5a8` | 0 7 * * * | **L2 collect+prefilter+ingest + L3-dispatch** | ☁️ agent |
 | travel-intel-l1-local | *(WSL crontab)* | 30 6 * * * | **L1a**(百度+夸克)+**L1b**(微博+知乎) | 🏠 l3_cron.sh |
-| travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 本地 `no_agent` script |
+| travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 WSL `no_agent` script |
 | travel-intel-expire | `09c5407d9244` | 0 3 * * * | 过期校验 | ☁️ agent |
 | travel-intel-daily | `646091130172` | 5 9 * * * | 每日简报 | ☁️ agent |
 | travel-intel-weekly | `011f4af010cd` | 5 9 * * 1 | 周度分析 | ☁️ agent |
 | travel-intel-insight | `dda612e69d65` | 0 10 * * 6 | 综合洞察 | ☁️ agent |
 
 全部 deliver: `feishu:oc_40570cc921ca1f645f8667151c1e85e6`，除 l3-poller 为 `local`（仅脚本输出存档），l1-local 为 WSL 本地 crontab（非 Hermes cron）。
+
+> ⚠️ **Agent 模式 job 铁律**：所有加载 `travel-intel` skill 的 agent 模式 cron job（collect/daily/weekly/insight/expire）必须设置 `enabled_toolsets: ["terminal","file","feishu_doc","feishu_drive"]`，否则巨型 skill（SKILL.md 2100+ 行）导致 context 膨胀 → 流式超时断管（Broken pipe / Connection error）。miss 任何一个都会复发。
 
 > **注意**: L1a+L1b 由 WSL 本地 crontab 调度（`l3_cron.sh`），不经过 Hermes cron 系统。上表中的 `travel-intel-l1-local` 仅供文档记录，并非 Hermes cron job。
 
@@ -511,7 +513,7 @@ if resp.get("code") == 0:
 
 L1 原使用 Hermes 内置 web_search（底层 Bing 中文搜索）。对"探洞""天坑""桨板""SUP"等垂直长尾关键词，Bing 大量返回字典页（zdic/hgcha/cidianwang）而非行业新闻，中文意图识别差，负向关键词和 site: 操作符均无效。**连续多周可复现，非偶发故障。**
 
-**对策：** L1 全面迁移至 agent-browser 百度+夸克双引擎（本地 06:30）。百度覆盖政策/赛事/官方信息，夸克补充攻略/UGC/跨平台内容。web_search 降级为仅查询层回退（模块5 querier）。
+**对策：** L1 全面迁移至 agent-browser 百度+夸克双引擎（WSL本地 06:30）。百度覆盖政策/赛事/官方信息，夸克补充攻略/UGC/跨平台内容。web_search 降级为仅查询层回退（模块5 querier）。
 
 ### 周六预生成 → 周一 Cron 冲突 (2026-06-01)
 
@@ -885,6 +887,7 @@ lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/ch
 **缓解措施**：
 1. 已将 `travel-intel-daily` 和 `travel-intel-weekly` 调度从 `0 9 * * *` 错开至 `5 9 * * *`（09:05），避开整点争抢窗口（2026-06-08 应用）。
 2. **2026-06-24 二次修复**：`travel-intel-daily/weekly/insight` 三个报告 job 加载巨型 travel-intel skill（SKILL.md 2000+ 行）导致 DeepSeek context 膨胀 → 流式 180s 超时断管。已将所有三个 job 的 `enabled_toolsets` 收紧为 `["terminal","file","feishu_doc","feishu_drive"]`，砍掉 browser/vision/web_search 等重型工具定义以减少 context 体积。
+3. **2026-07-01 三次修复**：`travel-intel-expire` 同为 agent 模式 + 加载巨型 skill，缺失 `enabled_toolsets` 导致同样症状（Connection error / 断管）。已补加 `["terminal","file","feishu_doc","feishu_drive"]` 并恢复 job。**铁律：所有加载 `travel-intel` skill 的 agent 模式 cron job 必须设置 `enabled_toolsets`，否则 context 必然超限。**
 
 ### `docs +create` CLI 命令格式变更 ☆ (2026-06-20 发现+修复) ★
 
@@ -950,6 +953,27 @@ r2 = subprocess.run(["lark-cli", "wiki", "+move",
 - `hotlist_collector.py` ✅ — --wiki-node/--title/--markdown 废弃标志修复 + wiki+move
 - `l3_poller.py` ✅ — lark-cli 路径修复（PATH 不含 ~/.local/bin）
 - Cron prompts ✅ — `travel-intel-collect/daily/weekly` --page-limit 升至 40
+
+### expiry_checker.py 静默 JSON 解析失败 (2026-07-01 发现) ★
+
+`list_docs()` (L189-190) 的 `except json.JSONDecodeError: break` 会**静默吞噬所有 API 故障**。若 REST API 返回非 JSON（如 `404 page not found`、网关超时 HTML），函数返回空列表（0 docs），cron 状态显示 "ok" 但实际未扫描任何文档。
+
+```python
+# expiry_checker.py L189-190 — 静默陷阱
+except json.JSONDecodeError:
+    break  # 不记录任何错误，直接返回空列表
+```
+
+**诊断方法**：手动运行 `python3 scripts/expiry_checker.py --dry-run 2>&1 | grep "node"` 确认每个节点返回的文档数 > 0。若三节点均为 0 → API 端点失效。
+
+**API 端点验证**：用 `lark-cli --dry-run` 确认正确端点格式（不要盲改 Python f-string）：
+```bash
+lark-cli wiki +node-list --space-id 7643710721485753535 \
+  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-size 3 --dry-run --as bot
+# 输出显示实际调用的 endpoint URL 和 params
+```
+
+当前正确端点：`GET /open-apis/wiki/v2/spaces/{space_id}/nodes?parent_node_token={token}&page_size={size}`
 
 ### 周编号歧义：`%W` vs `%V` (2026-06-20)
 

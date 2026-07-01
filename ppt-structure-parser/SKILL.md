@@ -76,7 +76,7 @@ triggers:
 pip install python-pptx
 
 # 引擎路径
-PYTHONPATH="$HOME/.hermes-feishu:$PYTHONPATH"
+PYTHONPATH="/home/aorus/.hermes-feishu:$PYTHONPATH"
 ```
 
 > 📄 核心技术验证报告见 `references/cloning-technique.md`（跨模板形状克隆、背景提取、已知陷阱）

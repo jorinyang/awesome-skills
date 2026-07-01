@@ -19,7 +19,8 @@ metadata:
       - darwin-skill
       - github-release-readme
       - agent-tool-system
-    triggers:
+      - wsl-browser-cdp
+triggers:
   - "https://github.com/"
   - "这个仓库怎么样"
   - "帮我看看这个项目"
@@ -129,7 +130,7 @@ print(f'Archived: {r.get(\"archived\",False)}')
 
 **微信文章访问**：`browser_navigate` 直接访问微信文章通常超时或返回空白。必须使用 CDP 浏览器：
 
-1. 确保 Chrome 已启动并开启远程调试端口（`chrome.exe --remote-debugging-port=9222`）
+1. 确保 Windows Chrome CDP 已连接（加载 `wsl-browser-cdp` 按流程启动）
 2. `browser_navigate(url="微信文章URL")` 打开页面
 3. 页面加载后，用 `browser_console` 提取正文：
 
@@ -623,7 +624,7 @@ metadata:
 | `darwin-skill` | downstream | Phase 5A 创建技能后使用其 L1 静态检查 |
 | `github-release-readme` | downstream | Phase 8 报告产出后可同步到 GitHub |
 | `agent-tool-system` | downstream | Phase 5 独立创建——从源码仓库提取 defineTool→registry→toolsToAI 三层工具架构时使用 |
-
+| `wsl-browser-cdp` | downstream | Phase 2.1b 访问配套微信/博客文章时使用 CDP 浏览器 |
 
 - ❌ 不加判断地补全所有反向引用 — 通用工具被调用/格式引用/方法论启发等不需要反向引用，补了制造噪音和假耦合。过滤标准见 `references/filtering-criteria.md`
 
