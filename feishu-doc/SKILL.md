@@ -729,7 +729,7 @@ for c in comments:
 
 当用户提到已有文档/方案/报价时，**不要**直接创建新文档。按以下顺序搜寻：
 
-1. **本地文件** — 用户指定路径（如 `/tmp/xxx/`、`~/workspace/`）或搜索 `/mnt/c/Users/*/Desktop|Documents|Downloads/`
+1. **本地文件** — 用户指定路径（如 `/tmp/xxx/`、`~/workspace/`）或搜索 `C:\\Users\\*/Desktop|Documents|Downloads/`
 2. **Feishu Wiki 节点** — `lark-cli wiki +node-list` 搜索知识库
 3. **Feishu 云空间** — 用户可能分享过文档链接（`feishu.cn/docx/` token）
 

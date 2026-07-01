@@ -115,10 +115,10 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
-| [wsl-browser-cdp](wsl-browser-cdp/SKILL.md) 🆕 | WSL连Chrome/浏览器CDP | WSL环境下通过CDP连接Windows Chrome——Node.js路径修复+远程调试启动+连接验证 |
+| [wsl-browser-cdp](wsl-browser-cdp/SKILL.md) ⚠️仅WSL | WSL连Chrome/浏览器CDP | ⚠️仅WSL环境适用——通过CDP连接Windows Chrome（Windows原生环境Chrome直连，无需此技能） |
 | [hermes-instance-sync](hermes-instance-sync/SKILL.md) 🆕 | 同步技能/实例间同步/技能对齐 | Hermes实例间Skill同步——双源对比+分类+备份+软链接 |
 | [technical-documentation-production](technical-documentation-production/SKILL.md) 🆕 | 产出技术文档/PRD/ER图/架构图 | 技术文档套件——PRD+ER图+架构图+流程图+交叉校验 |
-| [windows-troubleshooting-from-wsl](windows-troubleshooting-from-wsl/SKILL.md) 🆕 | Windows修复/服务诊断/WSL修复 | WSL→Windows PowerShell桥接——服务/Store/AppX/注册表诊断修复 |
+| [windows-troubleshooting-from-wsl](windows-troubleshooting-from-wsl/SKILL.md) ⚠️仅WSL | Windows修复/服务诊断 | ⚠️仅WSL环境适用——bash→PowerShell桥接诊断修复（Windows原生环境直接使用PowerShell） |
 | [wsl-docker-deploy](wsl-docker-deploy/SKILL.md) 🆕 | 部署docker/自托管/docker pull超时/拉取镜像失败 | WSL2 Docker Desktop代理部署——crane代理拉取→docker load→compose up |
 | [firecrawl-web](firecrawl-web/SKILL.md) 🆕 | 搜索/查资料/抓取/爬取/提取数据 | Firecrawl自托管MCP——搜索网页/抓取内容/爬取网站/结构化数据提取 |
 | [github-release-readme](github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
@@ -605,6 +605,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.6 | 2026-07-01 | 96技能 — WSL适配：3个WSL技能标记为仅WSL环境适用 + 10个技能移除WSL特定引用(travel-intel/github-release-readme/github-absorb/jimeng-video/feishu-doc/image-analysis/firecrawl-web/dingtalk-cli/strategy-plan-writing/double-evolution) |
 | v5.4.5 | 2026-07-01 | 96技能 — +1 新增(feishu-wiki-file-routing: 飞书知识库 /wiki/ URL 路由降级——当 lark-doc 无法处理 file 类型节点时的发现→下载→提取流程；与 lark-doc/lark-wiki/lark-drive 协同)；飞书系列 6→7 |
 | v5.4.4 | 2026-07-01 | 95技能 — +2 新增(ppt-structure-parser + ppt-template-filler: PPT模板拆解→三级标签入库 + 页面库→跨模板拼装生成，四阶段流水线)；构建与设计 22→24 |
 | v5.4.1 | 2026-06-28 | 91技能 — 移除4个非核心技能(plan/spike/dingtalk-channel/ocr-and-documents v5.1.0已清但v5.4.0误加回)，永久排除；构建与设计24→22、开发工程13→12、创意内容7→6；清理4处交叉引用 |

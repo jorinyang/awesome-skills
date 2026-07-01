@@ -39,6 +39,6 @@ User sends an image and you need to describe or extract information from it.
 ## Pitfalls
 
 - **Large images (>10MB, >4000px)** → persistent 1033-system-error from MiniMax VLM. Always resize first.
-- **ImageMagick `convert`** may not be installed (common in WSL). Fall back to `python3 -c "from PIL import Image..."`.
+- **ImageMagick `convert`** may not be installed. Fall back to `python3 -c "from PIL import Image..."`.
 - **`execute_code`** may be blocked in cron or restricted contexts. Use `terminal` with `python3 -c` directly.
 - MiniMax VLM can have transient outages — 1033 errors even on small images. A retry with a minimal prompt often succeeds.

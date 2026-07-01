@@ -25,10 +25,10 @@ dependencies:
 
 ```
 采集层 (Collector)
-  ├─ L1a: agent-browser 百度+夸克 (WSL本地 06:30)
-  ├─ L1b: opencli 微博热搜+知乎热榜 (WSL本地 06:35) ★新增
+  ├─ L1a: agent-browser 百度+夸克 (本地 06:30)
+  ├─ L1b: opencli 微博热搜+知乎热榜 (本地 06:35) ★新增
   ├─ L2: urllib 站点直抓 (云端 07:00)
-  ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (WSL本地 每5分钟)
+  ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (本地 每5分钟)
   ├─ 分类路由：竞品→EAMYw1CPoi / 行业→V0Lhwl7KYi (⚠️ 子分类已失效→回退至UF7Cw5w2Wi)
   └─ 同 URL 去重
       ↓
@@ -65,9 +65,9 @@ dependencies:
 
 | 优先级 | 通道 | 方法 | 环境 | 调度 | 备注 |
 |:--:|------|------|:--:|------|------|
-| L1 | 百度 + 夸克 | agent-browser 通用搜索 | 🏠 WSL本地 | 06:30 | 行业+竞品关键词，双引擎互补 |
+| L1 | 百度 + 夸克 | agent-browser 通用搜索 | 🏠 本地 | 06:30 | 行业+竞品关键词，双引擎互补 |
 | L2 | urllib 站点直抓 | Python urllib.request | ☁️ 云端 | 07:00 | 品橙/迈点/闻旅/执惠 |
-| L3 | 百度/B站/头条 | agent-browser 深度搜索 | 🏠 WSL本地 | 每5分钟轮询 | 云端 cron → Bitable 队列 → 本地 poller |
+| L3 | 百度/B站/头条 | agent-browser 深度搜索 | 🏠 本地 | 每5分钟轮询 | 云端 cron → Bitable 队列 → 本地 poller |
 
 ### L3 Bitable 分发架构 ★
 
@@ -317,7 +317,7 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 |------|:------------:|------|:--:|:--:|
 | travel-intel-collect | `07ceed5fc5a8` | 0 7 * * * | **L2 collect+prefilter+ingest + L3-dispatch** | ☁️ agent |
 | travel-intel-l1-local | *(WSL crontab)* | 30 6 * * * | **L1a**(百度+夸克)+**L1b**(微博+知乎) | 🏠 l3_cron.sh |
-| travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 WSL `no_agent` script |
+| travel-intel-l3-poller | `e92c1aeeb70e` | */5 * * * * | L3(Bitable→百度/B站/头条) | 🏠 本地 `no_agent` script |
 | travel-intel-expire | `09c5407d9244` | 0 3 * * * | 过期校验 | ☁️ agent |
 | travel-intel-daily | `646091130172` | 5 9 * * * | 每日简报 | ☁️ agent |
 | travel-intel-weekly | `011f4af010cd` | 5 9 * * 1 | 周度分析 | ☁️ agent |
@@ -511,7 +511,7 @@ if resp.get("code") == 0:
 
 L1 原使用 Hermes 内置 web_search（底层 Bing 中文搜索）。对"探洞""天坑""桨板""SUP"等垂直长尾关键词，Bing 大量返回字典页（zdic/hgcha/cidianwang）而非行业新闻，中文意图识别差，负向关键词和 site: 操作符均无效。**连续多周可复现，非偶发故障。**
 
-**对策：** L1 全面迁移至 agent-browser 百度+夸克双引擎（WSL本地 06:30）。百度覆盖政策/赛事/官方信息，夸克补充攻略/UGC/跨平台内容。web_search 降级为仅查询层回退（模块5 querier）。
+**对策：** L1 全面迁移至 agent-browser 百度+夸克双引擎（本地 06:30）。百度覆盖政策/赛事/官方信息，夸克补充攻略/UGC/跨平台内容。web_search 降级为仅查询层回退（模块5 querier）。
 
 ### 周六预生成 → 周一 Cron 冲突 (2026-06-01)
 

@@ -203,9 +203,9 @@ requirement-alignment-analysis
 
 agent-native-cli-design, coding-agents, cross-project-adaptation,
 dingtalk-cli, subagent-driven-development, supabase-backend,
-test-driven-development, wsl-browser-cdp, hermes-instance-sync,
-technical-documentation-production, windows-troubleshooting-from-wsl,
-github-release-readme, wsl-docker-deploy, firecrawl-web
+test-driven-development, hermes-instance-sync,
+technical-documentation-production,
+github-release-readme, firecrawl-web
   → 🔧 开发工程 (14)
 
 skill-evaluator, skill-ab-test, benchmark-generator, agent-tool-system
@@ -240,7 +240,7 @@ git commit -m "v{M}.{m}.{p}: {变更摘要}"
 git push origin main  # 在 terminal(background=true, notify_on_complete=true) 中执行
 ```
 
-⚠️ **WSL push 铁律**：`git push` 在 WSL 前台模式下总是超时。必须使用 `terminal(background=true, notify_on_complete=true)`。
+💡 **Push 建议**：网络不稳定时，`git push` 使用 `terminal(background=true, notify_on_complete=true)` 避免超时。
 
 ### Phase 6: 创建 Release（必做 🔴）
 
@@ -303,7 +303,7 @@ gh release view "v{M}.{m}.{p}" --repo jorinyang/awesome-skills
 - [ ] README badge 计数已更新
 - [ ] README 分类表计数已更新
 - [ ] 版本历史已添加新行
-- [ ] WSL push 使用后台模式
+- [ ] Push 使用后台模式
 - [ ] **Release 已创建**（`gh release view` 验证成功）
 
 ---

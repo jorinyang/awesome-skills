@@ -72,7 +72,7 @@ mcp_minimax_mcp_web_search（备选，摘要式）
 
 ## 部署与接入
 
-> 部署配方见 `wsl-docker-deploy` 技能 `references/firecrawl-selfhost-recipe.md`。
+> 部署配方见 Docker 官方文档。如需代理拉取镜像，参考 `wsl-docker-deploy`（仅WSL环境）。 `references/firecrawl-selfhost-recipe.md`。
 
 ### MCP 添加（非交互）
 

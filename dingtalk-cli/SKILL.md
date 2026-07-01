@@ -25,7 +25,7 @@ npm install -g dingtalk-workspace-cli
 
 ### 安装陷阱：unzip 缺失
 
-如果系统没有 `unzip`（如 WSL 精简环境），postinstall 会失败。绕过方法：
+如果系统没有 `unzip`（精简环境），postinstall 会失败。绕过方法：
 
 ```bash
 # 1. 跳过 postinstall

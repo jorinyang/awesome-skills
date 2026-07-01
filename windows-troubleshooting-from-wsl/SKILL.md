@@ -2,7 +2,10 @@
 name: windows-troubleshooting-from-wsl
 description: Diagnose and repair Windows components (services, Store, AppX packages, registry) from a WSL session by bridging to Windows PowerShell. Use when a user reports a Windows-side problem but the agent's shell is WSL.
 category: devops
+# ⚠️ 仅 WSL 环境适用 — Windows 原生环境请使用对应原生工具
 ---
+
+> ⚠️ **仅 WSL 环境适用** | 此技能专为 WSL/Linux 环境设计。如果你已迁移到 Windows 原生环境（非 WSL），Chrome/Docker/PowerShell 可直接使用，无需此技能中的桥接层。
 
 # Windows Troubleshooting from WSL
 

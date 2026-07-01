@@ -8,10 +8,13 @@ description: >-
 version: 1.0.0
 author: 杨瑒 (月夜)
 metadata:
+  wsl_only: true  # 仅 WSL 环境适用，Windows 原生环境请使用对应原生工具
   hermes:
     tags: [docker, wsl, proxy, deployment, self-host, crane]
     related_skills: [windows-troubleshooting-from-wsl]
 ---
+
+> ⚠️ **仅 WSL 环境适用** | 此技能专为 WSL/Linux 环境设计。如果你已迁移到 Windows 原生环境（非 WSL），Chrome/Docker/PowerShell 可直接使用，无需此技能中的桥接层。
 
 # WSL Docker Desktop Proxy Deployment
 
