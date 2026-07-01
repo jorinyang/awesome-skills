@@ -1,10 +1,10 @@
 ---
 name: ppt-template-filler
 description: >
-  PPT模板填充器 —— 从页面库查询匹配页面，跨模板拼装新PPT，四阶段流水线（匹配→分析→组装→校验）。
+  PPT模板填充器 —— 从页面库查询匹配页面，跨模板拼装新PPT，五阶段流水线（匹配→分析→组装→校验→预览）。
   触发词：组装PPT、做PPT、生成PPT、填充模板、套模板、大纲转PPT、内容转PPT、
   create ppt、make slides、generate ppt、ppt from outline。
-version: 1.0.0
+version: 1.1.0
 author: 杨瑒 (月夜)
 category: ppt
 metadata:
@@ -42,6 +42,12 @@ triggers:
   - "拼PPT页面"
   - "跨模板组装"
   - "PPT页面拼装"
+  # 中文 — 预览/确认类
+  - "预览PPT"
+  - "确认后再交付"
+  - "先预览"
+  - "渲染预览"
+  - "PPT预览"
   # English
   - "create ppt"
   - "make ppt"
@@ -60,7 +66,7 @@ triggers:
 
 # PPT 模板填充器
 
-> 定位：从页面库查询匹配最佳模板页 → 内容分析确认适配 → 跨模板形状克隆组装 → 校验输出质量。四阶段非破坏性流水线，源模板文件零修改。
+> 定位：从页面库查询匹配最佳模板页 → 内容分析确认适配 → 跨模板形状克隆组装 → 校验输出质量 → 渲染预览确认。五阶段非破坏性流水线，源模板文件零修改。
 
 ## 前置条件
 
@@ -69,7 +75,7 @@ triggers:
 pip install python-pptx
 
 # 引擎路径
-PYTHONPATH="$HOME/.hermes-feishu:$PYTHONPATH"
+PYTHONPATH="/home/aorus/.hermes-feishu:$PYTHONPATH"
 
 # 确保页面库已建立
 python3 -c "from ppt_engine import PPTEngine; print(PPTEngine().stats())"
@@ -174,6 +180,42 @@ result.summary # "校验完成: 0 错误, 2 警告"
 result.issues  # [ValidationIssue(...), ...]
 ```
 
+### Phase 5: 渲染预览 👁️
+
+> 💡 **吸收自 GordenSuperPPTSkills** 的"先出图预览、确认后再交付"思想。图片型 PPT 生成后用户可以看到视觉效果；模板填充也应该在最终交付前提供同等质量的预览。
+
+校验通过后，将组装好的 PPTX 渲染为逐页 PNG 预览图，供用户**视觉确认**排版效果后再最终交付。
+
+```bash
+# 依赖 LibreOffice 的 headless 渲染能力
+which soffice || echo "需要安装 LibreOffice: sudo apt install libreoffice"
+
+# 渲染预览
+python3 scripts/render_slides.py /tmp/report.pptx /tmp/preview --dpi 144
+# 产出: /tmp/preview/slide_01.png, slide_02.png, ...
+```
+
+**预览检查项**（Agent 需逐页确认）：
+- 文字是否超出文本框边界
+- 图片是否压住关键文字
+- 跨模板页面的配色/字体是否和谐
+- 中文字体是否正常渲染（非「口」字）
+
+**何时必须预览**：
+- 跨模板族组装（≥2 个不同模板族混用）→ **强制预览**
+- 单模板族 + 页面数 ≥ 10 → **建议预览**
+- 用户要求"确认后再交付" → **强制预览**
+- 快速原型/内部草稿 → 可选跳过
+
+**预览→修正循环**：
+```python
+# 预览发现问题后，调整 outline/content 重新执行 Phase 1-5
+# 最多循环 3 次；3 次后仍有问题时交付 + 附问题清单
+result = engine.fill(outline, output_path="/tmp/report.pptx")
+engine.preview("/tmp/report.pptx", "/tmp/preview")
+# 用户确认 → 交付 / 发现问题 → 调整 outline → 重新 fill
+```
+
 ## 内容大纲格式
 
 ### 完整格式
@@ -257,6 +299,8 @@ outline = ContentOutline.from_simple_list([
 - ❌ 母版合并操作 — 不在同一 PPT 中混合多个母版
 - ❌ 用 `prs.slides.add_slide(source_layout)` 跨模板添加幻灯片 — 母版不兼容
 - ❌ 跳过校验步骤 — 表面看起来正常的 PPT 可能有隐藏问题
+- ❌ 跨模板组装后跳过预览直接交付 — 不同模板族的配色/字体可能冲突，必须渲染预览确认
+- ❌ 预览发现文本溢出仍交付 — 需调整内容或换页面后重新预览
 
 ## 失败模式
 
@@ -272,3 +316,7 @@ outline = ContentOutline.from_simple_list([
 ## 关联技能
 
 - **upstream ← `ppt-structure-parser`**：填充器依赖结构解析器建立的页面库。页面库为空时无法工作。
+
+## 方法论文本
+
+> v1.1.0 吸收自 [GordenSuperPPTSkills](https://github.com/GordenSun/GordenSuperPPTSkills) 的「先出图预览、确认后再交付」设计思想。图片型 PPT 生成流程中，用户在看到图片后给出确认才是真正的交付节点；模板填充也应该在 Phase 4 校验后增加 Phase 5 渲染预览，让用户在实际 .pptx 文件之外获得等价的视觉确认。跨模板组装场景强制预览，单模板大批量建议预览。

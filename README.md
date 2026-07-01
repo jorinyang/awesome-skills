@@ -84,7 +84,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 | [ppt-structure-parser](ppt-structure-parser/SKILL.md) 🆕 | 解析PPT模板/拆PPT/模板拆解/PPT组件化/建页面库 | 多套PPT模板拆解→独立页面→三级标签分类→入库为可检索数据 |
-| [ppt-template-filler](ppt-template-filler/SKILL.md) 🆕 | 组装PPT/做PPT/大纲转PPT/填充模板/套模板 | 页面库查询→匹配→跨模板形状克隆→内容填充→四阶段流水线 |
+| [ppt-template-filler](ppt-template-filler/SKILL.md) 🆕 | 组装PPT/做PPT/大纲转PPT/填充模板/套模板 | 页面库查询→匹配→跨模板形状克隆→内容填充→五阶段流水线 |
 
 #### ppt-structure-parser — PPT 结构解析器
 
@@ -98,7 +98,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 > **触发**：组装PPT / 做PPT / 大纲转PPT / 填充模板 / 套模板 / 内容转PPT
 
-从页面库查询匹配最佳模板页，跨模板形状克隆拼装新PPT。四阶段非破坏性流水线（匹配→分析→组装→校验），源模板文件零修改。
+从页面库查询匹配最佳模板页，跨模板形状克隆拼装新PPT。五阶段非破坏性流水线（匹配→分析→组装→校验→预览），源模板文件零修改。跨模板组装强制渲染预览。
 
 **能力**：智能页面匹配算法 | 内容适配度分析 | 跨模板形状克隆 | 和谐化策略（3种色彩模式）| 逐页逐形状校验
 
@@ -605,6 +605,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.7 | 2026-07-01 | 96技能 — ppt-template-filler v1.0.0→v1.1.0: 新增Phase 5渲染预览阶段（吸收自GordenSuperPPTSkills「先出图预览确认后再交付」思想；跨模板组装强制预览；LibreOffice headless渲染PNG）；新增6个预览触发词 |
 | v5.4.6 | 2026-07-01 | 96技能 — WSL适配：3个WSL技能标记为仅WSL环境适用 + 10个技能移除WSL特定引用(travel-intel/github-release-readme/github-absorb/jimeng-video/feishu-doc/image-analysis/firecrawl-web/dingtalk-cli/strategy-plan-writing/double-evolution) |
 | v5.4.5 | 2026-07-01 | 96技能 — +1 新增(feishu-wiki-file-routing: 飞书知识库 /wiki/ URL 路由降级——当 lark-doc 无法处理 file 类型节点时的发现→下载→提取流程；与 lark-doc/lark-wiki/lark-drive 协同)；飞书系列 6→7 |
 | v5.4.4 | 2026-07-01 | 95技能 — +2 新增(ppt-structure-parser + ppt-template-filler: PPT模板拆解→三级标签入库 + 页面库→跨模板拼装生成，四阶段流水线)；构建与设计 22→24 |
