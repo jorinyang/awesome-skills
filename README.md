@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-96-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-94-blue)](.)
 
 ---
 
@@ -57,7 +57,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
-### 🏗️ 构建与设计 (24)
+### 🏗️ 构建与设计 (22)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -83,26 +83,6 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
-| [ppt-structure-parser](ppt-structure-parser/SKILL.md) 🆕 | 解析PPT模板/拆PPT/模板拆解/PPT组件化/建页面库 | 多套PPT模板拆解→独立页面→三级标签分类→入库为可检索数据 |
-| [ppt-template-filler](ppt-template-filler/SKILL.md) 🆕 | 组装PPT/做PPT/大纲转PPT/填充模板/套模板 | 页面库查询→匹配→跨模板形状克隆→内容填充→五阶段流水线 |
-
-#### ppt-structure-parser — PPT 结构解析器
-
-> **触发**：解析PPT模板 / 拆PPT / 模板拆解 / PPT组件化 / 建页面库 / 分析PPT结构
-
-多套PPT模板拆解为独立原子页面，三级标签分类（模板族→页面类型→布局变体），入库为可检索的 JSON 页面数据列表。每页携带完整元数据：元素统计/文本角色/设计令牌/内容约束。
-
-**能力**：python-pptx 逐页解析 | 18种页面类型自动分类 | 元素统图 | 设计令牌提取 | 批量入库
-
-#### ppt-template-filler — PPT 模板填充器
-
-> **触发**：组装PPT / 做PPT / 大纲转PPT / 填充模板 / 套模板 / 内容转PPT
-
-从页面库查询匹配最佳模板页，跨模板形状克隆拼装新PPT。五阶段非破坏性流水线（匹配→分析→组装→校验→预览），源模板文件零修改。跨模板组装强制渲染预览。
-
-**能力**：智能页面匹配算法 | 内容适配度分析 | 跨模板形状克隆 | 和谐化策略（3种色彩模式）| 逐页逐形状校验
-
-**联动**：依赖 `ppt-structure-parser` 建立的页面库 | 与 `html-ppt` 互补（.pptx vs HTML 生成）
 
 ### 🔧 开发工程 (14)
 
@@ -568,7 +548,7 @@ for dir in */; do
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis|ppt-structure-parser|ppt-template-filler) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
@@ -605,6 +585,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.9 | 2026-07-03 | 94技能（-2 移除：ppt-structure-parser + ppt-template-filler 迁移至独立仓库 jorinyang/ppt-engine-ref refactor；构建与设计 24→22；修复 badge 计数 96→94 + 移除遗留引用 + 安装脚本清理） |
 | v5.4.8 | 2026-07-02 | 96技能 — 11技能内容更新：external-skill-evaluation v1.3.0→v1.4.0(新增借鉴思想吸收轻量模式)；github-release-readme classify_skill顺序修正(author优先)；hermes-instance-sync 新增Phase -1 broken symlink清理；trip-archive 格式规范化+内容扩展；travel-intel 采集层标记修正；wsl-browser-cdp/wsl-docker-deploy 移除WSL-only警告标记；github-absorb/firecrawl-web/image-analysis/ppt-structure-parser 微调 |
 | v5.4.6 | 2026-07-01 | 96技能 — WSL适配：3个WSL技能标记为仅WSL环境适用 + 10个技能移除WSL特定引用(travel-intel/github-release-readme/github-absorb/jimeng-video/feishu-doc/image-analysis/firecrawl-web/dingtalk-cli/strategy-plan-writing/double-evolution) |
 | v5.4.5 | 2026-07-01 | 96技能 — +1 新增(feishu-wiki-file-routing: 飞书知识库 /wiki/ URL 路由降级——当 lark-doc 无法处理 file 类型节点时的发现→下载→提取流程；与 lark-doc/lark-wiki/lark-drive 协同)；飞书系列 6→7 |
