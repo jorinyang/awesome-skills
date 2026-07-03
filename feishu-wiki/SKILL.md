@@ -23,11 +23,12 @@ tags: [feishu, wiki, cron, curation]
 ## 完整流程（5 步）
 
 ### Step 0 — 预检：验证脚本完整性（cron 模式下必须执行）
-模型输出腐败过滤器会损坏脚本中的 `{` `}` 和 `***` 字符。每次运行前必须做语法检查：
+模型输出腐败过滤器会损坏脚本中的 `{` `}` 和 `***` 字符。每次运行前必须对**所有**将被调用的脚本做语法检查：
 ```bash
-python3 -c "import py_compile; py_compile.compile(
-    'C:/Users/Aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts/wiki_monitor.py',
-    doraise=True)" 2>&1
+SCRIPTS_DIR=/home/aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts
+for script in wiki_monitor.py gen_summaries.py assemble_homepage.py; do
+    python3 -c "import py_compile; py_compile.compile('$SCRIPTS_DIR/' + '$script', doraise=True)" 2>&1 || echo "CORRUPTED: $script"
+done
 ```
 若报错，用 read_file 检查并 patch 修复。常见腐败模式：
 - 变量赋值断裂：`HPT = "Y4LY...= "LJ7..."` → 两行分开
@@ -36,7 +37,7 @@ python3 -c "import py_compile; py_compile.compile(
 
 ### Step 1 — 运行监控脚本
 ```bash
-cd C:/Users/Aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts
+cd /home/aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts
 python3 wiki_monitor.py
 ```
 输出 4 个文件：
@@ -130,12 +131,23 @@ cron 模式下 `execute_code` 工具被阻止（需用户批准）。Python 处�
 
 **curl + token 认证**：直接 `curl -d '{"app_id":...}' | python3` 获取 tenant_access_token 会同时触发管道审批和敏感凭据检查。优先使用 `lark-cli` 自带认证，无需手动获取 token。
 
-### wiki_curator.py 扫描深度限制
-`list_all_nodes()` 仅扫描一层子节点。位于二级分类下的文档（如"行业资讯"下的 sub-node 文档）在 scan 输出中父节点映射错误，导致 `unclassified` 偏高。
+### ✅ 已修复：扫描深度 + 关键词覆盖（2026-07-02）
 
-**临时方案**：`wiki_monitor.py` 的 `wiki_process.py` 变体通过 `parent_node_token` 链向上查找分类父节点，但效果有限。
+**原问题**：`list_all_nodes()` 仅扫描两层。关键词覆盖不足（"行业资讯"仅 6 词）。2026-07-02 出现 962/1891 (51%) 未分类。
 
-**正确修复方向**：递归遍历子节点或使用 `/wiki/v2/spaces/{id}/nodes` 的分页深度遍历。
+**修复（三管齐下）**：
+1. **三级递归** — `list_all_nodes()` 新增第三层遍历（孙节点），发现之前遗漏的 141 篇文档
+2. **父节点映射** — 新增 `PARENT_TO_CATEGORY` 字典，将「资讯洞察」「业务记录」等顶级文件夹自动映射到对应子分类
+3. **关键词大规模扩展** — 「行业资讯」从 6 词扩展到 100+ 词（覆盖文旅、酒店、出境游、旅居、桨板等变体），其余各类同步扩展。详见上方「分类体系」表格
+
+修复后：2032 文档，2025 已分类，7 未分类（0.34%）。
+
+### 🔑 未分类诊断 checklist
+
+当 `unclassified` 突然飙高：
+1. 标题用词变体是否命中关键词 — "文旅"≠"旅游"，"出境游"≠"旅游"，"旅居"≠"旅游"
+2. 是否有新顶级文件夹不在 `CATEGORY_TOKENS` 或 `PARENT_TO_CATEGORY` 中
+3. 是否有三级以上嵌套文件夹新增文档
 
 ## 模型输出腐败陷阱（见 references/curly-brace-corruption.md）
 
@@ -167,22 +179,37 @@ Wiki 节点可能是 docx / file / folder 三种类型。`docs +fetch` 只能读
 ## Wiki 认证 Scope 与 Token 陷阱（见 references/wiki-auth-pitfalls.md）
 `wiki:node:read` ≠ `wiki:node:retrieve`，scope 混淆是最常见的 Wiki 操作 403 根因。记忆中的 token 可能被截断导致 131005。详见 [references/wiki-auth-pitfalls.md](references/wiki-auth-pitfalls.md)。
 
-## 分类体系（12 类）
+## 分类体系（12 类 + 4 个顶级父节点映射）
 
-| 分类 | node_token | 关键词 |
+| 分类 | node_token | 关键词（已扩展） |
 |------|-----------|--------|
 | 企业文化 | KqoZwqut8ilTSFk3SX4cOpQ9nZf | 价值观、使命、愿景、文化、团建、年会 |
 | 团队管理 | PAVdwkNpNiedvfkPLIec1gK7nAU | 组织架构、KPI、OKR、招聘、绩效、培训 |
 | 产品研发 | HrJXwlne7ioywnkDpAlc6p08ngV | 产品、研发、技术、开发、测试、上线 |
-| 运营策略 | JIKCw1IXAi5ZYxkBKW0cYEuanGF | 运营、推广、渠道、用户增长、转化、冷启动、销售、营销 |
-| 业务规范 | FB6DwZlXhijL38k0z6Jcy8znhd | SOP、流程、规范、标准、协议、制度、授权书、合同 |
-| 会议纪要 | GI1cwlAUviHXIqk291vcjNxvnGb | 会议、纪要、周会、月会、评审、复盘 |
-| 方案计划 | KVPTwrbOKiQMUkkUPlscaEKfnUd | 方案、计划、规划、策划、提案、研学、游览 |
-| 汇报资料 | MebBwjMDgiUH4YkNeEmcLhxFnrb | 汇报、报告、总结、述职、数据报告、洞察、分析、周报、周度 |
-| 文案素材 | J9h6wJgO4ij7NjkXNTCc6mNDnwf | 文案、素材、海报、话术、宣传、模板、脚本、笔记、品牌叙事 |
-| 行业资讯 | V0Lhwl7KYiWYDDk1vCncv2GhnYf | 行业、资讯、新闻、趋势、景点、旅游、文旅、景区、酒店、OTA、简报 等 + 自动采集源（pinchain/wenlv/meadin）|
-| 竞品动态 | EAMYw1CPoipVWtkObbtcR2oDnNc | 竞品、竞争、对手、友商、对标 |
-| AI Native 工作流 | J4EewYIT2ieFuwkRWbxcgWbFnhe | AI、工作流、自动化、智能、agent、LLM、MCP、BRIEF、技能化、蓝图 |
+| 运营策略 | JIKCw1IXAi5ZYxkBKW0cYEuanGF | 运营、推广、渠道、用户增长、转化、冷启动、营销、社媒、短视频、抖音、小红书、直播、私域、客户画像、标签体系、账号矩阵 |
+| 业务规范 | FB6DwZlXhijL38k0z6Jcy8znhd | SOP、流程、规范、标准、协议、制度、合同、授权书、采购 |
+| 会议纪要 | GI1cwlAUviHXIqk291vcjNxvnGb | 会议、纪要、周会、月会、评审、复盘、每日简报、简报 |
+| 方案计划 | KVPTwrbOKiQMUkkUPlscaEKfnUd | 方案、计划、规划、策划、提案、蓝图、排期、风险、对策 |
+| 汇报资料 | MebBwjMDgiUH4YkNeEmcLhxFnrb | 汇报、报告、总结、述职、数据报告、周度分析、综合洞察、周报、月报 |
+| 文案素材 | J9h6wJgO4ij7NjkXNTCc6mNDnwf | 文案、素材、海报、话术、宣传、模板、冷启动脚本、品牌叙事、落地页 |
+| 行业资讯 | V0Lhwl7KYiWYDDk1vCncv2GhnYf | ~~行业、资讯、新闻、趋势、景点、旅游~~ → 文旅、旅游、出境游、酒店、民宿、景区、旅行社、OTA、携程、航线、机票、文博、古镇、攻略、游记、贵州、黔、meadin、pinchain、旅居、毕业旅行、徒步、桨板、南博会、红河、云南 等 100+ |
+| 竞品动态 | EAMYw1CPoipVWtkObbtcR2oDnNc | 竞品、竞争、对手、友商、对标、新东方、凯撒、中青旅、华住、上市、融资、IPO、股权、并购、收购 |
+| AI Native 工作流 | J4EewYIT2ieFuwkRWbxcgWbFnhe | AI、工作流、自动化、智能、agent、LLM、MCP、BRIEF、ARCHITECTURE、Answer |
+
+### 顶级父节点 → 子分类映射
+
+当文档直接挂在顶级文件夹下（而非子分类中），自动归入对应子分类：
+
+| 顶级文件夹 | 默认子分类 |
+|-----------|----------|
+| 资讯洞察 (UF7C...) | 行业资讯 |
+| 业务记录 (UmwH...) | 业务规范 |
+| 运营管理 (W57j...) | 运营策略 |
+| 内容素材 (XMVr...) | 文案素材 |
+
+### 深度遍历
+
+`list_all_nodes()` 现支持三级递归：根节点 → 子节点 → 孙节点。不再遗漏三级子文件夹下的文档。
 
 ## 内容过期校验（见 scripts/expiry_checker.py）
 
@@ -234,40 +261,8 @@ python3 scripts/expiry_checker.py
 - **分页超时** — 大节点（>500 docs）的分页请求可能超时，脚本内置 3 次重试
 - **飞书频率限制** — 标记评论间隔 ≥0.5s
 
-### Windows cron (SYSTEM 用户) FEISHU_APP_* 缺失 ★ (2026-07-04 验证)
-
-`expiry_checker.py` 在 Windows SYSTEM-user cron 下首次跑会因 `os.environ["FEISHU_APP_ID"]` KeyError 立即退出，**无可见错误**（traceback 落到 stderr，cron 不会自动诊断）。
-
-**根因 — 双重陷阱**：
-1. `feishu_secret` 文件在 Aorus 用户的 home 下**不存在**（2026-07-04 确认），所以脚本的"或 ~/.hermes-feishu/feishu_secret 文件" fallback 永远走不通
-2. SYSTEM-user cron 启动时无 `FEISHU_APP_ID` / `FEISHU_APP_SECRET` 环境变量（`env | grep FEISHU` 全空）
-
-**真实凭据来源**：`C:/Users/Aorus/.hermes-feishu/.env`（grep `^FEISHU_APP_` 可拿到）。
-
-**修复 — cron 命令前必须 source .env**：
-
-```bash
-# ❌ 裸跑 — 100% KeyError
-python3 scripts/expiry_checker.py
-
-# ✅ 先 export，再跑
-export $(grep -E "^FEISHU_APP_" "C:/Users/Aorus/.hermes-feishu/.env" | xargs)
-python3 scripts/expiry_checker.py
-```
-
-**适用脚本**：`expiry_checker.py`、`wiki_monitor.py`、任何在 SKILL.md/源码里 `os.environ["FEISHU_APP_*"]` 直接读取凭据的脚本。`lark-cli` 子命令走 npm 凭据，不受此影响（lark-cli 不读这两个 env vars），但凡脚本**自己**用 REST API 拿 tenant_access_token，就走 .env 加载。
-
-**症状速查**：
-
-| 现象 | 原因 |
-|------|------|
-| `KeyError: 'FEISHU_APP_ID'` 在 `get_token()` | 缺 env vars，`.env` 未 source |
-| `KeyError: 'FEISHU_APP_SECRET'` | 同上 |
-| 静默成功但评论未写入 | 拿到了 fake token，所有 API 返回 99991663/99991668 |
-
-**预防**：把 `export $(grep -E "^FEISHU_APP_" .env | xargs)` 写进 cron prompt 的最前面，所有调用 expiry_checker / wiki_monitor 的 cron job 都需要。已记录的 cron job：`travel-intel-expire`、`feishu-wiki-daily` 等。
-
 ## 依赖
 - `lark-cli` (~/.local/bin/lark-cli, 推荐 >= 1.0.40)
-- `FEISHU_APP_ID` + `FEISHU_APP_SECRET` — Windows cron 下从 `C:/Users/Aorus/.hermes-feishu/.env` 加载（见上方陷阱条目）
+- `FEISHU_APP_SECRET` 环境变量 或 `~/.hermes-feishu/feishu_secret` 文件
+- `FEISHU_APP_ID` 环境变量（默认 `cli_aa9ead14c2641cc3`）
 - Python 3 stdlib（json, subprocess, hashlib, re, datetime）

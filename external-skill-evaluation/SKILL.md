@@ -9,7 +9,7 @@ triggers:
   - "这个技能适合我们吗"
 tags: [evaluation, skill-absorption, methodology, external-skill, two-phase-strategy]
 category: methodology
-version: 1.3.0
+version: 1.4.0
 related_skills: [github-absorb]
 ---
 
@@ -47,16 +47,7 @@ curl -s https://api.github.com/repos/{owner}/{repo}/contents/skills
 curl -s "https://api.github.com/search/code?q={keyword}+repo:{owner}/{repo}"
 ```
 
-**⚠️ GitHub / CNS 平台 API 回退（通用）**：GitHub API 在 TUN 代理、企业防火墙、API rate limit 下可能不可达（curl 返回非 0 退出码或空输出）；CNS 平台（AtomGit / GitCode / Gitee）的 REST API 更是经常不可用。**无论哪种平台，发现 API 失败时立即 fallback 到 `git clone --depth 1`，不要反复重试**（浪费时间且不会恢复）。克隆到 `/tmp/` 后直接探索本地文件系统。
-
-```bash
-# 通用回退：curl 失败 → 立即 git clone
-rm -rf /tmp/{repo} 2>/dev/null
-git clone --depth 1 https://github.com/{owner}/{repo}.git /tmp/{repo}
-# 之后所有文件读取用 read_file 直接读 /tmp/{repo}/
-```
-
-> `git clone` 走的是 Git 协议（HTTPS 或 SSH），与 curl 的 HTTP API 是不同通道，通常能绕过 TUN 代理问题。详见 `references/github-api-discovery.md`。
+**⚠️ CNS 平台回退（AtomGit / GitCode / Gitee）：** 这些平台的 REST API 经常不可用（返回空、JSON 解析失败）。**发现 API 失败时立即 fallback 到 `git clone --depth 1`，不要反复重试 API**（浪费时间且不会恢复）。克隆到 `/tmp/` 后直接探索本地文件系统。详见 `references/github-api-discovery.md`。
 
 **子模块陷阱：** 仓库的 `skills/` 目录可能使用 git submodule 指向独立仓库。GitHub API 对 submodule 返回 `"type": "submodule"` 且 `download_url: null`。此时需要：
 1. 在 `api.github.com/search/repositories?q={skill-name}+user:{owner}` 搜索独立仓库
@@ -247,6 +238,16 @@ read_file(path="<skill_dir>/SKILL.md", offset=801, limit=500)
 
 与平台+技能混合项目的 B 阶段流程相同，但无 A 阶段。
 
+**🔵 借鉴思想吸收（轻量模式）**：当分类为 🔵 时，不创建新技能——提取设计思想注入现有技能的特定阶段：
+
+```
+评估 → 确定注入点（目标技能 + phase/字段）→ 修改目标 SKILL.md → 标注吸收来源 → GitHub 同步
+```
+
+- 成本最低（不创建新技能，不引入新依赖）
+- 适用场景：外部技能与现有体系重叠但有可提取的设计决策
+- 完整案例见 `references/gorden-super-ppt-case-study.md`（GordenSuperPPTSkills → ppt-template-filler Phase 5）
+
 ### Phase 6: 知识沉淀
 
 吸收完成后：
@@ -278,9 +279,10 @@ read_file(path="<skill_dir>/SKILL.md", offset=801, limit=500)
 - `references/known-skills-research.md` — 已知技能生态：Research Paper Writing 领域
 - `references/known-skills-pm.md` — 已知技能生态：Product Management 领域
 - `references/agent-insight-case-study.md` — 完整案例：openEuler/agent-insight B+A 吸收全流程
+- `references/gorden-super-ppt-case-study.md` — 完整案例：GordenSuperPPTSkills 🔵 借鉴思想吸收全流程（评估→注入→同步→Release）
 
 ## 已知陷阱
 
-- **GitHub / CNS 平台 API 不可靠**：GitHub API 在 TUN 代理/企业防火墙下 curl 可能失败（exit code 49）；AtomGit/GitCode/Gitee 的 REST API 经常返回空或 JSON 解析失败。不要反复重试——立即 `git clone --depth 1` 到 `/tmp/`，之后用本地文件探索。
+- **AtomGit/GitCode/Gitee API 不可靠**：这些 CNS 平台的 REST API 经常返回空或 JSON 解析失败。不要反复重试——立即 `git clone --depth 1` 到 `/tmp/`
 - **公众号文章中的技能**：mp.weixin.qq.com 链接需用 curl + regex 提取 `js_content`，浏览器导航可能超时
 - **平台+技能混合项目不要跳过 B 阶段直接做 A**：先吸收方法论做成独立技能，等上游成熟和自身规模触发后再部署平台。Agent-Insight 评估的完整流程见 `references/agent-insight-case-study.md`
