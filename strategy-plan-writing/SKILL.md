@@ -106,7 +106,7 @@ When the user provides source materials (meeting notes, transcripts):
 
 ## Linked Resources
 
-- `references/china-research-pitfalls.md` — 中国市场调研常见问题与应对
+- `references/china-research-pitfalls.md` — WSL search workarounds for China-market business research
 - `templates/strategy-plan-template.md` — Starter template for strategy/operations plan documents
 
 ## Common Pitfalls

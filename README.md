@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-94-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-96-blue)](.)
 
 ---
 
@@ -57,7 +57,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 
-### 🏗️ 构建与设计 (22)
+### 🏗️ 构建与设计 (24)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -73,6 +73,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [fireworks-tech-graph](fireworks-tech-graph/SKILL.md) | 画图/架构图/流程图/可视化 | NL→SVG+PNG 技术图表，五维质控+轻量路由+设计语言注入 |
 | [hallmark](hallmark/SKILL.md) | 审查AI味/audit/发射前检查 | Anti-AI-slop 58道关卡质量门禁 |
 | [html-ppt](html-ppt/SKILL.md) | 做幻灯片/PPT/演示文稿 | HTML 幻灯片工厂 |
+| [ppt-structure-parser](ppt-structure-parser/SKILL.md) 🆕 | 解析PPT模板/拆PPT/PPT组件化 | PPT模板拆解→三级标签分类→可检索页面库 |
+| [ppt-template-filler](ppt-template-filler/SKILL.md) 🆕 | 组装PPT/做PPT/填充模板 | 页面库查询→跨模板拼装→四阶段流水线（匹配→分析→组装→校验） |
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo/高保真UI | HTML高保真原型/动画/幻灯片/品牌设计 |
 | [humanizer](humanizer/SKILL.md) | 去AI味/润色文案 | 29种文本模式去除AI写作痕迹 |
 | [pretext](pretext/SKILL.md) | 创意浏览器demo | @chenglou/pretext 创意 Demo |
@@ -548,7 +550,7 @@ for dir in */; do
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|ppt-structure-parser|ppt-template-filler|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
@@ -585,6 +587,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.10 | 2026-07-04 | 96技能（+2 新增 ppt-structure-parser + ppt-template-filler：PPT模板拆解→页面库 + 跨模板拼装生成，回归 v5.4.9 误删的两技能；构建与设计 22→24）+ 20技能内容更新(answer/ara-compiler/darwin-skill/dingtalk-cli/external-skill-evaluation/feishu-doc/feishu-table/feishu-wiki/firecrawl-web/github-absorb/github-release-readme/hermes-instance-sync/jimeng-video/sketch/strategy-plan-writing/supabase-backend/test-driven-development/travel-intel/trip-archive/windows-troubleshooting-from-wsl) |
 | v5.4.9 | 2026-07-03 | 94技能（-2 移除：ppt-structure-parser + ppt-template-filler 迁移至独立仓库 jorinyang/ppt-engine-ref refactor；构建与设计 24→22；修复 badge 计数 96→94 + 移除遗留引用 + 安装脚本清理） |
 | v5.4.8 | 2026-07-02 | 96技能 — 11技能内容更新：external-skill-evaluation v1.3.0→v1.4.0(新增借鉴思想吸收轻量模式)；github-release-readme classify_skill顺序修正(author优先)；hermes-instance-sync 新增Phase -1 broken symlink清理；trip-archive 格式规范化+内容扩展；travel-intel 采集层标记修正；wsl-browser-cdp/wsl-docker-deploy 移除WSL-only警告标记；github-absorb/firecrawl-web/image-analysis/ppt-structure-parser 微调 |
 | v5.4.6 | 2026-07-01 | 96技能 — WSL适配：3个WSL技能标记为仅WSL环境适用 + 10个技能移除WSL特定引用(travel-intel/github-release-readme/github-absorb/jimeng-video/feishu-doc/image-analysis/firecrawl-web/dingtalk-cli/strategy-plan-writing/double-evolution) |

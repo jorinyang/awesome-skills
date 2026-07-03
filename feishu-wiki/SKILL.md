@@ -26,7 +26,7 @@ tags: [feishu, wiki, cron, curation]
 模型输出腐败过滤器会损坏脚本中的 `{` `}` 和 `***` 字符。每次运行前必须做语法检查：
 ```bash
 python3 -c "import py_compile; py_compile.compile(
-    '/home/aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts/wiki_monitor.py',
+    'C:/Users/Aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts/wiki_monitor.py',
     doraise=True)" 2>&1
 ```
 若报错，用 read_file 检查并 patch 修复。常见腐败模式：
@@ -36,7 +36,7 @@ python3 -c "import py_compile; py_compile.compile(
 
 ### Step 1 — 运行监控脚本
 ```bash
-cd /home/aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts
+cd C:/Users/Aorus/.hermes-feishu/skills/productivity/feishu-wiki/scripts
 python3 wiki_monitor.py
 ```
 输出 4 个文件：
@@ -174,15 +174,15 @@ Wiki 节点可能是 docx / file / folder 三种类型。`docs +fetch` 只能读
 | 企业文化 | KqoZwqut8ilTSFk3SX4cOpQ9nZf | 价值观、使命、愿景、文化、团建、年会 |
 | 团队管理 | PAVdwkNpNiedvfkPLIec1gK7nAU | 组织架构、KPI、OKR、招聘、绩效、培训 |
 | 产品研发 | HrJXwlne7ioywnkDpAlc6p08ngV | 产品、研发、技术、开发、测试、上线 |
-| 运营策略 | JIKCw1IXAi5ZYxkBKW0cYEuanGF | 运营、推广、渠道、用户增长、转化 |
-| 业务规范 | FB6DwZlXhijL38k0z6Jcy8znhd | SOP、流程、规范、标准、协议、制度 |
+| 运营策略 | JIKCw1IXAi5ZYxkBKW0cYEuanGF | 运营、推广、渠道、用户增长、转化、冷启动、销售、营销 |
+| 业务规范 | FB6DwZlXhijL38k0z6Jcy8znhd | SOP、流程、规范、标准、协议、制度、授权书、合同 |
 | 会议纪要 | GI1cwlAUviHXIqk291vcjNxvnGb | 会议、纪要、周会、月会、评审、复盘 |
-| 方案计划 | KVPTwrbOKiQMUkkUPlscaEKfnUd | 方案、计划、规划、策划、提案 |
-| 汇报资料 | MebBwjMDgiUH4YkNeEmcLhxFnrb | 汇报、报告、总结、述职、数据报告 |
-| 文案素材 | J9h6wJgO4ij7NjkXNTCc6mNDnwf | 文案、素材、海报、话术、宣传、模板 |
-| 行业资讯 | V0Lhwl7KYiWYDDk1vCncv2GhnYf | 行业、资讯、新闻、趋势、景点、旅游 |
+| 方案计划 | KVPTwrbOKiQMUkkUPlscaEKfnUd | 方案、计划、规划、策划、提案、研学、游览 |
+| 汇报资料 | MebBwjMDgiUH4YkNeEmcLhxFnrb | 汇报、报告、总结、述职、数据报告、洞察、分析、周报、周度 |
+| 文案素材 | J9h6wJgO4ij7NjkXNTCc6mNDnwf | 文案、素材、海报、话术、宣传、模板、脚本、笔记、品牌叙事 |
+| 行业资讯 | V0Lhwl7KYiWYDDk1vCncv2GhnYf | 行业、资讯、新闻、趋势、景点、旅游、文旅、景区、酒店、OTA、简报 等 + 自动采集源（pinchain/wenlv/meadin）|
 | 竞品动态 | EAMYw1CPoipVWtkObbtcR2oDnNc | 竞品、竞争、对手、友商、对标 |
-| AI Native 工作流 | J4EewYIT2ieFuwkRWbxcgWbFnhe | AI、工作流、自动化、智能、agent、LLM |
+| AI Native 工作流 | J4EewYIT2ieFuwkRWbxcgWbFnhe | AI、工作流、自动化、智能、agent、LLM、MCP、BRIEF、技能化、蓝图 |
 
 ## 内容过期校验（见 scripts/expiry_checker.py）
 
@@ -234,8 +234,40 @@ python3 scripts/expiry_checker.py
 - **分页超时** — 大节点（>500 docs）的分页请求可能超时，脚本内置 3 次重试
 - **飞书频率限制** — 标记评论间隔 ≥0.5s
 
+### Windows cron (SYSTEM 用户) FEISHU_APP_* 缺失 ★ (2026-07-04 验证)
+
+`expiry_checker.py` 在 Windows SYSTEM-user cron 下首次跑会因 `os.environ["FEISHU_APP_ID"]` KeyError 立即退出，**无可见错误**（traceback 落到 stderr，cron 不会自动诊断）。
+
+**根因 — 双重陷阱**：
+1. `feishu_secret` 文件在 Aorus 用户的 home 下**不存在**（2026-07-04 确认），所以脚本的"或 ~/.hermes-feishu/feishu_secret 文件" fallback 永远走不通
+2. SYSTEM-user cron 启动时无 `FEISHU_APP_ID` / `FEISHU_APP_SECRET` 环境变量（`env | grep FEISHU` 全空）
+
+**真实凭据来源**：`C:/Users/Aorus/.hermes-feishu/.env`（grep `^FEISHU_APP_` 可拿到）。
+
+**修复 — cron 命令前必须 source .env**：
+
+```bash
+# ❌ 裸跑 — 100% KeyError
+python3 scripts/expiry_checker.py
+
+# ✅ 先 export，再跑
+export $(grep -E "^FEISHU_APP_" "C:/Users/Aorus/.hermes-feishu/.env" | xargs)
+python3 scripts/expiry_checker.py
+```
+
+**适用脚本**：`expiry_checker.py`、`wiki_monitor.py`、任何在 SKILL.md/源码里 `os.environ["FEISHU_APP_*"]` 直接读取凭据的脚本。`lark-cli` 子命令走 npm 凭据，不受此影响（lark-cli 不读这两个 env vars），但凡脚本**自己**用 REST API 拿 tenant_access_token，就走 .env 加载。
+
+**症状速查**：
+
+| 现象 | 原因 |
+|------|------|
+| `KeyError: 'FEISHU_APP_ID'` 在 `get_token()` | 缺 env vars，`.env` 未 source |
+| `KeyError: 'FEISHU_APP_SECRET'` | 同上 |
+| 静默成功但评论未写入 | 拿到了 fake token，所有 API 返回 99991663/99991668 |
+
+**预防**：把 `export $(grep -E "^FEISHU_APP_" .env | xargs)` 写进 cron prompt 的最前面，所有调用 expiry_checker / wiki_monitor 的 cron job 都需要。已记录的 cron job：`travel-intel-expire`、`feishu-wiki-daily` 等。
+
 ## 依赖
 - `lark-cli` (~/.local/bin/lark-cli, 推荐 >= 1.0.40)
-- `FEISHU_APP_SECRET` 环境变量 或 `~/.hermes-feishu/feishu_secret` 文件
-- `FEISHU_APP_ID` 环境变量（默认 `cli_aa9ead14c2641cc3`）
+- `FEISHU_APP_ID` + `FEISHU_APP_SECRET` — Windows cron 下从 `C:/Users/Aorus/.hermes-feishu/.env` 加载（见上方陷阱条目）
 - Python 3 stdlib（json, subprocess, hashlib, re, datetime）

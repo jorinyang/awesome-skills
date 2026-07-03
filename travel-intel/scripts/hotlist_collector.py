@@ -21,6 +21,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import date
 
@@ -31,8 +32,8 @@ OPENCLI = os.path.expanduser("~/.hermes/node/bin/opencli")
 
 # ── 飞书 Wiki 节点 ────────────────────────────────────────
 WIKI_NODES = {
-    "industry": "V0Lhwl7KYiWYDDk1vCncv2GhnYf",
-    "competitor": "EAMYw1CPoipVWtkObbtcR2oDnNc",
+    "industry": "UF7Cw5w2WiHGfjkKVvBcxj8Hnib",
+    "competitor": "UF7Cw5w2WiHGfjkKVvBcxj8Hnib",
 }
 
 # ── 旅游相关关键词过滤器 ──────────────────────────────────
@@ -253,16 +254,18 @@ def _make_doc_title(item: dict, total_max: int = 60) -> str:
 
 
 def push_to_wiki(items: list[dict], dry_run: bool = False) -> dict:
-    """通过 lark-cli docs +create 创建文档到飞书 Wiki。
+    """通过 lark-cli v2 API 创建文档 → wiki+move 到目标节点。
 
-    原使用 lark-cli doc +create（无效命令），已修正为 docs +create --wiki-node。
-    lark-cli docs +fetch 有 bug（始终 blocks=0），实际内容用 REST API 可验证。
+    流程: docs +create (v2 markdown) → 解析 doc_id → wiki +move 到目标空间。
+    标题从 Markdown # heading 自动提取，无需 --title 标志。
     """
+    FALLBACK_TOKEN = WIKI_NODES["industry"]
+    SPACE_ID = "7643710721485753535"
+
     created = {"industry": 0, "competitor": 0, "errors": 0}
 
     for item in items:
         category = classify_social(item)
-        parent_token = WIKI_NODES[category]
         doc_title = _make_doc_title(item)
 
         orig_title = item.get("title", doc_title)
@@ -285,20 +288,65 @@ def push_to_wiki(items: list[dict], dry_run: bool = False) -> dict:
             created[category] += 1
             continue
 
+        tmp_path = None
         try:
-            proc = subprocess.run(
-                ["lark-cli", "docs", "+create",
-                 "--wiki-node", parent_token,
-                 "--title", doc_title,
-                 "--markdown", content_md,
-                 "--as", "bot"],
-                capture_output=True, text=True, timeout=30,
-            )
-            if proc.returncode == 0:
+            # Write content to temp file (--content @file)
+            with tempfile.NamedTemporaryFile(
+                mode='w', suffix='.md', delete=False, encoding='utf-8'
+            ) as tf:
+                tf.write(content_md)
+                tmp_path = tf.name
+
+            # Step 1: Create doc with v2 API
+            create_cmd = [
+                "lark-cli", "docs", "+create",
+                "--api-version", "v2",
+                "--doc-format", "markdown",
+                "--content", f"@{tmp_path}",
+                "--parent-token", FALLBACK_TOKEN,
+                "--as", "bot",
+            ]
+            proc = subprocess.run(create_cmd, capture_output=True, text=True, timeout=30)
+            if proc.returncode != 0:
+                log.warning("  ✗ create failed: %s (exit=%d): %s",
+                            doc_title[:50], proc.returncode, proc.stderr.strip()[:100])
+                created["errors"] += 1
+                continue
+
+            # Parse doc_id from response
+            doc_id = None
+            try:
+                resp = json.loads(proc.stdout.strip())
+                doc_id = resp.get("data", {}).get("document", {}).get("document_id")
+                if not doc_id:
+                    doc_id = resp.get("document_id")
+            except json.JSONDecodeError:
+                m = re.search(r'"document_id"\s*:\s*"([^"]+)"', proc.stdout)
+                if m:
+                    doc_id = m.group(1)
+
+            if not doc_id:
+                log.warning("  ✗ could not parse doc_id from create response: %s",
+                            proc.stdout[:200])
+                created["errors"] += 1
+                continue
+
+            # Step 2: wiki +move to target space
+            move_cmd = [
+                "lark-cli", "wiki", "+move",
+                "--obj-token", doc_id,
+                "--obj-type", "docx",
+                "--target-parent-token", FALLBACK_TOKEN,
+                "--target-space-id", SPACE_ID,
+                "--as", "bot",
+            ]
+            proc2 = subprocess.run(move_cmd, capture_output=True, text=True, timeout=30)
+            if proc2.returncode == 0:
                 log.info("  ✓ created: %s", doc_title[:50])
                 created[category] += 1
             else:
-                log.warning("  ✗ create failed: %s (exit=%d)", doc_title[:50], proc.returncode)
+                log.warning("  ✗ move failed: %s — %s",
+                            doc_title[:50], proc2.stderr.strip()[:100])
                 created["errors"] += 1
         except subprocess.TimeoutExpired:
             log.warning("  ✗ timeout: %s", doc_title[:50])
@@ -306,7 +354,9 @@ def push_to_wiki(items: list[dict], dry_run: bool = False) -> dict:
         except Exception as e:
             log.exception("  ✗ error: %s: %s", doc_title[:50], e)
             created["errors"] += 1
-
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.unlink(tmp_path)
         time.sleep(3)
 
     return created

@@ -729,7 +729,7 @@ for c in comments:
 
 当用户提到已有文档/方案/报价时，**不要**直接创建新文档。按以下顺序搜寻：
 
-1. **本地文件** — 用户指定路径（如 `/tmp/xxx/`、`~/workspace/`）或搜索 `C:\\Users\\*/Desktop|Documents|Downloads/`
+1. **本地文件** — 用户指定路径（如 `/tmp/xxx/`、`~/workspace/`）或搜索 `/mnt/c/Users/*/Desktop|Documents|Downloads/`
 2. **Feishu Wiki 节点** — `lark-cli wiki +node-list` 搜索知识库
 3. **Feishu 云空间** — 用户可能分享过文档链接（`feishu.cn/docx/` token）
 
@@ -781,7 +781,7 @@ for c in comments:
 | `not configured` | CLI 未初始化 | 运行 `echo "SECRET" \| lark-cli config init --app-id cli_aa9ead14c2641cc3 --app-secret-stdin --force-init` |
 | `--content: invalid file path` | `@file` 用了绝对路径 | `cd` 到文件目录，传相对路径 |
 | `permission denied` | Wiki 权限不足 | 确认应用已开通 `wiki:space:write_only` 并**重新发布** |
-| `node: not found` | Node.js 不在 PATH | `export PATH="/home/aorus/.local/bin:$PATH"` |
+| `node: not found` | Node.js 不在 PATH | `export PATH="C:/Users/Aorus/.local/bin:$PATH"` |
 | `3380002 Parent node not found` | 子分类 node_token 已失效 | 回退到一级分类 token（见上文陷阱）。该 token 可能因知识库重组而失效 |
 | `1069302` comment reply failed | 评论类型不匹配 | 普通评论用 `feishu_drive_reply_comment`，整篇评论用 `feishu_drive_add_comment` |
 | `1069307` comment not exist | 文档 ID 错误或权限不足 | 确认 doc_token 正确 + 应用有 `drive:comment:readonly` 权限 |

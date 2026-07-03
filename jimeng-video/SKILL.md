@@ -345,6 +345,7 @@ ffmpeg 精剪拼接模板（trim/slow/montage/logo）见 `references/ffmpeg-asse
 ## 常见问题
 
 ### WSL 环境登录
+自动浏览器登录在 WSL 中可能失败（Chrome 路径问题）。
 → 使用 sessionid 注入方式：手动从浏览器复制 sessionid → `jimeng login --sessionid <值>`
 
 ### Token 过期
@@ -362,6 +363,8 @@ jimeng login ...      # 重新登录添加新 token
 详见 `references/verification-20260528.md` — 完整安装/登录/图片/视频/3.5-pro 批量生成记录。
 
 - **npm 全局安装后 bin 可能不在 PATH**：使用 `node $(npm root -g)/jimeng-cli/dist/cli/index.js` 直接调用
+- **`jimeng-cli` 命令可能不可用**：bin 链接在 WSL 中未正确创建，使用 `node` 直接执行
+- **WSL 浏览器登录失败**：CLI 的 Python 自动化登录脚本在 WSL 中可能无法找到 Chrome。使用 `--sessionid` 手动注入
 - **sessionid 来源**：即梦域名 `jimeng.jianying.com`，用 `jimeng login --sessionid <值> --region cn` 注入
 - **region 默认 cn**：国内用户无需指定，国外需 `--region us/hk/jp/sg`
 - **视频生成耗时**：5s 视频通常 2-5 分钟，建议 `--no-wait` + `task wait`

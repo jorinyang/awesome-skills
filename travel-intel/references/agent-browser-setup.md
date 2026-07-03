@@ -13,7 +13,7 @@ CONFIG=~/.agent-browser/config.json
 config.json:
 ```json
 {
-  "executablePath": "/home/aorus/.chromium/chrome-linux/chrome",
+  "executablePath": "C:/Users/Aorus/.chromium/chrome-linux/chrome",
   "args": "--no-sandbox,--disable-gpu,--no-proxy-server"
 }
 ```

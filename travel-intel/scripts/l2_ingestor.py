@@ -17,9 +17,12 @@ import subprocess, json, os, sys, time, re
 # Force unbuffered output for background process visibility (2026-06-05)
 sys.stdout.reconfigure(line_buffering=True)
 
-PATH = os.path.expanduser("~/.local/bin:") + os.environ.get("PATH", "")
+NPM_PATH = r"C:\Users\Aorus\AppData\Roaming\npm"
+LOCAL_BIN = os.path.expanduser("~/.local/bin")
 ENV = os.environ.copy()
-ENV["PATH"] = PATH
+# Prepend both candidate paths (npm is the actual location on this Windows host)
+existing = ENV.get("PATH", "")
+ENV["PATH"] = ";".join([NPM_PATH, LOCAL_BIN, existing]) if os.name == "nt" else f"{NPM_PATH}:{LOCAL_BIN}:{existing}"
 
 COMPETITOR_KW = re.compile(
     r"探洞|洞穴|溶洞|绳降|天坑|速降|平塘|大石围|"
@@ -31,6 +34,7 @@ INDUSTRY_NODE = "V0Lhwl7KYiWYDDk1vCncv2GhnYf"    # ⚠️ stale 2026-06-04 (3380
 FALLBACK_NODE = "UF7Cw5w2WiHGfjkKVvBcxj8Hnib"    # ✅ 一级分类 咨询洞察 (confirmed working)
 # Use FALLBACK_NODE as primary until sub-tokens are refreshed
 DEFAULT_NODE = FALLBACK_NODE
+WIKI_SPACE_ID = "7643710721485753535"   # 贵州之客知识库 space_id
 BATCH_SIZE = 6  # reduced from 8 (2026-06-05: 17/64 rate-limited with 8)
 COOL_DOWN = 15  # increased from 12s (first-after-cooldown still vulnerable at 12s)
 ITEM_DELAY = 5  # seconds between individual API calls (was 4s)
@@ -96,9 +100,17 @@ def build_xml(item, cls, date_str):
 
 MAX_RETRIES = 3  # retry on 99991400 rate-limit errors
 
+# Use Windows TEMP so both Python os.open and lark-cli (Node) see the same dir
+# (Python /tmp → C:\tmp; Node /tmp → C:\Users\<u>\AppData\Local\Temp — mismatch)
+TEMP_DIR = os.environ.get("TEMP") or os.environ.get("TMP") or r"C:\Users\Aorus\AppData\Local\Temp"
+
+# On Windows, lark-cli (no ext) is a POSIX shell script that CreateProcess can't exec.
+# Use lark-cli.cmd explicitly so subprocess.run works regardless of cwd.
+LARK_CLI = r"C:\Users\Aorus\AppData\Roaming\npm\lark-cli.cmd"
+
 def ingest_one(item, cls, node, date_str):
     xml = build_xml(item, cls, date_str)
-    xml_file = f"/tmp/l2_{int(time.time()*1000000)}.xml"
+    xml_file = os.path.join(TEMP_DIR, f"l2_{int(time.time()*1000000)}.xml")
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -106,12 +118,12 @@ def ingest_one(item, cls, node, date_str):
                 f.write(xml)
 
             basename = os.path.basename(xml_file)
-            cmd = ["lark-cli", "docs", "+create", "--api-version", "v2",
+            cmd = [LARK_CLI, "docs", "+create", "--api-version", "v2",
                    "--doc-format", "xml", "--content", f"@{basename}",
                    "--parent-token", node, "--as", "bot"]
 
             r = subprocess.run(cmd, capture_output=True, text=True, timeout=30,
-                              cwd="/tmp", env=ENV)
+                              cwd=TEMP_DIR, env=ENV)
 
             if r.returncode != 0:
                 return False, f"RC={r.returncode} stderr={r.stderr[:200]}"
@@ -119,7 +131,23 @@ def ingest_one(item, cls, node, date_str):
             data = json.loads(r.stdout.strip())
             if data.get("ok"):
                 doc_id = data.get("data", {}).get("document", {}).get("document_id", "?")
-                return True, f"doc_id={doc_id}"
+                
+                # Step 2: Move into wiki tree (docs+create --parent-token only sets Drive parent, NOT wiki node)
+                move_cmd = [LARK_CLI, "wiki", "+move",
+                           "--obj-token", doc_id, "--obj-type", "docx",
+                           "--target-parent-token", node,
+                           "--target-space-id", WIKI_SPACE_ID,
+                           "--as", "bot"]
+                r2 = subprocess.run(move_cmd, capture_output=True, text=True, timeout=30,
+                                   cwd=TEMP_DIR, env=ENV)
+                if r2.returncode != 0:
+                    return False, f"doc_id={doc_id} wiki+move RC={r2.returncode}"
+                move_data = json.loads(r2.stdout.strip())
+                if move_data.get("ok"):
+                    return True, f"doc_id={doc_id} wiki_node={move_data.get('data',{}).get('node_token','?')}"
+                else:
+                    move_err = move_data.get("error", {})
+                    return False, f"doc_id={doc_id} wiki+move: code={move_err.get('code')} {move_err.get('message','')[:80]}"
             else:
                 err = data.get("error", {})
                 code = err.get('code', 0)

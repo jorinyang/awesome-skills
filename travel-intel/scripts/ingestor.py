@@ -33,7 +33,7 @@ COMPETITOR_NODE = "EAMYw1CPoipVWtkObbtcR2oDnNc"
 INDUSTRY_NODE = "V0Lhwl7KYiYDDk1vCncv2GhnYf"
 DEFAULT_DELAY = 3   # seconds between API calls to avoid rate limit 99991400
 TIMEOUT = 60       # seconds for lark-cli subprocess
-LARK_CLI = shutil.which("lark-cli") or "/home/aorus/.local/bin/lark-cli"
+LARK_CLI = shutil.which("lark-cli") or "C:/Users/Aorus/.local/bin/lark-cli"
 
 
 def classify(text: str) -> str:

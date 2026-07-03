@@ -92,6 +92,8 @@ https://github.com/{owner}/{repo}
 
 ### Step 1.3: 获取仓库元信息
 
+**首选**：GitHub API（快速、不需要 clone）
+
 ```bash
 # 仓库基本信息
 curl -s https://api.github.com/repos/{owner}/{repo} | python3 -c "
@@ -105,8 +107,27 @@ print(f'Description: {r.get(\"description\",\"?\")}')
 print(f'License: {r.get(\"license\",{}).get(\"spdx_id\",\"?\") if r.get(\"license\") else \"?\"}')
 print(f'Last push: {r.get(\"pushed_at\",\"?\")}')
 print(f'Archived: {r.get(\"archived\",False)}')
+print(f'Default branch: {r.get(\"default_branch\",\"?\")}')
+"
+
+# 目录结构
+curl -s https://api.github.com/repos/{owner}/{repo}/contents/ | python3 -c "
+import sys,json
+for i in json.load(sys.stdin):
+    print(f'{i[\"type\"]:7s} {i[\"name\"]:50s}')
 "
 ```
+
+**⚠️ 回退：当 curl 失败时（TUN 代理 / 企业防火墙 / API rate limit）→ 立即切换到 `git clone --depth 1`**
+
+```bash
+# 不要反复重试 curl——直接 clone 到 /tmp/ 探索本地文件系统
+rm -rf /tmp/{repo} 2>/dev/null
+git clone --depth 1 https://github.com/{owner}/{repo}.git /tmp/{repo}
+# 克隆成功后，跳过 Step 2.2（目录结构），直接用 read_file/search_files 探索本地文件
+```
+
+> **判断是否该回退**：curl 返回非 0 退出码、空输出、或 `execute_code` 被封锁无法运行 API 脚本 → 立即 git clone，不要在 API 上浪费时间。
 
 ---
 
@@ -123,6 +144,8 @@ print(f'Archived: {r.get(\"archived\",False)}')
 5. **examples/ 目录** — 使用示例
 
 使用 `curl -s 'https://raw.githubusercontent.com/{owner}/{repo}/main/README.md' | head -500` 分块读取。
+
+**⚠️ 若 curl 已失败（Phase 1 已 git clone 到 /tmp/{repo}）**：直接用 `read_file` 读取本地文件（`/tmp/{repo}/README.md`），不要切回 curl。
 
 ### Step 2.1b: 读取配套文章/博客（如有）
 
@@ -659,3 +682,4 @@ python3 ~/.hermes-feishu/skills/methodology/github-absorb/scripts/audit-referenc
 | API rate limit | 403 返回 | 等待 60s 重试一次；仍失败则用 `web_search` 获取信息 |
 | 用户中途改变需求 | 任意阶段 | 记录当前进度后调整方向 |
 | 配套微信文章无法直接访问 | `browser_navigate` 超时或返回空白 | 使用 CDP 浏览器 + `browser_console` 提取 `#js_content`（见 Phase 2.1b）。若 CDP 也不可用，仅基于代码分析评估 |
+| GitHub API / raw 不可达（TUN 代理等） | curl 返回非 0 退出码或空输出 | **立即回退到 `git clone --depth 1`** 到 `/tmp/`，之后所有文档读取用本地 `read_file`，不要反复重试 curl。此模式同时绕过 API rate limit |

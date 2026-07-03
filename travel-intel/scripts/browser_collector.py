@@ -23,6 +23,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.parse
 from datetime import date
@@ -97,8 +98,8 @@ NOISE_RE = re.compile("|".join(NOISE_PATTERNS))
 
 # ── 飞书 Wiki 节点 ─────────────────────────────────────────
 WIKI_NODES = {
-    "industry": "V0Lhwl7KYiWYDDk1vCncv2GhnYf",
-    "competitor": "EAMYw1CPoipVWtkObbtcR2oDnNc",
+    "industry": "UF7Cw5w2WiHGfjkKVvBcxj8Hnib",
+    "competitor": "UF7Cw5w2WiHGfjkKVvBcxj8Hnib",
 }
 
 
@@ -576,19 +577,19 @@ def _make_doc_title(item: dict, total_max: int = 60) -> str:
     return f"{prefix}_{title}"[:total_max]
 
 def push_to_wiki(results: dict, dry_run: bool = False) -> dict:
-    """通过 lark-cli docs +create 创建文档到飞书 Wiki。
+    """通过 lark-cli v2 API 创建文档 → wiki+move 到目标节点。
 
-    注意：lark-cli docs +fetch 有 bug（始终显示 blocks=0），
-    实际内容已正确写入——用 REST API GET /blocks/{id}/children 可验证。
+    流程: docs +create (v2 markdown) → 解析 doc_id → wiki +move 到目标空间。
+    标题从 Markdown # heading 自动提取，无需 --title 标志。
     """
-    INDUSTRY_PARENT = WIKI_NODES["industry"]
-    COMPETITOR_PARENT = WIKI_NODES["competitor"]
+    FALLBACK_TOKEN = WIKI_NODES["industry"]
+    SPACE_ID = "7643710721485753535"
 
     created = {"industry": 0, "competitor": 0, "errors": 0}
 
-    for category, parent_token, items in [
-        ("industry", INDUSTRY_PARENT, results.get("industry", [])),
-        ("competitor", COMPETITOR_PARENT, results.get("competitor", [])),
+    for category, items in [
+        ("industry", results.get("industry", [])),
+        ("competitor", results.get("competitor", [])),
     ]:
         for item in items:
             doc_title = _make_doc_title(item)
@@ -598,6 +599,7 @@ def push_to_wiki(results: dict, dry_run: bool = False) -> dict:
                 created[category] += 1
                 continue
 
+            tmp_path = None
             try:
                 ch = item.get("channel", "?")
                 src = item.get("source", "?")
@@ -615,23 +617,71 @@ def push_to_wiki(results: dict, dry_run: bool = False) -> dict:
                     f"**采集日期:** {item['date']}\n\n"
                     f"**搜索关键词:** {item.get('kw_category', '')}"
                 )
-                cmd = [
+
+                # Write content to temp file (--content @file)
+                with tempfile.NamedTemporaryFile(
+                    mode='w', suffix='.md', delete=False, encoding='utf-8'
+                ) as tf:
+                    tf.write(content_md)
+                    tmp_path = tf.name
+
+                # Step 1: Create doc with v2 API
+                create_cmd = [
                     "lark-cli", "docs", "+create",
-                    "--wiki-node", parent_token,
-                    "--title", doc_title,
-                    "--markdown", content_md,
+                    "--api-version", "v2",
+                    "--doc-format", "markdown",
+                    "--content", f"@{tmp_path}",
+                    "--parent-token", FALLBACK_TOKEN,
                     "--as", "bot",
                 ]
-                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-                if proc.returncode == 0:
+                proc = subprocess.run(create_cmd, capture_output=True, text=True, timeout=30)
+                if proc.returncode != 0:
+                    created["errors"] += 1
+                    log.warning("  ✗ create failed: %s (exit=%d): %s",
+                                doc_title[:50], proc.returncode, proc.stderr.strip()[:100])
+                    continue
+
+                # Parse doc_id from response
+                doc_id = None
+                try:
+                    resp = json.loads(proc.stdout.strip())
+                    doc_id = resp.get("data", {}).get("document", {}).get("document_id")
+                    if not doc_id:
+                        doc_id = resp.get("document_id")
+                except json.JSONDecodeError:
+                    m = re.search(r'"document_id"\s*:\s*"([^"]+)"', proc.stdout)
+                    if m:
+                        doc_id = m.group(1)
+
+                if not doc_id:
+                    created["errors"] += 1
+                    log.warning("  ✗ could not parse doc_id from create response: %s",
+                                proc.stdout[:200])
+                    continue
+
+                # Step 2: wiki +move to target space
+                move_cmd = [
+                    "lark-cli", "wiki", "+move",
+                    "--obj-token", doc_id,
+                    "--obj-type", "docx",
+                    "--target-parent-token", FALLBACK_TOKEN,
+                    "--target-space-id", SPACE_ID,
+                    "--as", "bot",
+                ]
+                proc2 = subprocess.run(move_cmd, capture_output=True, text=True, timeout=30)
+                if proc2.returncode == 0:
                     created[category] += 1
                     log.info("  ✓ %s", doc_title[:50])
                 else:
                     created["errors"] += 1
-                    log.warning("  ✗ %s — %s", doc_title[:50], proc.stderr.strip()[:100])
+                    log.warning("  ✗ move failed: %s — %s",
+                                doc_title[:50], proc2.stderr.strip()[:100])
             except Exception as e:
                 created["errors"] += 1
                 log.exception("  ✗ %s", doc_title[:50])
+            finally:
+                if tmp_path and os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
             time.sleep(1.5)
 
     return created

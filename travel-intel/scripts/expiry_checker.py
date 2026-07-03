@@ -198,11 +198,18 @@ def mark_expired(doc, rule, age, dry_run=False):
     if dry_run:
         log.info("[DRY RUN] %s → %s", doc["title"][:60], comment)
         return True
+    env = os.environ.copy()
+    # 2026-07-03: Windows npm lark-cli is lark-cli.cmd — plain "lark-cli" fails FileNotFoundError.
+    # Use explicit .cmd suffix on Windows; append Aorus npm dir (system user expanduser resolves wrong).
+    aorus_npm = r"C:\Users\Aorus\AppData\Roaming\npm"
+    if os.path.isdir(aorus_npm) and aorus_npm not in env.get("PATH", ""):
+        env["PATH"] = aorus_npm + os.pathsep + env["PATH"]
+    lark_bin = "lark-cli.cmd" if os.name == "nt" else "lark-cli"
     r = subprocess.run(
-        ["lark-cli", "drive", "+add-comment", "--type", "docx",
+        [lark_bin, "drive", "+add-comment", "--type", "docx",
          "--doc", doc["obj_token"], "--full-comment", "--as", "bot",
          "--content", json.dumps([{"type": "text", "text": comment}])],
-        capture_output=True, text=True, timeout=TIMEOUT,
+        capture_output=True, text=True, timeout=TIMEOUT, env=env,
     )
     log.info("Marked: %s (rc=%d)", doc["title"][:60], r.returncode)
     return r.returncode == 0
