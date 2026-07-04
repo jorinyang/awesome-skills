@@ -45,7 +45,15 @@ What this means in practice:
 - `reg query HKLM\...` from WSL → may even fail (HKLM read usually works, but SYSTEM-protected subkeys deny)
 - `reagentc /info` from WSL → access denied
 
-**Do not** waste turns trying `sudo cmd.exe /c ...`, `Start-Process -Verb RunAs` (no GUI box to click), or `psexec`. None of them work from WSL context without the user manually doing something in the Windows UI.
+**Do not** waste turns trying `sudo cmd.exe /c ...` or `psexec` — they don't work from WSL.
+
+**`Start-Process powershell -Verb RunAs` DOES work from WSL** — it triggers a UAC elevation dialog on the Windows desktop. The user must click "Yes" in the dialog, but the command itself fires from WSL correctly. This is the preferred pattern for portproxy, firewall rules, and other netsh/admin operations. Example:
+
+```bash
+powershell.exe -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile -Command \"netsh interface portproxy add v4tov4 listenport=8787 listenaddress=127.0.0.1 connectport=8787 connectaddress=172.24.49.212\"'"
+```
+
+Wait a few seconds after the command for the user to approve UAC, then verify with a read-only `netsh interface portproxy show all` (no admin needed for show).
 
 **The correct workflow** is: detect the boundary (`whoami /groups | findstr S-1-16` returns `S-1-16-8192` for medium, `S-1-16-12288` for high), then **hand the script to the user to run in an admin PowerShell on Windows** via the handoff contract below. Plan your fix as a deliverable, not as autonomous execution.
 
@@ -120,6 +128,28 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Aorus\temp.ps1"
 Single-quoted heredocs do NOT fully protect against this — bash still expands some
 constructs inside command substitution and pipeline contexts. The only reliable
 pattern is a `.ps1` file on the Windows filesystem, executed via `-File`.
+
+### 8. Never use PowerShell Set-Content for UTF-8 files — it silently corrupts
+
+`Set-Content` defaults to a non-UTF-8 encoding (typically UTF-16 or ANSI). When
+used on UTF-8 YAML/JSON/Markdown files containing multi-byte characters (Chinese,
+emoji, special Unicode), it produces corrupted files that fail to parse:
+
+```
+⚠️ 'utf-8' codec can't decode bytes in position 12457-12458: invalid continuation byte
+```
+
+**Always use Python for file writes that must preserve UTF-8**:
+```python
+with open(path, 'w', encoding='utf-8') as f:
+    f.write(content)
+# Verify round-trip
+with open(path, 'r', encoding='utf-8') as f:
+    f.read()  # raises UnicodeDecodeError if corrupted
+```
+
+This is especially critical when doing path replacements on Hermes config files
+(e.g., during WSL→Windows migration).
 
 ## Diagnostic workflow
 
@@ -242,17 +272,46 @@ WINDOWS_HOST=$(ip route show default | awk '{print $3}')  # e.g. 172.24.48.1
 nc -z -w 2 $WINDOWS_HOST $PORT
 ```
 
-**Workaround B — netsh portproxy** (for services bound to `127.0.0.1` only):
+**Workaround B — netsh portproxy** (for any service, initiated from either side):
+
+*Use case 1: Windows service bound to 127.0.0.1 → expose to WSL*
+
+On Windows (admin PowerShell):
 ```powershell
-# On Windows (admin PowerShell)
 netsh interface portproxy add v4tov4 `
     listenaddress=0.0.0.0 listenport=EXTERNAL_PORT `
     connectaddress=127.0.0.1 connectport=INTERNAL_PORT
-
-# Verify
-netsh interface portproxy show all
 ```
 Then reach the service from WSL via `$WINDOWS_HOST:EXTERNAL_PORT`.
+
+*Use case 2: WSL service → map to Windows localhost (initiate from WSL)*
+
+This maps a WSL-side service (e.g. Hermes WebUI on 172.24.49.212:8787) to Windows `127.0.0.1:8787` so that Windows browsers and tools can access it via localhost:
+
+```bash
+# Initiate admin netsh from WSL via UAC elevation
+powershell.exe -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile -Command \"netsh interface portproxy add v4tov4 listenport=8787 listenaddress=127.0.0.1 connectport=8787 connectaddress=WSL_IP\"'"
+
+# Wait for UAC approval, then verify (show = no admin needed)
+powershell.exe -Command "netsh interface portproxy show all | Select-String 8787"
+```
+
+If the service is reachable via direct WSL IP but times out through portproxy (TCP connects, HTTP fails), add a Windows Firewall inbound rule for the listen port:
+
+```bash
+powershell.exe -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile -Command \"netsh advfirewall firewall add rule name=\\\"\"WSL Service PORT\\\"\" dir=in action=allow protocol=TCP localport=PORT\"'"
+```
+
+Verify end-to-end:
+```bash
+# From WSL: check TCP connectivity
+powershell.exe -Command "Test-NetConnection -ComputerName 127.0.0.1 -Port PORT"
+
+# From WSL: check HTTP
+powershell.exe -Command "(Invoke-WebRequest http://127.0.0.1:PORT -UseBasicParsing -TimeoutSec 5).StatusCode"
+```
+
+**Caution**: If WSL uses mirrored networking (IP in 172.x.x.x range), the IP changes on reboot. The portproxy rule is persistent but its `connectaddress` will be stale after a WSL IP change. Update it with `netsh interface portproxy set v4tov4`.
 
 **Caution**: The Windows host gateway IP can change on reboot (DHCP). For
 persistent services, consider pinning a static IP in `.wslconfig` or
@@ -278,6 +337,66 @@ subprocess.Popen(['/mnt/c/Users/Aorus/.cua/cua-driver.exe', 'mcp'],
 
 `\r\n` in stdout is normal (Windows line endings) — `json.loads()` and
 Python `readline()` handle it transparently.
+
+## Port Conflict Diagnosis (WSL service → Windows localhost)
+
+When a WSL service is reachable via its direct IP (`172.x.x.x:PORT`) but NOT via `127.0.0.1:PORT`, even though WSL's `wslrelay.exe` or a `netsh portproxy` rule is in place, the root cause is almost always **multiple processes competing for the same port**.
+
+### Diagnosis workflow
+
+```bash
+# 1. List ALL listeners on the port (not just one)
+powershell.exe -NoProfile -Command 'netstat -ano | findstr ":PORT"'
+# Look for multiple LISTENING entries — each one is a competitor
+
+# 2. Identify each process
+powershell.exe -NoProfile -Command 'Get-Process -Id PID1,PID2 | Format-Table Id,ProcessName,Path'
+
+# 3. Typical culprits (in descending order of likelihood):
+#    - ssh.exe     → SSH tunnel (`ssh -L PORT:...`) silently occupying the port
+#    - wslrelay.exe → WSL built-in forwarder (this is the one you want)
+#    - netsh portproxy → manually added rule, redundant with wslrelay
+```
+
+### Common conflict scenario: ssh.exe tunnel
+
+```
+ssh.exe  -L 8787:localhost:8788 user@remote-host
+wslrelay.exe  → forwarding WSL:8787 → Windows:8787
+netsh portproxy  127.0.0.1:8787 → 172.x.x.x:8787
+```
+
+All three bind to `127.0.0.1:8787`. The first to `accept()` a connection wins — if ssh.exe wins, the request is forwarded to the remote host (where nothing useful is listening), and the user sees "connection refused" or "forcibly closed".
+
+**Fix**: kill the ssh tunnel and remove the redundant portproxy rule. Leave only `wslrelay` — WSL2 already handles forwarding automatically.
+
+```bash
+# Kill conflicting ssh tunnel
+powershell.exe -NoProfile -Command 'Stop-Process -Id <ssh_pid> -Force'
+
+# Remove redundant portproxy (requires admin via UAC)
+powershell.exe -NoProfile -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile -Command \"netsh interface portproxy delete v4tov4 listenport=PORT listenaddress=127.0.0.1\"'"
+
+# Verify: only ONE LISTENING entry should remain (wslrelay)
+powershell.exe -NoProfile -Command 'netstat -ano | findstr ":PORT"'
+```
+
+### Warning: Browserbase is NOT localhost
+
+**Never** use `browser_navigate` to test `http://127.0.0.1:PORT` connectivity. Browserbase runs on a cloud server — its `127.0.0.1` is the cloud VM's loopback, not the user's machine. A successful `browser_navigate` result is a **false positive**.
+
+For local connectivity verification, always use PowerShell from WSL:
+```bash
+# TCP check
+powershell.exe -NoProfile -Command "Test-NetConnection -ComputerName 127.0.0.1 -Port PORT"
+
+# HTTP check
+powershell.exe -NoProfile -Command "try { (Invoke-WebRequest http://127.0.0.1:PORT -UseBasicParsing -TimeoutSec 5).StatusCode } catch { Write-Host \$_.Exception.Message }"
+```
+
+### netsh portproxy is redundant when wslrelay is active
+
+WSL2 ships with `wslrelay.exe` that auto-forwards WSL ports to Windows localhost. Adding a `netsh portproxy` rule creates a second listener competing with wslrelay. Unless `localhostForwarding=false` is set in `.wslconfig`, do NOT add portproxy rules — use wslrelay alone. The proper fix for "port not reachable" is to diagnose conflicts, not add more listeners.
 
 ## Pitfalls learned the hard way
 
