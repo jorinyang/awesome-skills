@@ -175,9 +175,13 @@ When proceeding with assumptions, label only the important ones.
    - What artifact should exist at the end?
    - What constraints are locked?
 
+   🔴 **CHECKPOINT**: Confirm the brief is understood — output a one-sentence summary. If the brief is still ambiguous, ask focused questions before proceeding to Gather Context.
+
 2. **Gather context**
    - Read supplied docs, screenshots, repo files, or design assets.
    - Identify the visual vocabulary before writing code.
+
+   🛑 **STOP**: Do not move to design until context is sufficient. If key context is missing (no brand docs, no screenshots, no repo access), explicitly flag the gaps and ask the user whether to proceed with assumptions or pause for materials.
 
 3. **Define the design system for this artifact**
    - colors
@@ -196,6 +200,8 @@ When proceeding with assumptions, label only the important ones.
    - Component exploration: component lab with variants.
    - Motion: timeline or state-based animation.
 
+   🔴 **CHECKPOINT**: Confirm format choice with user. Output: "Format: {chosen format}. Proceed to build?"
+
 5. **Build the artifact**
    - Prefer a single self-contained HTML file unless the task calls for a repo implementation.
    - Preserve prior versions for major revisions.
@@ -206,6 +212,8 @@ When proceeding with assumptions, label only the important ones.
    - Run any available syntax/static checks.
    - If browser tools are available, open the file and check console errors.
    - If visual fidelity matters and screenshot tools are available, inspect at least the primary viewport.
+
+   🛑 **STOP**: Do not report "done" until verification passes. Minimum: file exists, size > 0, no obvious syntax issues. If verification is blocked (no browser), state exactly what was and was not verified.
 
 7. **Report briefly**
    - exact file path
@@ -581,6 +589,24 @@ When adapting a Claude Design style request into CLI/API mode, use this mental t
 ```text
 You are running in CLI/API mode, not hosted Claude Design. Ignore references to hosted-only tools or preview panes. Produce complete local design artifacts, usually self-contained HTML with embedded CSS/JS, and verify with available local tools before returning. Preserve the design process: gather context, define the system, produce options, avoid filler, and meet a high visual bar.
 ```
+
+## Failure Mode Table
+
+Every predictable failure needs a concrete fallback. If one path fails, take the next.
+
+| If this fails... | Then do this... | Fallback if that also fails... |
+|---|---|---|
+| User gives vague brief, no brand context | Ask 2–3 focused questions (audience, format, fidelity level) | Produce 3 variation directions at low fidelity and ask which posture fits |
+| No design tokens / brand docs found | Build a minimal 3-color system (neutral, surface, accent) with oklch | Use system font stack + monochrome layout; avoid inventing elaborate palettes |
+| File write fails (permissions, path) | Write to `/tmp/` with descriptive name, report exact path | Ask user for a writable directory |
+| HTML has obvious syntax errors | Validate with a quick parse check (count open/close tags) | Write a minimal skeleton, verify, then incrementally add sections |
+| Browser unavailable for verification | Confirm file exists, check file size > 0, run basic HTML well-formedness check | State explicitly: "File written, not browser-verified" |
+| Context files (repo theme/tokens) not found at expected paths | Search for alternatives: `*theme*`, `*token*`, `*.css` globs | Ask user: "I couldn't find theme files at ___. Where should I look?" |
+| User asks for a known brand's look but `popular-web-designs` or `design-md` not loaded | Load the appropriate skill now; do not guess the brand's palette from memory | If skill unavailable: warn user, proceed with neutral system + note the gap |
+| Variation exploration diverges too far from brief | Flag which variation violates the brief, show only the 2 that fit best | Consolidate to the strong-fit direction, note what was dropped |
+| Prototype interaction path broken (JS error) | Fix the error inline; if unclear, simplify to static HTML with annotated states | Provide the broken file + a simplified working file, let user compare |
+| Deck slide overflow (content doesn't fit 1920×1080) | Reduce font size, shorten copy, or split into 2 slides | Flag the slide: "Slide N overflowed — content truncated" |
+| Motion/animation causes jank or violates `prefers-reduced-motion` | Wrap all motion in `@media (prefers-reduced-motion: no-preference)` | Disable motion entirely; note that motion was removed for accessibility |
 
 ## Pitfalls
 

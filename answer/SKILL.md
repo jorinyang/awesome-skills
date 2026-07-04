@@ -112,6 +112,12 @@ triggers:
   - "活动策划"
   - "品牌方案"
   - "品牌策划"
+  # PRD/产品需求文档
+  - "写PRD"
+  - "PRD文档"
+  - "产品需求文档"
+  - "需求文档"
+  - "系统建设方案"
   # 迭代/优化/改进类
   - "优化方案"
   - "改进方案"
@@ -306,12 +312,12 @@ triggers:
 ## 7 阶段编排序列
 
 ```
-1. Clarify    → 决策树遍历，追问到底（grill-me 方法论）
-2. Brief      → 结构化简报，记录意图/目标/约束（design-brief 方法论）
-3. Architect  → 定义结构/层次/关系/流程（information-architecture 方法论）
-4. Standards  → 建立可复用标准/模式/规范（design-tokens 方法论）
-5. Decompose  → 拆解为独立可验证的增量任务（brief-to-tasks 方法论）
-6. Build      → 按任务逐步构建交付物
+1. Clarify    → 决策树遍历，追问到底（grill-me 方法论）     🔴 CHECKPOINT → 🛑 STOP
+2. Brief      → 结构化简报，记录意图/目标/约束（design-brief 方法论）  🔴 CHECKPOINT → 🛑 STOP
+3. Architect  → 定义结构/层次/关系/流程（information-architecture 方法论） 🔴 CHECKPOINT → 🛑 STOP
+4. Standards  → 建立可复用标准/模式/规范（design-tokens 方法论）   🔴 CHECKPOINT → 🛑 STOP
+5. Decompose  → 拆解为独立可验证的增量任务（brief-to-tasks 方法论）  🔴 CHECKPOINT → 🛑 STOP
+6. Build      → 按任务逐步构建交付物                     🔴 CHECKPOINT（任务完成即验证）
 7. Review     → 对照简报逐项检查（design-review + blue-team 方法论）
 ```
 
@@ -398,13 +404,11 @@ lark-cli docs +fetch --api-version v2 --doc {document_id} --as bot
 
 | 追问维度 | 新业务 | 新技能 | 新方案 |
 |---------|--------|--------|--------|
-| 技术层级 | 原型验证级 or 企业交付级？ | — | — |
 | 核心对象 | 用户是谁？JTBD？ | 用户是谁？什么场景触发？ | 受众是谁？决策标准？ |
 | 成功定义 | 什么算成功？（量化） | 什么算"这个技能好用"？ | 什么算方案通过？ |
 | 边界约束 | 预算/时间/团队/合规 | 依赖的技能/工具/平台 | 截止日期/形式/篇幅 |
 | 核心假设 | 最不确定的假设是什么？ | 能力边界的最大未知？ | 最薄弱的逻辑环节？ |
 | 反目标 | 明确不做什么？ | 明确不覆盖哪些场景？ | 明确不涉及哪些内容？ |
-| 专有名词 | 转写材料中的人名/地名/项目名是否已确认？ | — | — |
 
 > 完整的 6 领域追问清单（含 🔄流程/SOP、🔍分析/调研、🎯决策支持）见 `references/domain-mapping.md`，Clarify 阶段会自动加载对应领域的追问模板。
 
@@ -435,7 +439,7 @@ lark-cli docs +fetch --api-version v2 --doc {document_id} --as bot
 🔴 **CHECKPOINT**：确认决策树已遍历完毕、关键决策已记录，再进入 Phase 2。
 ```
 
-**过渡语**："我们已遍历核心决策树。下面把结论沉淀为结构化简报。继续？"
+**过渡语**：🛑 "我们已遍历核心决策树。下面把结论沉淀为结构化简报。继续？"
 
 ---
 
@@ -524,7 +528,7 @@ lark-cli docs +fetch --api-version v2 --doc {document_id} --as bot
 {明确排除的内容，防止范围蔓延}
 ```
 
-**过渡语**："简报已结构化。下面我们定义架构——结构、层次、流程。继续？"
+**过渡语**：🛑 "简报已结构化。下面我们定义架构——结构、层次、流程。继续？"
 
 ---
 
@@ -672,7 +676,7 @@ lark-cli docs +fetch --api-version v2 --doc {document_id} --as bot
 > 该变体强制：中文全称变量、自然语言公式、"在算什么→公式→为什么"三步解释、手机计算器可验算。
 > 当用户说"非财务人员也要看懂""用叙述性语言"时自动切换到此变体。
 
-**过渡语**："标准已建立。下面将简报拆解为可独立构建的增量任务。继续？"
+**过渡语**：🛑 "标准已建立。下面将简报拆解为可独立构建的增量任务。继续？"
 
 ---
 
@@ -729,7 +733,7 @@ Task 1 → Task 2 → Task 3 (可与 4 并行)
 - 高风险/不确定的任务排在前面
 - 视觉/用户感知优先级高的排在前面
 
-**过渡语**："任务已拆解。下面按顺序逐步构建。是否现在开始构建？"
+**过渡语**：🛑 "任务已拆解。下面按顺序逐步构建。是否现在开始构建？"
 
 🔴 **CHECKPOINT**：
 1. 任务清单完整（Spike + Foundation + Core + Polish 四组齐全） ✓
@@ -784,7 +788,6 @@ Task 1 → Task 2 → Task 3 (可与 4 并行)
 - 需要画架构图 → 调用 `architecture-diagram`
 - 需要做行程页 → 调用 `trip-landing`
 - 需要创建技能 → 调用 `skill_manage`
-- **需要本地 Markdown/PDF 交付（非飞书）** → 参见 `references/local-pdf-generation.md`：Markdown→HTML→Chrome headless `--print-to-pdf --virtual-time-budget=15000` 链路
 
 ### 幂等性要求
 
@@ -812,7 +815,7 @@ Task 1 → Task 2 → Task 3 (可与 4 并行)
 - 日期/作者：{YYYY-MM-DD} / {作者}
 ```
 
-**过渡语**："构建完成。现在运行审查——对照简报逐项检查质量。继续？"
+**过渡语**：🛑 "构建完成。现在运行审查——对照简报逐项检查质量。继续？"
 
 ---
 
@@ -1049,8 +1052,6 @@ Date: {date}
 | 4 | Standards 写了不用 | Build 产出与 Standards 矛盾——最典型的是 Standards 写"以内容需求为准"但 Build 产出写了具体数字（如"8-45s""8-15s"），用户一眼发现。定性标准被 Build 偷换成定量捷径 | Build 每完成一个任务对照 Standards 逐条检查，尤其警惕"数值化改写"——Standards 说"以内容为准"就不能在产出里写任何时长范围 |
 | 4a | **训练/教学类文档的 Standards 写成"讲师备课用的提词器/教学备注"** | 用户会说"内容的规范应当是讲师面对学员要表达的内容"。Standards 定义了全文档的写作基调，写错则全篇语气偏离 | Standards 的「内容规范」必须写"讲师口吻，面向学员——文档=讲师张嘴就能念的逐字稿"，禁止写"此处讲师引导""讲师应在此处强调"等幕后备注。详见 `references/training-proposal-template.md` 常见陷阱第二条 |
 | 5 | Review 只挑问题不说不好的 | 团队不知道自己什么做对了 | 必须包含 "What Works Well" |
-| 5a | **系统建设/PRD 类项目默认采用轻量方案（SPA+Supabase）** | 用户明确纠正"这不是简单 Web SPA""需要原生开发"——Agent 在未确认技术层级的情况下，用积木式方案替代了企业级规划。整轮 DEMO+部署全部作废 | Phase 1 Clarify 必须追问"技术方案层级"：原型验证级（SPA/Supabase/BaaS）→ 确认后快速出 Demo；企业交付级（原生后端+独立DB+小程序/H5）→ 按正式架构规划。默认不假设层级，由用户选择。详见 `references/tech-tier-selection.md` |
-| 5b | **从转写材料直接使用专有名词而不二次确认** | 转写 AI 将"遇见黔西南"误识别为"遇见千禧兰"，将"万丰国际会议中心"识别为他名。Agent 在全文使用错误名称 | Phase 1 Clarify 开头列"待确认专有名词清单"：从转写材料提取的所有项目名/人名/地名 → 逐项请用户确认。AI 语音识别对非标准名称错误率高，转写 ≠ 原文 |
 
 ### 财务/分润类框架的表达模式
 
@@ -1072,9 +1073,13 @@ Date: {date}
 **简化时以"表"为单元砍**：
 - 用户说"只保留分润结构+比例+公式"时，用五张表覆盖全文档：分润结构表/层级比例表/计算公式表/结算规则表/一个示例表。每张表独立可读，删除所有叙述段落。
 
-### ⛔ 反例与禁止操作
+---
 
-以下操作在任何情况下都**禁止**——不是"不建议"，是**不允许**：
+## ⛔ 禁止操作（Anti-Patterns Blacklist）
+
+> **以下操作在任何情况下都禁止——不是"不建议"，是"不允许"。**
+> 
+> 每一条都是经过真实项目验证的失败模式。违规操作的后果不是"可能出错"，而是**已验证会出错**。
 
 | # | 禁止操作 | 为什么禁止 | 正确做法 |
 |---|---------|-----------|---------|
@@ -1085,24 +1090,42 @@ Date: {date}
 | 5 | **Review 评分用"大概 80 分"/"还不错"等主观表述** | 无量化评分不可复现、不可对比 | 对照审查表的 5 个维度逐项打分，计算加权总分 |
 | 6 | **Wiki API 失败时静默跳过，用户不知道产出丢失** | 静默失败是最危险的失败模式 | 降级到本地文件并明确告知用户 |
 | 7 | **领域识别错误时强行继续而不纠正** | 用错误的追问模板走完全程 = 全篇作废 | 任何阶段发现领域不匹配，立即回退到 Clarify 重新确认 |
-| 8 | **用 answer 子方法论裸拼替代完整 7 阶段** | 用户说"用 answer 方法论"，但 Agent 只调用了 grill-me/design-brief/information-architecture 等子方法独立拼凑，跳过 7 阶段的交互确认流。产出看似用了设计方法论，实则完全脱离了 answer 的编排逻辑。用户会发现你根本没走 answer | answer 的 7 阶段是**强制管线**——Phase 1 到 Phase 7 必须按序执行，每阶段有用户确认检查点。用子方法论碎片≠用了 answer。触发器："用 answer 方法论"/"请使用answer的方法论" → 必须从 Phase 1 Clarify 开始完整走 7 阶段交互 |
-| 9 | **把"重构 README"误解为"做网页"** | 用户说"用 answer + huashu-design 重构 GitHub README"，Agent 创建了一个 HTML SPA 页面而不是 markdown 文件。GitHub README 是纯文本，不是 Web 应用 | README 重构 = 重写 markdown 文件。huashu-design 在此场景中为轻量注入（信息层级 + 反 AI slop），不是做 HTML 页面。详见 `references/readme-design-paradigm.md` |
+| 8 | **用 answer 子方法论裸拼替代完整 7 阶段** | 用户说"用 answer 方法论"，但 Agent 只调用了 grill-me/design-brief 等子方法独立拼凑，跳过 7 阶段的交互确认流。产出看似用了设计方法论，实则完全脱离了 answer 的编排逻辑 | answer 的 7 阶段是**强制管线**——Phase 1 到 Phase 7 必须按序执行。触发器："用 answer 方法论" → 必须从 Phase 1 Clarify 开始 |
+| 9 | **把"重构 README"误解为"做网页"** | 用户说"用 answer + huashu-design 重构 GitHub README"，Agent 创建了一个 HTML SPA 页面而不是 markdown 文件。GitHub README 是纯文本 | README 重构 = 重写 markdown 文件。huashu-design 在此场景中为轻量注入（信息层级 + 反 AI slop） |
+| 10 | **每个阶段单独创建飞书文档** | 用户明确偏好合并输出，拆散文档增加管理负担 | 默认合并：`{answername}_工作流全记录` |
+| 11 | **用 `wiki +node-delete --obj-type docx` 删 Wiki 节点** | Wiki 节点的 obj_type 是 `wiki` 而非 `docx` | 使用 `lark-cli wiki +node-delete --node-token TOKEN --obj-type wiki --yes` |
+| 12 | **创建文档后不验证 title** | 飞书 API 偶发静默回退 title 为 "Untitled" | 创建后立即检查 `title != "Untitled"` |
+| 14 | **培训文档写成了给讲师的元注释而非逐字稿** | 用户纠正"内容规范应当是讲师面对学员要表达的内容" | 培训/授课类文档的 Standards 必须声明"面向学员的逐字稿"。判断标准：文档中的每一句话，讲师能否直接念给学员听？ |
+| 15 | **SVG 架构图转 PNG 嵌入飞书文档时中文变方框** | cairosvg 在 Linux 服务端渲染 SVG 时 PingFang SC 字体不可用，中文字符渲染为空心方框 □ | font-family 使用 Linux 可用中文字体：`"Noto Sans SC", "SimSun"`；禁用 emoji；生成后必须用 vision 验证 |
+| 16 | **飞书文档覆盖写入后架构图丢失** | `docs +update --command overwrite` 清空所有 block，之前通过 `+media-insert` 插入的图片块被清除 | 每次 overwrite 后必须重新插入图片 |
+| 17 | **飞书图片块替换用 `+media-upload` 不生效** | `docs +media-upload` 只上传文件到飞书存储，不会将新 token 绑定到已有图片块 | 先 upload 获取新 file_token，再 PATCH 图片块 token |
+| 14 | **用完整培训提案模板套轻量大纲需求** | 用户只想要课程日程表，Agent 却加载了含报价/场景诊断的 6 章模板 | 先判断文档类型：含报价 → `training-proposal-template.md`；纯课程 → `training-outline-lite.md` |
 
-| 10 | **每个阶段单独创建飞书文档** | 用户明确偏好合并输出，拆散文档增加管理负担。Phase 1-5 应合并为单一工作流记录文档 | 默认合并：`{answername}_工作流全记录`。Phase 1-5 为章节，Phase 6 产出独立交付物文档，Phase 7 Review 追加到工作流记录末尾 |
-| 11 | **用 `wiki +node-delete --obj-type docx` 删 Wiki 节点** | Wiki 节点的 obj_type 是 `wiki` 而非 `docx`。用错会报 131005 not found | 使用 `lark-cli wiki +node-delete --node-token TOKEN --obj-type wiki --yes --as bot`
-| 12 | **创建文档后不验证 title** | 飞书 API 偶发静默回退 title 为 "Untitled"——创建返回成功但文档名是默认值 | 创建后立即 `lark-cli api GET /open-apis/wiki/v2/spaces/get_node` 检查 `title != "Untitled"` |
-| 14 | **培训文档写成了给讲师的元注释而非逐字稿** | 用户纠正"内容规范应当是讲师面对学员要表达的内容"。Agent 在 Standards 中写"讲师视角""一句话核心——讲师用"等元注释方向，但应该直接写出讲师对学员要说的话，不是给讲师看的备注。用户一眼发现方向错误 | 培训/授课类文档的 Standards 内容规范必须声明"面向学员的逐字稿，不是给讲师的备注"。判断标准：文档中的每一句话，讲师能否直接念给学员听？不能念的=不该写。结构骨架可以有控制标记（⏱/🖐️），但正文内容必须是可念出口的话 |
-| 15 | **SVG 架构图转 PNG 嵌入飞书文档时中文变方框** | cairosvg 在 Linux 服务器端渲染 SVG 为 PNG 时，PingFang SC / HarmonyOS Sans SC 字体不可用，所有中文字符渲染为空心方框 □。用户看到的架构图全是方框和 X | (1) SVG 中 font-family 必须使用 Linux 系统可用的中文字体：`"Noto Sans SC", "SimSun", sans-serif`。(2) SVG 中禁止使用 emoji（🏗️🔭🔴🟠🔵 等），cairosvg 无法渲染 emoji 字形，会变成方框或 X。使用 HTML 实体替代：▶ `&#9654;`、→ `&#8594;`、◆ `&#9670;`。(3) 生成 PNG 后必须用 vision 工具验证中文正常显示再嵌入飞书 |
-| 16 | **飞书文档覆盖写入后架构图丢失** | `docs +update --command overwrite` 会清空文档所有 block 并重新写入，之前通过 `+media-insert` 插入的图片块被一并清除。用户发现架构图不见了 | 每次 overwrite 后必须重新插入图片：`docs +media-insert --doc ID --file ./image.png --type image --width 1920 --align center --selection-with-ellipsis "文档开头...唯一文本" --before --as bot`。注意 `+media-insert` 要求相对路径，必须先 cd 到图片所在目录 |
-| 17 | **飞书图片块替换用 `+media-upload` 不生效** | `docs +media-upload` 只上传文件到飞书存储并返回 file_token，但不会将新 token 绑定到已有的图片块上。文档中显示的仍是旧图片 | 正确做法：先 `docs +media-upload` 获取新 file_token，然后用 `lark-cli api PATCH "/open-apis/docx/v1/documents/{doc_id}/blocks/{block_id}" --data '{"replace_image":{"token":"新token"}}' --as bot` 直接替换图片块中的 token |
-| 14 | **用完整培训提案模板（training-proposal-template.md）套轻量大纲需求** | 用户只想要课程日程表，Agent 却加载了含报价/场景诊断/公司介绍的 6 章模板，产出冗余章节。用户说"保持模板结构"指的是 .docx 的物理结构，不是让你加预算页 | 先判断文档类型：含报价+商务论证 → 用 `training-proposal-template.md`；纯课程内容不含商务 → 用 `training-outline-lite.md`。不确定时问用户"这份文档需要包含预算/报价吗？" |
-| 15 | **Phase 压缩/跳跃 — 合并多个阶段或从 Phase 1 直接跳到 Build** | 用户说"我需要你从phase1-phase7逐步全部跑一遍"——Agent 在对话自然流动中跳过 Brief / Architect / Standards / Decompose，直接从 Clarify 进入 Build 写方案。或者将多个阶段合并在一次回复中输出。用户感知到的不是结构化工作流，而是"跳步走捷径" | 7 阶段是**强制线性序列**。每阶段独立输出，以过渡语结束并等待用户确认。禁止在单次回复中输出两个阶段的内容（如"Phase 2 Brief + Phase 3 Architect"一起展示）。禁止将 Clarify 的结论直接用于 Build 而不经过 Brief/Architect/Standards/Decompose。当用户说"继续"时，只推进到下一个阶段，不连续跳跃 |
-| 16 | **Brief「不做什么」与后续需求冲突 — 方向摇摆** | 用户在 Brief 阶段确认了"不做什么"清单（如"不做精确选座前端 UI"），但在 Architect 阶段又补充"选座需要提供前端 UI 给客户选择"。Agent 按 Brief 设计了跳过前端的架构，需返工补 UI 层。根源是 Clarify 阶段信息不完整时过早锁定 Brief | Brief 的「不做什么」必须逐条标注置信度：✅ 已确认（不会变）/ ⚠️ 基于当前信息（后续可能调整）。Phase 2 结束时提示用户："以上'不做什么'共 {N} 条，{M} 条基于当前信息可能在后续阶段调整。Architect 阶段我会据此设计架构，如需补充请现在提出。" 如 Architect 阶段用户推翻了 Brief 中的禁止项，退回 Phase 2 更新 Brief 后再继续 |
-| 17 | **Phase 4 里程碑只有验收标准，缺少补救路径** | Phase 4 定义了"3 个月后实现 X、6 个月后实现 Y"，但只写了"什么算达标"，没写"如果没达标怎么办"。Review 时发现这是逻辑缺口——对方真正需要的不是你告诉他"做到什么"，而是"如果卡住了怎么解" | 每阶段末尾增加"未达标时的 3 个诊断问题 + 调整建议"。格式：「如果 {阶段} 结束后未达标，先回答：① 团队是否真正每天在使用 AI？② 知识库是否有新内容持续进入？③ 产出质量控制流程是否运转？——根据答案决定是执行纪律问题、工具选择问题、还是方法论设计问题。然后给出对应的调整动作。」 |
+---
+
+## 约束与陷阱
 
 ### 错误处理
 
 每个可预见的失败场景必须有明确的 if-then 响应路径。**禁止静默失败**——任何异常都必须向用户通报并提供下一步选项。
+
+#### 工作流级故障表（Phase 1-7 全程）
+
+| 如果失败 (IF) | 一线处理 (THEN) | 仍失败时 (FALLBACK) |
+|---|---|---|
+| Phase 1 Clarify 用户无法回答关键追问 | 缩小范围到 1 个最核心问题；记录开放问题到 Brief「待验证假设」 | 标记为「假设」，用默认值推进，在 Phase 7 Review 重点检查 |
+| Phase 2 Brief 核心原则 > 3 条 | 按「业务影响/用户感知/实现风险」排序，强制保留前 3 条 | 保留前 3 条，其余降级到「补充说明」 |
+| Phase 3 Architect 模块依赖形成循环 | 先列出循环，再追问「哪个模块可以先独立存在？」打破循环 | 引入中间抽象层解耦（如接口/事件总线模式） |
+| Phase 4 Standards 规范与已有项目习惯冲突 | 优先尊重项目已有规范；只在新增部分应用 Standards | 记录冲突到决策日志（D-NNN），Phase 7 中复审 |
+| Phase 5 Decompose 任务数量 > 15 | 合并同类任务为垂直切片组；去掉 Polish 组中非关键项 | 保留 Spike + Foundation + 前 5 Core，其余分批 |
+| Phase 6 Build 某任务失败 | 标记 ❌，记录错误详情到 BUILD_LOG，跳过该任务继续下一个 | Phase 7 Review 汇总所有失败任务，决定补救或移除 |
+| Phase 6 Build 飞书文档写入后 revision_id=1 且无文本 | 重试写入一次；仍失败则检查两步法陷阱 | 降级为本地 .md + 告知用户 |
+| Phase 7 Review 发现 Must Fix ≥ 3 条 | 优先修复最高影响的 1-2 条，其余记录到「已知限制」 | 全部 Must Fix 修复后再标记完成 |
+| 用户在阶段间 5 分钟不回复 | 不催促；保留已完成文档作为检查点 | 不主动关闭；用户返回时从中断恢复 |
+| 领域无法自动识别 | 默认「新方案」模板；展示候选领域让用户选择 | 用户不选时以「新方案」开始 |
+| 用户输入过于模糊无法展开决策树 | 输出 1 个具体追问（如「你能举一个具体的使用场景吗？」） | 缩小到最核心的 1 个问题 |
+
+#### 技术级故障表（API/工具层）
 
 | 触发条件 (IF) | 一线修复 (THEN) | 仍失败时 (FALLBACK) |
 |------|---------|------|
@@ -1111,12 +1134,6 @@ Date: {date}
 | Wiki API 返回其他错误码 | 打印完整 error response | 同上降级 |
 | lark-cli 写入失败 | 检查 lark-cli 配置（`lark-cli config show`），确认 `--as bot` 可用 | 改用 curl 直接调飞书 Open API（`docx/v1/documents/{id}/blocks` 批量写入） |
 | token 过期（99991663） | 重新调用 `auth/v3/tenant_access_token/internal` 获取新 token | 若连续 3 次获取失败，告知用户检查飞书应用凭证 |
-| 用户在阶段间 5 分钟不回复 | 不催促；保留已完成的 Wiki 文档作为检查点 | 不主动关闭；用户返回时从中断恢复流程继续 |
-| 领域无法自动识别 | 默认使用「新方案」模板；向用户展示候选领域，让用户选择 | 用户不选时以「新方案」开始 |
-| 用户输入过于模糊无法展开决策树 | 输出 1 个具体追问（如"你能举一个具体的使用场景吗？"），不强行还原 | 缩小追问范围到最核心的 1 个问题 |
-| Build 阶段某任务失败 | 标记该任务为 ❌，记录错误详情到 BUILD_LOG | 跳过该任务继续下一个；Phase 7 Review 时汇总所有失败任务 |
-| execute_code 脚本语法错误导致终端调用静默跳过 | 脚本中的 f-string 反斜杠等语法错误会使整个 execute_code 提前终止，后续 terminal() 调用全部不执行 | ① 写完文档后用 `docs +fetch` 验证 revision_id 递增且文本存在 ② 复杂脚本拆为多个 execute_code 调用，降低单点失败影响面 ③ f-string 中的引号检查用变量替代（`ok = '"ok": true' in output`） |
-| docs +update overwrite 返回成功但文档为空 | 创建时用的 `wiki +node-create` 生成空 docx，如果 overwrite 的 execute_code 脚本静默失败，revision_id 仍为 1 且无文本 | 每次 overwrite 后立刻 `docs +fetch` 检查 `revision_id > 1` 且有文本内容 |
 | 产出目录 `{answername}/` 下已有同名项目 | 追加时间戳后缀（`{answername}-{HHmm}`）避免覆盖 | 告知用户已有同名项目，询问是覆盖还是新建 |
 
 ### 中断恢复
@@ -1228,6 +1245,8 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 
 > **非飞书环境？** 使用 `answer-standalone` 技能（v2.0.0），纯本地 markdown 输出，零外部依赖。与原版 answer 共享相同的 7 阶段方法论和 6 领域模板。
 
+> **非飞书环境自动降级**：当无飞书 API 时，Phase 1-5 合并为本地 `{项目}_工作流全记录.md`，Phase 6 产出独立 `.md` 文件，Phase 7 追加到全记录。交付物可导出 DOCX（python-docx）或 PDF（Playwright/Chromium，见 `references/pdf-generation-pipeline.md`）。
+
 **独立封装文档**: [Answer 方法论完全指南](https://acn3kz7weyc0.feishu.cn/wiki/JYK4wJTEdiA3TPkN8R3ceMJCnfd) — 脱离 Hermes 技能系统的 18 章独立参考文档，归档于 AI Native 工作流节点下。
 
 ---
@@ -1249,11 +1268,6 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 | `lark-cli-v2-quickref.md` | `references/lark-cli-v2-quickref.md` | lark-cli v2 API 命令速查：创建/写入/删除/验证 Wiki 文档的正确 flags |
 | `lark-cli-v2-create-pitfalls.md` | `references/lark-cli-v2-create-pitfalls.md` | lark-cli v2 `docs +create` 三大坑：--title 废弃、@file 路径限制、两步法空文档 |
 | `standards-for-policy-docs.md` | `references/standards-for-policy-docs.md` | Phase 4 Standards 变体：内部制度/财务文档——中文变量、人话公式、计算器可验算 |
-| `api-integration-checklist.md` | `references/api-integration-checklist.md` | API集成对接清单模板：外部接口定义的六段式格式（元信息→字段→响应→幂等→时机→前置要求），适用于系统PRD中的接口对接场景 |
-| `tech-tier-selection.md` | `references/tech-tier-selection.md` | 技术方案层级选择指南：原型验证级 vs 企业交付级，Phase 1 Clarify 新业务领域新增追问维度 |
-| `transcript-noun-verification.md` | `references/transcript-noun-verification.md` | 转写材料专有名词确认规范：AI 转写错误率高的项目名/人名/地名需逐项确认 |
-| `web-search-fallback.md` | `references/web-search-fallback.md` | 网络搜索降级预案：Firecrawl 不可用时的 Sogou/Bing 直搜方案 + 天眼查 URL 直接提取 |
-| `md-to-pdf-windows.md` | `references/md-to-pdf-windows.md` | Windows 上 Markdown → PDF 可靠方案：Chrome headless `--print-to-pdf` 为主方案，含失败方案记录和 CSS 模板 |
-| `local-pdf-generation.md` | `references/local-pdf-generation.md` | 本地 PDF 生成（非飞书交付）：完整 Markdown→HTML→Chrome headless PDF 链路，含 Mermaid CDN 渲染、`--virtual-time-budget` 参数说明、4 种方案 fallback 优先级 |
+| `pdf-generation-pipeline.md` | `references/pdf-generation-pipeline.md` | PDF 导出管线：Markdown→HTML→Playwright/Chromium PDF（替代 fpdf2/WeasyPrint） |
 | CHANGELOG.md | GitHub 仓库 | 版本变更记录（v1.0 → v1.1.1） |
 | LICENSE | GitHub 仓库 | MIT 开源许可 |

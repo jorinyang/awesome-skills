@@ -105,19 +105,18 @@ def classify_skill(skill_md_path):
         if f'/skills/{skill_name}/' in skill_md_path or skill_md_path.endswith(f'/{skill_name}/SKILL.md'):
             return 'official'  # 作为官方/插件类排除
     
-    # 1. 自建标记（必须在官方标记之前——author是更强信号。
-    #    自建技能若在正文中引用"plugin:"等词作为分类示例，会被误判为official）
-    if any(m in content.lower() for m in [
-        'author: 杨瑒', 'author: 月夜', 'author: jorinyang'
-    ]):
-        return 'self-built'
-    
-    # 2. 官方/插件标记（仅在非自建时检查）
+    # 1. 官方/插件标记
     if any(m in content for m in [
         'plugin:', 'superpowers:', 'hermes builtin',
         'hermes官方', 'from hermes core'
     ]):
         return 'official'
+    
+    # 2. 自建标记
+    if any(m in content.lower() for m in [
+        'author: 杨瑒', 'author: 月夜', 'author: jorinyang'
+    ]):
+        return 'self-built'
     
     # 3. 第三方吸收标记
     if any(m in content.lower() for m in [
@@ -241,7 +240,7 @@ git commit -m "v{M}.{m}.{p}: {变更摘要}"
 git push origin main  # 在 terminal(background=true, notify_on_complete=true) 中执行
 ```
 
-⚠️ **WSL push 铁律**：`git push`（包括 `git push origin main` 和 `git push origin vX.Y.Z`）在 WSL 前台模式下总是超时。必须使用 `terminal(background=true, notify_on_complete=true)`。
+⚠️ **WSL push 铁律**：`git push` 在 WSL 前台模式下总是超时。必须使用 `terminal(background=true, notify_on_complete=true)`。
 
 ### Phase 6: 创建 Release（必做 🔴）
 
@@ -250,13 +249,15 @@ git push origin main  # 在 terminal(background=true, notify_on_complete=true) �
 > 因为 Phase 6 被当作"可选"跳过了 5 个版本。
 
 ```bash
-# 1. 写 release notes（⚠️ 用 write_file 而非 heredoc——见下方 Pitfall）
-#    然后用 gh release create --notes-file 引用
+# 1. 写 release notes
+cat > /tmp/release_notes.md << 'RNEOF'
+## 🆕 新增 / 🔄 更新
+...（变更摘要，与 README 版本历史行一致）
+RNEOF
 
 # 2. 创建 tag（如果 Phase 5 未创建）
 git tag -a "v{M}.{m}.{p}" -m "v{M}.{m}.{p} — {一句话总结}"
-#    ⚠️ tag push 也需要后台模式（WSL 前台同样超时）
-git push origin "v{M}.{m}.{p}"  # 在 terminal(background=true) 中执行
+git push origin "v{M}.{m}.{p}"
 
 # 3. 创建 Release
 gh release create "v{M}.{m}.{p}" \
@@ -267,13 +268,7 @@ gh release create "v{M}.{m}.{p}" \
 gh release view "v{M}.{m}.{p}" --repo jorinyang/awesome-skills
 ```
 
-⚠️ **Pitfall: heredoc 写 release notes 被安全系统拦截**
-
-当 release notes 中包含安全敏感模式（如 `find -delete` 作为文档文本）时，`cat > /tmp/release_notes.md << 'RNEOF'` 形式的 heredoc 会被 Hermes Agent 安全系统识别为 "find -delete" 模式并触发审批（`pending_approval`）。在 cron 模式下审批静默失败，导致 release notes 文件为空。
-
-- **症状**：`cat > ... << 'RNEOF'` 命令返回 `exit_code: -1`，状态 `pending_approval`
-- **根因**：安全系统对包含特定模式的 heredoc 进行模式匹配，不只是扫描执行的命令
-- **修复**：使用 `write_file` 工具写 `/tmp/release_notes.md`，然后用 `gh release create --notes-file` 引用。`write_file` 不受此模式匹配影响。
+**release_notes.md 模板**：
 
 ```markdown
 ## 🆕 新增
@@ -334,18 +329,6 @@ A: travel 分类技能均为自建（贵州之客业务），应全部同步。G
 ### Q: README 分类和 GitHub 目录结构不一致怎么办？
 A: 以 GitHub 实际目录结构为准。README 中的分类表是面向读者的逻辑分组，可以与物理目录不同。
 
-### ⚠️ Pitfall: 自建技能被误判为 official
-
-`scan_inventory.py` 的 `classify_skill` 曾将 content-based 官方标记检查放在 author-based 自建检查之前。当一个自建技能的正文中引用了分类标记词（如 `"plugin:"`, `"hermes官方"` 作为分类示例），会被 false-positive 为 `official`。
-
-- **症状**：github-release-readme 自身在扫描报告中被标为 `official`
-- **根因**：SKILL.md 的"排除范围"表格和 classify 伪代码中包含了这些标记词作为文档示例
-- **修复 (v5.4.3)**：交换检查顺序——author 自建检查优先于 content 官方标记检查。Author 是更强的信号。
-- **教训**：content-based 分类标记容易受文档中示例文本污染。结构化标记（YAML frontmatter author 字段）比自由文本搜索更可靠。
-
-### Q: Cron 报 "Connection error" 怎么排查？
-A: 先不要假设是 GitHub 问题。按 `references/troubleshooting-connectivity.md` 四步诊断。最常见根因是 cron runner 启动时的 provider 连接抖动（非 GitHub 故障），直接 `cronjob resume` 即可。SSH `Permission denied` 是误导信号——本技能走 HTTPS + gh credential helper。
-
 ---
 
 ## 版本号规则
@@ -358,7 +341,7 @@ A: 先不要假设是 GitHub 问题。按 `references/troubleshooting-connectivi
 > 只有「≥3 技能新增/删除」或「分类/目录重构」才升级 MINOR。
 > MAJOR 不自行决定，必须用户明确要求。
 
-当前：v5.4.3 (93 技能 — 全根目录，8 分类)
+当前：v5.4.2 (93 技能 — 全根目录，8 分类)
 
 ---
 

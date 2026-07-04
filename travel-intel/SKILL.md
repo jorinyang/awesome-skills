@@ -11,7 +11,7 @@ triggers:
   - "travel-intel query"
 tags: [travel, intel, collector, reporter, querier, 贵州之客]
 category: travel
-version: 1.5.6
+version: 1.5.8
 dependencies:
   skills: [feishu-wiki, opencli]
   commands: [lark-cli, agent-browser, opencli]
@@ -29,7 +29,7 @@ dependencies:
   ├─ L1b: opencli 微博热搜+知乎热榜 (WSL本地 06:35) ★新增
   ├─ L2: urllib 站点直抓 (云端 07:00)
   ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (WSL本地 每5分钟)
-  ├─ 分类路由：竞品→EAMYw1CPoi / 行业→V0Lhwl7KYi (⚠️ 子分类已失效→回退至UF7Cw5w2Wi)
+  ├─ 分类路由：竞品→E7xyw9pSfibEEckZVEIcU5AynJs / 行业→MYQtwtPEOiu4nZkma9NcEEQ3n6V (✅ 2026-07-04 重建)
   └─ 同 URL 去重
       ↓
 校验层 (Expiry)
@@ -46,16 +46,19 @@ dependencies:
 
 ## 存储节点
 
-> 行业资讯和竞品动态现已归入「咨询洞察」一级分类下。node_token 不变。
+> ✅ 2026-07-04 重建：原有子分类节点（`V0Lhwl7KYi` + `EAMYw1CPoi`）永久失效(131005)，已在咨询洞察下重建新节点。
 
-| 节点 | Wiki Token | 所属分类 | 内容 |
+| 节点 | Node Token | 所属分类 | 内容 |
 |------|-----------|---------|------|
-| 行业资讯 | `V0Lhwl7KYiWYDDk1vCncv2GhnYf` | 咨询洞察 | 政策/景点/交通/酒店/活动/报告 |
-| 竞品动态 | `EAMYw1CPoipVWtkObbtcR2oDnNc` | 咨询洞察 | 竞品价格/新品/营销/社媒 |
-| **🔧 咨询洞察(一级)** | **`UF7Cw5w2WiHGfjkKVvBcxj8Hnib`** | **一级分类回退** | **2026-06-04确认：子分类token全部3380002，入库统一使用此token** |
+| **行业资讯** | **`MYQtwtPEOiu4nZkma9NcEEQ3n6V`** | 咨询洞察·行业 | 行业趋势/政策/景区/赛事等 |
+| **竞品动态** | **`E7xyw9pSfibEEckZVEIcU5AynJs`** | 咨询洞察·竞品 | 竞品产品/价格/营销/活动 |
+| 咨询洞察(一级) | `UF7Cw5w2WiHGfjkKVvBcxj8Hnib` | 父节点 | 兜底节点，旧文档存放处 |
 | L3 任务队列 | `TDYYwZ0T0ifLtdkK9iOcp2HTnwf` (Bitable) | 咨询洞察·行业资讯下 | 深度搜索关键词队列 |
 | Space ID | `7643710721485753535` | | |
 | 推送群 | `oc_40570cc921ca1f645f8667151c1e85e6` | | |
+|
+| ~~行业资讯(旧)~~ | ~~`V0Lhwl7KYiWYDDk1vCncv2GhnYf`~~ | ❌ 131005 已删除 | 2026-07-04 重建为 MYQtwtPE |
+| ~~竞品动态(旧)~~ | ~~`EAMYw1CPoipVWtkObbtcR2oDnNc`~~ | ❌ 131005 已删除 | 2026-07-04 重建为 E7xyw9pS |
 
 ---
 
@@ -139,8 +142,8 @@ L1 通用搜索:
   └─ 🔍 夸克 10 关键词        → ~34条  (攻略/8264/跨平台)
 
 去重 → lark-cli → 飞书 Wiki
-  ├─ 行业资讯 V0Lhwl7KYiWYDDk1vCncv2GhnYf
-  └─ 竞品动态 EAMYw1CPoipVWtkObbtcR2oDnNc
+  ├─ 行业资讯 MYQtwtPEOiu4nZkma9NcEEQ3n6V (2026-07-04 重建)
+  └─ 竞品动态 E7xyw9pSfibEEckZVEIcU5AynJs (2026-07-04 重建)
 ```
 
 **平台实测结果 (2026-05-30, 更新 2026-06-01):**
@@ -259,13 +262,65 @@ python3 -u scripts/l2_ingestor.py $(date +%Y-%m-%d) /tmp/l2_ingest.json
 
 ## 模块 3: 过期校验 (Expiry)
 
-15 类过期规则见 `references/expiry-rules.yaml`。
+每日 03:00 cron（`travel-intel-expire` / Job ID `09c5407d9244`）执行 `scripts/expiry_checker.py`：扫描节点 → 按 15 类规则判定过期 → 通过 `lark-cli drive +add-comment` 标记整文档评论（纯 ASCII 格式 `[<type>] AGE:Nd WT:x0.0`）。
 
-标注方式：`lark-cli drive +add-comment` 添加整文档评论（纯 ASCII）。
+**15 类过期规则**见 [references/expiry-rules.yaml](references/expiry-rules.yaml)。**分类判定**在脚本的 `classify_doc(title)`（关键词优先级匹配）；**过期阈值**在 `check_expiry()`：`age > rule["days"]` 时标记。
+
+### 节点覆盖（2026-07-05 当前状态）
+
+脚本顶部常量 `NODES = ["UF7Cw5w2WiHGfjkKVvBcxj8Hnib"]`，**仅扫描「咨询洞察」一级节点**。原因：
+- 旧子节点 `V0Lhwl7KYi` / `EAMYw1CPoi` 在 2026-07-04 已 131005 删除
+- 重建后的 `MYQtwtPE` / `E7xyw9pS` 当前**未加入 NODES 列表**
+- Move API 分拣前的过渡期内，所有文档仍在 `UF7Cw5w2Wi` 下，单节点扫描完整覆盖
+
+**未来动作**：当 Move API 把文档批量移入 `MYQtwtPE` / `E7xyw9pS` 后，必须把这两个 token 加入 `NODES` 列表（否则过期扫描会漏检已分拣文档）。改动后用 dry-run 验证总数变化。
+
+### 执行流程（Windows cron SYSTEM 用户）
 
 ```bash
-python3 scripts/expiry_checker.py
+# 1. 语法检查（防模型输出腐败损坏脚本）
+python3 -c "import py_compile; py_compile.compile(
+    'C:/Users/Aorus/.hermes-feishu/skills/travel/travel-intel/scripts/expiry_checker.py',
+    doraise=True)"
+
+# 2. 加载凭据（SYSTEM 用户无 FEISHU_APP_* 环境变量）
+export $(grep -E "^FEISHU_APP_" "C:/Users/Aorus/.hermes-feishu/.env" | xargs)
+
+# 3. 执行（foreground, timeout=600）
+python3 C:/Users/Aorus/.hermes-feishu/skills/travel/travel-intel/scripts/expiry_checker.py
+
+# 4. 解析输出（JSON 在最后一行）
+# 格式: {"stats": {"total": N, "expired": X, "marked": M, "skipped": S, "errors": E, "no_date": D}, "expired": [...]}
 ```
+
+### 输出解读
+
+| 字段 | 含义 |
+|------|------|
+| `total` | 扫描到的 docx 文档总数 |
+| `expired` | 命中规则且 `age > days` 的文档数 |
+| `marked` | 成功写入 `drive +add-comment` 的文档数 |
+| `skipped` | 未命中规则或 `age <= days`（含 `days: null` 规则永远命中但永不触发） |
+| `no_date` | `skipped` 中既无标题日期又无 `obj_edit_time` 的子集 |
+| `errors` | `mark_expired()` 失败次数（lark-cli 调用错误） |
+
+**`skipped` 接近 `total` 是常态**——知识库文档普遍较新（<30d），最低阈值 7d 的社媒热议也覆盖不到。这是预期，不是 bug。**首次出现 `expired > 0` 的预估时间**：当前 1070 条文档年龄 14-29d，预计 2026-07-12 起会开始出现 30d+ 的"竞品新品/营销""门票/开放时间"类过期。
+
+### 验证「0 过期」是否为真实结果（2026-07-05 新增）★
+
+如果 `expired == 0`，先用 [references/expiry-diagnostic-probe.md](references/expiry-diagnostic-probe.md) 的 dry-run probe 验证这不是静默 bug。Probe 输出：
+1. `classify_doc` 命中分布（应覆盖 10+ 类，未匹配 < 50%）
+2. 文档年龄分布（应有 7d/14d/30d 三个区段）
+3. 实际过期列表（前 20 条）
+
+**若所有文档年龄 < 7d 且 classify 命中 < 5 类**：考虑阈值过严或分类关键词缺失。**若 classify 命中但全被 `days: null` 规则吞掉**：参见下方「过期规则 `days: null` 不触发检查」陷阱。
+
+### 已知陷阱
+
+- **`days: null` 规则永不触发**：4 条规则的 `days` 为 null（文旅厅通知/景点基础信息/节庆活动/季节性信息），`if rd and age > rd` 中 `None` 为 falsy → 永远进入 `return 0, None`。节庆/活动 150 条、季节性 3 条 2026-07-05 实证命中分类但被吞掉。
+- **2026-06-09 顶层节点扫描缺口已修复**（添加 `UF7Cw5w2Wi`），但 2026-07-04 重建后新子节点 `MYQtwtPE`/`E7xyw9pS` **尚未加入 NODES**——Move API 分拣后必须同步更新。
+- **Windows SYSTEM 用户凭据**：脚本 `os.environ["FEISHU_APP_*"]` 在 cron 下 KeyError。必须先 `export $(grep -E "^FEISHU_APP_" .env | xargs)`。详见 [feishu-wiki SKILL.md 的同名陷阱条目](../productivity/feishu-wiki/SKILL.md)。
+- **Windows mark_expired() 双陷阱**：`subprocess.run(["lark-cli", ...])` 必须用 `lark-cli.cmd` + 显式 npm 路径注入，详见「实测陷阱 → expiry_checker.py Windows 双陷阱」。改后必跑 `scripts/verify_expiry_checker_patch.py`。
 
 ---
 
@@ -325,8 +380,6 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 
 全部 deliver: `feishu:oc_40570cc921ca1f645f8667151c1e85e6`，除 l3-poller 为 `local`（仅脚本输出存档），l1-local 为 WSL 本地 crontab（非 Hermes cron）。
 
-> ⚠️ **Agent 模式 job 铁律**：所有加载 `travel-intel` skill 的 agent 模式 cron job（collect/daily/weekly/insight/expire）必须设置 `enabled_toolsets: ["terminal","file","feishu_doc","feishu_drive"]`，否则巨型 skill（SKILL.md 2100+ 行）导致 context 膨胀 → 流式超时断管（Broken pipe / Connection error）。miss 任何一个都会复发。
-
 > **注意**: L1a+L1b 由 WSL 本地 crontab 调度（`l3_cron.sh`），不经过 Hermes cron 系统。上表中的 `travel-intel-l1-local` 仅供文档记录，并非 Hermes cron job。
 
 **本地脚本:**
@@ -336,11 +389,13 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 | l2_collect.py | `skills/travel/travel-intel/scripts/l2_collect.py` | L2 urllib 站点直抓 (品橙/迈点/闻旅/执惠) — cron 直接调用 |
 | l2_ingestor.py | `skills/travel/travel-intel/scripts/l2_ingestor.py` | L2 urllib 结果入库 (替代有 bug 的 ingestor.py，批冷却防限流) |
 | l2_prefilter.py | `skills/travel/travel-intel/scripts/l2_prefilter.py` | L2 三阶段预过滤：去模板 → 旅行关键词 → 去导航+去重 |
+| fifo_cleanup.py | `skills/travel/travel-intel/scripts/fifo_cleanup.py` | FIFO 清理：入库 N 条后删除最早 N 条，保持节点不超 2000 上限 |
 | ingestor.py | `skills/travel/travel-intel/scripts/ingestor.py` | 通用入库引擎 (⚠️ 当前有 3380002 bug，建议用 l2_ingestor.py) |
 | browser_collector.py | `skills/travel/travel-intel/scripts/browser_collector.py` | L1a 百度+夸克 agent-browser 采集 |
 | hotlist_collector.py | `skills/travel/travel-intel/scripts/hotlist_collector.py` | L1b 微博+知乎 opencli 热榜采集 |
 | classify_daily_docs.py | `skills/travel/travel-intel/scripts/classify_daily_docs.py` | 每日简报分类脚本：wiki node-list输出→按贵州/户外/政策/常规分组 |
 | classify_daily_brief.py | `skills/travel/travel-intel/scripts/classify_daily_brief.py` | 每日简报全流程分类脚本：拉取三节点→JSON解析(处理内嵌引号)→分类输出 |
+| verify_expiry_checker_patch.py | `skills/travel/travel-intel/scripts/verify_expiry_checker_patch.py` | expiry_checker.py Windows 补丁 ad-hoc 验证 (14 项断言 + mock subprocess，改 mark_expired() 后必跑) |
 
 ---
 
@@ -477,7 +532,7 @@ resp = json.loads(raw[idx:])
 
 ```bash
 # ✅ 推荐：直接 shell 调用（cron 中需写入 .py 脚本后 terminal 执行）
-export PATH="/home/aorus/.local/bin:$PATH"
+export PATH="C:/Users/Aorus/.local/bin:$PATH"
 r=$(lark-cli api POST "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables/tblVKG82oOl3UaNW/records" \
   --as bot --data '{"fields":{"Text":"任务名","搜索关键词":"kw","平台":"百度","结果摘要":"pending"}}' 2>&1)
 ```
@@ -522,7 +577,7 @@ travel-intel-insight (周六 10:00 综合洞察) 可能已为当前周生成了 
 ```bash
 # Step 1: 检测已有报告
 lark-cli wiki +node-list --space-id 7643710721485753535 \
-  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-all --as bot 2>&1 \
+  --parent-node-token MYQtwtPEOiu4nZkma9NcEEQ3n6V --page-all --as bot 2>&1 \
   | grep "{YYYY}_WW周_周度分析"
 
 # Step 2: 如存在 → grep 检查周日新增文档 → 读取最新每日简报 → append 补充
@@ -633,18 +688,18 @@ html = urllib.request.urlopen(req, timeout=15, context=ctx).read().decode('utf-8
 
 ### travel-intel skill 目录丢失与恢复 (2026-06-14 发现) ★
 
-`travel-intel` skill 所在的目录 `/home/aorus/.hermes-feishu/skills/travel/travel-intel/` 可能在系统迁移/清理过程中被删除。当 cron 调度提示 "Skill not found and skipped: travel-intel" 时，按以下步骤恢复：
+`travel-intel` skill 所在的目录 `C:/Users/Aorus/.hermes-feishu/skills/travel/travel-intel/` 可能在系统迁移/清理过程中被删除。当 cron 调度提示 "Skill not found and skipped: travel-intel" 时，按以下步骤恢复：
 
 ```bash
 # 1. 检查备份目录
-ls /home/aorus/.hermes-shared/backups/
+ls C:/Users/Aorus/.hermes-shared/backups/
 
 # 2. 从最新备份恢复整个 skill 目录
-cp -r /home/aorus/.hermes-shared/backups/feishu-skills-20260613-204813/travel/travel-intel \
-     /home/aorus/.hermes-feishu/skills/travel/travel-intel
+cp -r C:/Users/Aorus/.hermes-shared/backups/feishu-skills-20260613-204813/travel/travel-intel \
+     C:/Users/Aorus/.hermes-feishu/skills/travel/travel-intel
 
 # 3. 验证恢复
-ls /home/aorus/.hermes-feishu/skills/travel/travel-intel/scripts/
+ls C:/Users/Aorus/.hermes-feishu/skills/travel/travel-intel/scripts/
 # 应包含: l2_collect.py, l2_ingestor.py, l2_prefilter.py, expiry_checker.py 等
 ```
 
@@ -817,6 +872,26 @@ lark-cli api GET "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables"
 
 ### 子分类 node_token 全量 3380002 确认 + 回退验证 (2026-06-04) ★
 
+### 咨询洞察节点 2000 上限 + FIFO 清理 (2026-07-03) ★
+
+飞书 Wiki 节点子项上限为 2000。咨询洞察 (`UF7Cw5w2Wi`) 日均入库 ~50 条（L1+L2+L3），约 40 天触达上限。超过上限后 `docs +create --parent-token` 静默失败（无明确错误码）。
+
+**对策 — 每日 FIFO 清理**：采集 cron 入库完成后，执行 `fifo_cleanup.py <N>`，删除最早的 N 篇文档（按标题 `YYYY-MM-DD` 日期排序），使节点总量保持稳定。
+
+```bash
+# 在 travel-intel-collect cron 的 Step 3 之后执行
+python3 scripts/fifo_cleanup.py <N>
+# N = Step 3 入库成功数 (created count)
+```
+
+**安全机制**：
+- N=0 时跳过（无新入库不删旧文档）
+- 若节点总量 ≤ N，最多删到剩余 10 篇（保底）
+- 每次删除间隔 1 秒（防限流）
+- 删除使用 REST API `DELETE /wiki/v2/spaces/{id}/nodes/{token}`（移至回收站，非永久删除）
+
+### 子分类 node_token 全量 3380002 确认 + 回退验证 (2026-06-04) ★
+
 `V0Lhwl7KYiWYDDk1vCncv2GhnYf` (行业资讯) 和 `EAMYw1CPoipVWtkObbtcR2oDnNc` (竞品动态) 两个子分类 token 已**确认全部失效**。l2_ingestor.py 使用这两个 token 作为 `--parent-token` 时，100% 返回 3380002 "Parent node not found"（69 条全量失败）。
 
 **回退验证**：改用一级分类 token `UF7Cw5w2WiHGfjkKVvBcxj8Hnib`（咨询洞察）后，69/69 条全部成功创建，零失败。批冷却 12s/8条 + 每条 4s 延迟策略有效，未触发 99991400 限流。
@@ -887,7 +962,6 @@ lark-cli api GET "/open-apis/docx/v1/documents/{obj_token}/blocks/{obj_token}/ch
 **缓解措施**：
 1. 已将 `travel-intel-daily` 和 `travel-intel-weekly` 调度从 `0 9 * * *` 错开至 `5 9 * * *`（09:05），避开整点争抢窗口（2026-06-08 应用）。
 2. **2026-06-24 二次修复**：`travel-intel-daily/weekly/insight` 三个报告 job 加载巨型 travel-intel skill（SKILL.md 2000+ 行）导致 DeepSeek context 膨胀 → 流式 180s 超时断管。已将所有三个 job 的 `enabled_toolsets` 收紧为 `["terminal","file","feishu_doc","feishu_drive"]`，砍掉 browser/vision/web_search 等重型工具定义以减少 context 体积。
-3. **2026-07-01 三次修复**：`travel-intel-expire` 同为 agent 模式 + 加载巨型 skill，缺失 `enabled_toolsets` 导致同样症状（Connection error / 断管）。已补加 `["terminal","file","feishu_doc","feishu_drive"]` 并恢复 job。**铁律：所有加载 `travel-intel` skill 的 agent 模式 cron job 必须设置 `enabled_toolsets`，否则 context 必然超限。**
 
 ### `docs +create` CLI 命令格式变更 ☆ (2026-06-20 发现+修复) ★
 
@@ -954,26 +1028,66 @@ r2 = subprocess.run(["lark-cli", "wiki", "+move",
 - `l3_poller.py` ✅ — lark-cli 路径修复（PATH 不含 ~/.local/bin）
 - Cron prompts ✅ — `travel-intel-collect/daily/weekly` --page-limit 升至 40
 
-### expiry_checker.py 静默 JSON 解析失败 (2026-07-01 发现) ★
+### expiry_checker.py Windows 双陷阱 (2026-07-03 定位+修复) ★★
 
-`list_docs()` (L189-190) 的 `except json.JSONDecodeError: break` 会**静默吞噬所有 API 故障**。若 REST API 返回非 JSON（如 `404 page not found`、网关超时 HTML），函数返回空列表（0 docs），cron 状态显示 "ok" 但实际未扫描任何文档。
+`expiry_checker.py` 在 Windows cron (SYSTEM 用户) 下首次跑 `mark_expired()` 必踩两个连体坑，所有 78 条过期文档**一条都标不上**且**无可见报错**（错在 subprocess 层，Python 只抛 FileNotFoundError）。两坑必须同时修，否则只是把错换成另一个错。
+
+**坑 1：`os.path.expanduser("~/...")` 在 SYSTEM 用户下解析到 `C:\Windows\system32\config\systemprofile\...` 而非真实用户 Aorus。**
 
 ```python
-# expiry_checker.py L189-190 — 静默陷阱
-except json.JSONDecodeError:
-    break  # 不记录任何错误，直接返回空列表
+# ❌ 原代码 — 在 SYSTEM 用户下 path 指向不存在的位置
+env["PATH"] = os.path.expanduser("~/AppData/Roaming/npm") + os.pathsep + env.get("PATH", "")
+# 解析为: 'C:\\Windows\\system32\\config\\systemprofile/AppData/Roaming/npm'
+# 该目录不存在 → npm PATH 仍为空 → subprocess 找不到 lark-cli
 ```
 
-**诊断方法**：手动运行 `python3 scripts/expiry_checker.py --dry-run 2>&1 | grep "node"` 确认每个节点返回的文档数 > 0。若三节点均为 0 → API 端点失效。
+**坑 2：Windows Python `subprocess.run(["lark-cli"])` 即使 PATH 正确也失败。** npm 全局安装的 `lark-cli` 是 `.cmd` shim 而非 `.exe`。Python `subprocess.run` 在 Windows 上查找可执行文件的规则（无 `shell=True` 时）要求显式扩展名 — `"lark-cli"` 找不到 `"lark-cli.cmd"`：
 
-**API 端点验证**：用 `lark-cli --dry-run` 确认正确端点格式（不要盲改 Python f-string）：
-```bash
-lark-cli wiki +node-list --space-id 7643710721485753535 \
-  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-size 3 --dry-run --as bot
-# 输出显示实际调用的 endpoint URL 和 params
+```python
+# ❌ 即使 PATH 包含 npm 目录，下面的调用仍报 FileNotFoundError
+subprocess.run(["lark-cli", "drive", "+add-comment", ...])
+# [WinError 2] 系统找不到指定的文件
+
+# ✅ 两种修复
+# A. 显式 .cmd 后缀（推荐，跨 shell 兼容）
+lark_bin = "lark-cli.cmd" if os.name == "nt" else "lark-cli"
+subprocess.run([lark_bin, "drive", "+add-comment", ...])
+
+# B. shell=True（次选，会引入 shell 注入风险）
+subprocess.run("lark-cli drive +add-comment ...", shell=True)
 ```
 
-当前正确端点：`GET /open-apis/wiki/v2/spaces/{space_id}/nodes?parent_node_token={token}&page_size={size}`
+**完整修复 (expiry_checker.py L201-209)**：
+
+```python
+env = os.environ.copy()
+# 2026-07-03: Windows npm lark-cli is lark-cli.cmd — plain "lark-cli" fails FileNotFoundError.
+# Use explicit .cmd suffix on Windows; append Aorus npm dir (system user expanduser resolves wrong).
+aorus_npm = r"C:\Users\Aorus\AppData\Roaming\npm"
+if os.path.isdir(aorus_npm) and aorus_npm not in env.get("PATH", ""):
+    env["PATH"] = aorus_npm + os.pathsep + env["PATH"]
+lark_bin = "lark-cli.cmd" if os.name == "nt" else "lark-cli"
+r = subprocess.run(
+    [lark_bin, "drive", "+add-comment", "--type", "docx",
+     "--doc", doc["obj_token"], "--full-comment", "--as", "bot",
+     "--content", json.dumps([{"type": "text", "text": comment}])],
+    capture_output=True, text=True, timeout=TIMEOUT, env=env,
+)
+```
+
+**症状速查**：
+
+| 现象 | 原因 |
+|------|------|
+| `[WinError 2] 系统找不到指定的文件` 在 `subprocess.run(["lark-cli", ...])` 处 | 坑 2（缺 .cmd 后缀） |
+| 静默成功（exit 0）但 Wiki 文档无评论 | 坑 1（PATH 指向 systemprofile，npm 目录为空） |
+| `dry-run` 通过但实际 `run` 失败 | 99% 是上面两个坑 — dry-run 不调用 subprocess |
+
+**影响范围**：所有用 `subprocess.run(['lark-cli', ...])` 的脚本。l2_ingestor.py / browser_collector.py / hotlist_collector.py / l3_poller.py 已在云端/WSL 环境验证 OK（前者用 `lark-cli` 走 Git Bash MSYS，后者 WSL PATH 默认含 npm），但**云端 Windows cron + Python script 组合**是这套 bug 的唯一触发环境。
+
+**验证脚本**：`scripts/verify_expiry_checker_patch.py`（ad-hoc，14 项断言）— 复用方法：mock `subprocess.run` 后断言 PATH/argv/注释参数，**不依赖 lark-cli 实际可用性**。在改 expiry_checker.py 后必跑一次。
+
+**教训**：Windows cron + Python subprocess 调 npm 全局命令时，必须同时满足 (a) 显式绝对路径注入 npm dir (b) 显式 `.cmd` 后缀。两者缺一必败。
 
 ### 周编号歧义：`%W` vs `%V` (2026-06-20)
 
@@ -988,3 +1102,24 @@ $ date -d 2026-06-20 '+%W %V'
 - `%V`（ISO 8601）：周一起始，W01 为含1月4日的那周 → 6月20日为 W25
 
 **当前 convention**：综合洞察和周度分析使用 **ISO 周编号** (`isocalendar()[1]`)，与 `date +%V` 一致。用 `date +%W` 会产生 1 周偏差。
+
+### 过期校验节点覆盖漂移 (2026-07-04 重建后, 2026-07-05 验证) ★
+
+2026-07-04 删除了旧子节点 `V0Lhwl7KYi` / `EAMYw1CPoi` 并重建为 `MYQtwtPE` / `E7xyw9pS`。但 **`expiry_checker.py` 的 NODES 列表从未同步更新**——目前仅含 `UF7Cw5w2Wi`（一级节点）。这导致：
+
+- 现状：所有文档暂留一级节点，单节点扫描完整覆盖（1873 条全部命中）
+- 风险：一旦 Move API 把文档批量移入新子节点，**NODES 列表外文档将全部漏检**——过期扫描覆盖度从 100% 跌至 0%，无任何报错
+
+**诊断命令**：
+```bash
+grep -n "NODES = \[" C:/Users/Aorus/.hermes-feishu/skills/travel/travel-intel/scripts/expiry_checker.py
+# 当前: NODES = ["UF7Cw5w2WiHGfjkKVvBcxj8Hnib"]
+# 期望: NODES = ["UF7Cw5w2WiHGfjkKVvBcxj8Hnib", "MYQtwtPEOiu4nZkma9NcEEQ3n6V", "E7xyw9pSfibEEckZVEIcU5AynJs"]
+```
+
+**修复动作**（Move API 分拣启动前必做）：
+1. 把 `MYQtwtPEOiu4nZkma9NcEEQ3n6V` 和 `E7xyw9pSfibEEckZVEIcU5AynJs` 加入 NODES
+2. 跑 `verify_expiry_checker_patch.py` 验证（不验证 NODES 但确保 patch 未被破坏）
+3. 跑一次 `expiry_checker.py`，确认 `total` 数字未骤降（一级节点独占时 1873，分拣后应仍 ≥ 1500）
+
+**教训**：节点拓扑变更（删除/重建/迁移）后，所有按 node_token 列举的脚本都必须同步审计——不仅是 `expiry_checker.py`，还应检查 `classify_daily_docs.py`、`classify_daily_brief.py`、daily/weekly/insight 报告 cron 是否也硬编码了旧 token。建议在节点变更 checklist 中加入"scripts 静态扫描 node_token 字符串"。

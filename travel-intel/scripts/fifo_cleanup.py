@@ -62,25 +62,33 @@ def list_docs_by_date():
 
 
 def trash_node(node_token):
-    """Move a wiki node to trash via REST API DELETE."""
+    """Move a wiki node to trash via lark-cli wiki +node-delete.
+
+    2026-07-04 fix: raw API DELETE /open-apis/wiki/v2/spaces/{id}/nodes/{nt} returns 404.
+    Use the typed `wiki +node-delete` command instead.
+    """
     cmd = [
-        LARK_CLI, "api", "DELETE",
-        f"/open-apis/wiki/v2/spaces/{SPACE_ID}/nodes/{node_token}",
+        LARK_CLI, "wiki", "+node-delete",
+        "--node-token", node_token,
+        "--obj-type", "wiki",
+        "--yes",
         "--as", "bot",
     ]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=ENV)
-    # lark-cli api outputs to stderr
-    raw = r.stderr.strip() or r.stdout.strip()
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=ENV)
+    raw = r.stdout.strip() or r.stderr.strip()
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
         return False, f"non-JSON: {raw[:100]}"
 
+    # lark-cli typed commands (e.g. wiki +node-delete) wrap success in {"ok": true, ...}
+    # lark-cli api uses raw Feishu {"code": 0, ...} format. Accept both.
+    if data.get("ok") is True:
+        return True, "ok"
     code = data.get("code", -1)
     if code == 0:
         return True, "ok"
-    else:
-        return False, f"code={code} msg={data.get('msg', '?')[:80]}"
+    return False, f"code={code} msg={data.get('msg', '?')[:80]}"
 
 
 def main():

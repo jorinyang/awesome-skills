@@ -76,7 +76,7 @@ triggers:
 pip install python-pptx
 
 # 引擎路径
-PYTHONPATH="/home/aorus/.hermes-feishu:$PYTHONPATH"
+PYTHONPATH="$HOME/.hermes-feishu:$PYTHONPATH"
 ```
 
 > 📄 核心技术验证报告见 `references/cloning-technique.md`（跨模板形状克隆、背景提取、已知陷阱）
@@ -92,15 +92,7 @@ PYTHONPATH="/home/aorus/.hermes-feishu:$PYTHONPATH"
 → 获取 pptx_path + family_name
 ```
 
-🔴 CHECKPOINT 1: 文件合法性验证
-   
-   - [ ] 文件路径非空且以 `.pptx` 结尾
-   - [ ] `os.path.exists(pptx_path)` 返回 True
-   - [ ] `python-pptx` 可打开文件（try `Presentation(pptx_path)`）
-   - [ ] 幻灯片数量 ≥ 1（`len(pres.slides) > 0`）
-   - [ ] 模板族名称非空且不含特殊字符
-   
-   → 不通过则 STOP，提示用户提供正确文件路径。
+🔴 CHECKPOINT: 确认文件存在且为有效 .pptx 格式。
 
 ### Step 2: 逐页拆解
 

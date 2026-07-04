@@ -17,8 +17,8 @@ if len(sys.argv) > 1:
 
 SPACE_ID = "7643710721485753535"
 UF7_TOKEN = "UF7Cw5w2WiHGfjkKVvBcxj8Hnib"
-V0_TOKEN = "V0Lhwl7KYiWYDDk1vCncv2GhnYf"
-EA_TOKEN = "EAMYw1CPoipVWtkObbtcR2oDnNc"
+V0_TOKEN = "MYQtwtPEOiu4nZkma9NcEEQ3n6V"
+EA_TOKEN = "E7xyw9pSfibEEckZVEIcU5AynJs"
 
 # Classification keywords
 GUIZHOU_KEYWORDS = [

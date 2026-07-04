@@ -9,7 +9,7 @@ triggers:
   - "这个技能适合我们吗"
 tags: [evaluation, skill-absorption, methodology, external-skill, two-phase-strategy]
 category: methodology
-version: 1.4.0
+version: 1.3.0
 related_skills: [github-absorb]
 ---
 
@@ -238,16 +238,6 @@ read_file(path="<skill_dir>/SKILL.md", offset=801, limit=500)
 
 与平台+技能混合项目的 B 阶段流程相同，但无 A 阶段。
 
-**🔵 借鉴思想吸收（轻量模式）**：当分类为 🔵 时，不创建新技能——提取设计思想注入现有技能的特定阶段：
-
-```
-评估 → 确定注入点（目标技能 + phase/字段）→ 修改目标 SKILL.md → 标注吸收来源 → GitHub 同步
-```
-
-- 成本最低（不创建新技能，不引入新依赖）
-- 适用场景：外部技能与现有体系重叠但有可提取的设计决策
-- 完整案例见 `references/gorden-super-ppt-case-study.md`（GordenSuperPPTSkills → ppt-template-filler Phase 5）
-
 ### Phase 6: 知识沉淀
 
 吸收完成后：
@@ -279,7 +269,6 @@ read_file(path="<skill_dir>/SKILL.md", offset=801, limit=500)
 - `references/known-skills-research.md` — 已知技能生态：Research Paper Writing 领域
 - `references/known-skills-pm.md` — 已知技能生态：Product Management 领域
 - `references/agent-insight-case-study.md` — 完整案例：openEuler/agent-insight B+A 吸收全流程
-- `references/gorden-super-ppt-case-study.md` — 完整案例：GordenSuperPPTSkills 🔵 借鉴思想吸收全流程（评估→注入→同步→Release）
 
 ## 已知陷阱
 

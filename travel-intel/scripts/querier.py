@@ -17,7 +17,7 @@ import yaml
 
 log = logging.getLogger(__name__)
 RULES_FILE = os.path.join(os.path.dirname(__file__), "..", "references", "expiry-rules.yaml")
-WIKI_NODES = ["V0Lhwl7KYiYDDk1vCncv2GhnYf", "EAMYw1CPoipVWtkObbtcR2oDnNc"]
+WIKI_NODES = ["MYQtwtPEOiu4nZkma9NcEEQ3n6V", "E7xyw9pSfibEEckZVEIcU5AynJs"]
 SPACE_ID = "7643710721485753535"
 TZ = datetime.timezone(datetime.timedelta(hours=8))
 TIMEOUT = 20

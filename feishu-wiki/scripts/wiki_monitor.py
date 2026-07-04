@@ -9,10 +9,6 @@ HPT = "Y4LYd1X8Yo1Du9x9WtNcYD51nte"
 CLT = "LJ7RdGzVVoUX6rxmzwpcH3L0npg"
 CHANGELOG_TOKEN = CLT
 
-# Auto-collected industry news → default to 行业资讯
-INDUSTRY_NEWS_TOKEN = "V0Lhwl7KYiWYDDk1vCncv2GhnYf"
-AUTO_COLLECT_PATTERN = re.compile(r'^\d{4}-\d{2}-\d{2}_(pinchain|wenlv|meadin\w*|other)_')
-
 CST = timezone(timedelta(hours=8))
 NOW = datetime.now(CST)
 TODAY_STR = NOW.strftime("%Y-%m-%d")
@@ -25,15 +21,15 @@ CATEGORIES = [
     ("企业文化", "KqoZwqut8ilTSFk3SX4cOpQ9nZf", "价值观、使命、愿景、文化、团建、年会"),
     ("团队管理", "PAVdwkNpNiedvfkPLIec1gK7nAU", "组织架构、KPI、OKR、招聘、绩效、培训"),
     ("产品研发", "HrJXwlne7ioywnkDpAlc6p08ngV", "产品、研发、技术、开发、测试、上线"),
-    ("运营策略", "JIKCw1IXAi5ZYxkBKW0cYEuanGF", "运营、推广、渠道、用户增长、转化、冷启动、销售、营销"),
-    ("业务规范", "FB6DwZlXhijL38k0z6Jcy8znhd", "SOP、流程、规范、标准、协议、制度、授权书、合同"),
+    ("运营策略", "JIKCw1IXAi5ZYxkBKW0cYEuanGF", "运营、推广、渠道、用户增长、转化"),
+    ("业务规范", "FB6DwZlXhijL38k0z6Jcy8znhd", "SOP、流程、规范、标准、协议、制度"),
     ("会议纪要", "GI1cwlAUviHXIqk291vcjNxvnGb", "会议、纪要、周会、月会、评审、复盘"),
-    ("方案计划", "KVPTwrbOKiQMUkkUPlscaEKfnUd", "方案、计划、规划、策划、提案、研学、游览"),
-    ("汇报资料", "MebBwjMDgiUH4YkNeEmcLhxFnrb", "汇报、报告、总结、述职、数据报告、洞察、分析、周报、周度"),
-    ("文案素材", "J9h6wJgO4ij7NjkXNTCc6mNDnwf", "文案、素材、海报、话术、宣传、模板、脚本、笔记、品牌叙事"),
-    ("行业资讯", "V0Lhwl7KYiWYDDk1vCncv2GhnYf", "行业、资讯、新闻、趋势、景点、旅游、文旅、景区、酒店、旅行社、OTA、携程、同程、出境、入境、民宿、航线、邮轮、目的地、签证、文化、机票、高铁、度假、康养、营地、温泉、简报"),
+    ("方案计划", "KVPTwrbOKiQMUkkUPlscaEKfnUd", "方案、计划、规划、策划、提案"),
+    ("汇报资料", "MebBwjMDgiUH4YkNeEmcLhxFnrb", "汇报、报告、总结、述职、数据报告"),
+    ("文案素材", "J9h6wJgO4ij7NjkXNTCc6mNDnwf", "文案、素材、海报、话术、宣传、模板"),
+    ("行业资讯", "V0Lhwl7KYiWYDDk1vCncv2GhnYf", "行业、资讯、新闻、趋势、景点、旅游"),
     ("竞品动态", "EAMYw1CPoipVWtkObbtcR2oDnNc", "竞品、竞争、对手、友商、对标"),
-    ("AI Native 工作流", "J4EewYIT2ieFuwkRWbxcgWbFnhe", "AI、工作流、自动化、智能、agent、LLM、MCP、BRIEF、ARCHITECTURE、STANDARDS、TASKS、answer、技能化、蓝图"),
+    ("AI Native 工作流", "J4EewYIT2ieFuwkRWbxcgWbFnhe", "AI、工作流、自动化、智能、agent、LLM"),
     ("最近更新", "LJ7RdGzVVoUX6rxmzwpcH3L0npg", "知识库变动日志"),
 ]
 
@@ -271,10 +267,6 @@ def main():
         if parent in CATEGORY_TOKENS:
             nodes_by_cat[parent].append(n)
         else:
-            # Source-based classification: auto-collected docs → 行业资讯
-            if AUTO_COLLECT_PATTERN.match(title):
-                nodes_by_cat[INDUSTRY_NEWS_TOKEN].append(n)
-                continue
             title_lower = title.lower()
             best_score, best_cat = -1, None
             for name, cat_token, keywords in CATEGORIES:
