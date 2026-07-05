@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-96-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-97-blue)](.)
 
 ---
 
@@ -156,7 +156,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [ara-rigor-reviewer](ara-rigor-reviewer/SKILL.md) | 审查论文/审稿 | 六维认识论审查 |
 | [systematic-debugging](systematic-debugging/SKILL.md) | 帮我debug/排查bug | 4阶段根因调试 |
 
-### 🎨 创意内容 (6)
+### 🎨 创意内容 (7)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -165,7 +165,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [baoyu-cover-image](baoyu-cover-image/SKILL.md) | 封面图/文章封面 | 5D封面图系统——类型×配色×渲染×文字×情绪 |
 | [baoyu-infographic](baoyu-infographic/SKILL.md) | 信息图/可视化 | 信息图——21布局×21风格 |
 | [baoyu-translate](baoyu-translate/SKILL.md) | 翻译/精翻/快翻 | 三模式翻译——快翻/标准/精翻 + 受众×风格参数化 |
-| [image-analysis](image-analysis/SKILL.md) 🆕 | 分析图片/图片内容识别 | MiniMax VLM 图片分析——JPEG/PNG/WebP，URL或本地文件 |
+| [image-analysis](image-analysis/SKILL.md) | 分析图片/图片内容识别 | MiniMax VLM 图片分析——JPEG/PNG/WebP，URL或本地文件 |
+| [diagram-cjk-rendering](diagram-cjk-rendering/SKILL.md) 🆕 | cairosvg方块字/中文SVG乱码/字体渲染兜底 | CJK字体渲染兜底——cairosvg「口」字检测→修复→验证；与 fireworks-tech-graph 协同 |
 
 ---
 
@@ -550,7 +551,7 @@ for dir in */; do
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|ppt-structure-parser|ppt-template-filler|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|ppt-structure-parser|ppt-template-filler|humanizer|pretext|sketch|baoyu-*|image-analysis|diagram-cjk-rendering) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
@@ -587,6 +588,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.15 | 2026-07-06 | 97技能 — +1 新增(diagram-cjk-rendering: cairosvg「口」字问题检测→修复→验证流程，与 fireworks-tech-graph 协同；创意内容 6→7) |
 | v5.4.14 | 2026-07-06 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/firecrawl-web/github-release-readme/hermes-instance-sync/ppt-template-filler/skill-evaluator/supply-check/trip-archive/vendor-brief/wechat-article-archive) |
 | v5.4.13 | 2026-07-05 | 96技能 — 7技能内容更新(answer/baoyu-infographic/darwin-skill/ppt-structure-parser/travel-intel/windows-troubleshooting-from-wsl/zhike-task-hub；补同步 v5.4.12 遗漏的技能本地差异) |
 | v5.4.12 | 2026-07-05 | 96技能 — 92技能内容同步更新(本地编辑批量推送——覆盖 advanced-elicitation/agent-native-cli-design/agent-tool-system/amap-lbs/answer/answer-standalone/ara-compiler/ara-research-manager/ara-rigor-reviewer/architecture-diagram/baoyu-* 等全谱系) + 4个新文件(answer/references/pdf-generation-pipeline.md + travel-intel/references/expiry-diagnostic-probe.md + travel-intel/references/node-recovery-procedure.md + zhike-content-output/references) |
