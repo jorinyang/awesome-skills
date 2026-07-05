@@ -587,6 +587,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.14 | 2026-07-06 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/firecrawl-web/github-release-readme/hermes-instance-sync/ppt-template-filler/skill-evaluator/supply-check/trip-archive/vendor-brief/wechat-article-archive) |
 | v5.4.13 | 2026-07-05 | 96技能 — 7技能内容更新(answer/baoyu-infographic/darwin-skill/ppt-structure-parser/travel-intel/windows-troubleshooting-from-wsl/zhike-task-hub；补同步 v5.4.12 遗漏的技能本地差异) |
 | v5.4.12 | 2026-07-05 | 96技能 — 92技能内容同步更新(本地编辑批量推送——覆盖 advanced-elicitation/agent-native-cli-design/agent-tool-system/amap-lbs/answer/answer-standalone/ara-compiler/ara-research-manager/ara-rigor-reviewer/architecture-diagram/baoyu-* 等全谱系) + 4个新文件(answer/references/pdf-generation-pipeline.md + travel-intel/references/expiry-diagnostic-probe.md + travel-intel/references/node-recovery-procedure.md + zhike-content-output/references) |
 | v5.4.11 | 2026-07-04 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/feishu-wiki/github-absorb/github-release-readme/hermes-instance-sync/ppt-structure-parser/ppt-template-filler/skill-evaluator/travel-intel/trip-archive) |

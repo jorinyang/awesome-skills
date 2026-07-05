@@ -18,11 +18,29 @@ Synchronize skills between Hermes instances using symlinks. Source is authority.
 
 When running as a scheduled cron job with the constraint "不覆盖目标实例的手动修改", use this simplified pipeline instead of full Phase 2-4:
 
-1. **Phase 0** — source integrity check (same as below)
-2. **Handle SOURCE_ONLY** — create symlinks from target → source for all entries only in source
-3. **Handle REAL shared** — if target has a real directory (not symlink) for a shared entry, **skip it** to preserve manual modifications. Only symlink if target is already a symlink pointing to the wrong place.
-4. **Handle TARGET_ONLY** — keep untouched (these are target's own additions)
-5. **Phase 5** — verify top-level links only (internal category broken links are pre-existing and out of scope for the cron job)
+1. **Phase -1 — Pre-Cleanup** — remove all broken symlinks in target BEFORE any sync operations. One-liner: `find <target_dir> -xtype l -delete`. This catches stale archive residues and orphaned links in TARGET_ONLY directories (e.g., `mapping/` pointing to nonexistent source paths). Broken links in source can be cleaned with the same command separately.
+
+   **⚠️ PITFALL — `find -delete` may trigger approval in Hermes Agent**: In some Hermes Agent environments, `find -delete` is intercepted as a destructive operation and requires user approval (`pending_approval`). In cron mode this silently fails — the command appears to succeed but no deletion occurs. **Workaround**: split into two steps:
+   ```bash
+   # Step 1: Count broken links (read-only, no approval needed)
+   BROKEN_COUNT=$(find "$TARGET" -xtype l 2>/dev/null | wc -l)
+   # Step 2: Only attempt delete if broken links exist; if approval blocks it, report them
+   if [ "$BROKEN_COUNT" -gt 0 ]; then
+     echo "⚠️ $BROKEN_COUNT broken symlinks found, attempting cleanup..."
+     find "$TARGET" -xtype l -delete 2>/dev/null
+     REMAINING=$(find "$TARGET" -xtype l 2>/dev/null | wc -l)
+     if [ "$REMAINING" -gt 0 ]; then
+       echo "⚠️ Could not auto-delete $REMAINING broken links (approval required)"
+       echo "  Run manually: find $TARGET -xtype l -delete"
+     fi
+   fi
+   ```
+   In practice, if `find -delete` is blocked, just report the count and move on — the sync can still complete safely (broken symlinks don't block new symlink creation).
+2. **Phase 0** — source integrity check (same as below). Skip BACKLINK and EXTERNAL, sync only REAL entries.
+3. **Handle SOURCE_ONLY** — create symlinks from target → source for all entries only in source
+4. **Handle REAL shared** — if target has a real directory (not symlink) for a shared entry, **skip it** to preserve manual modifications. Only symlink if target is already a symlink pointing to the wrong place.
+5. **Handle TARGET_ONLY** — keep untouched (target's own additions), but scan for broken internal symlinks inside them: `find <target>/<entry> -xtype l -delete`
+6. **Phase 5** — verify top-level links only: `find <target> -maxdepth 1 -xtype l` (should be empty). Internal category broken links found here are NOT pre-existing noise — they should be fixed (see [Broken Symlink Cleanup](#broken-symlink-cleanup)).
 
 This avoids deep sub-skill comparisons and backup/restore cycles that are unnecessary when source and target maintain independent REAL directories by design.
 
@@ -126,24 +144,16 @@ done
 ### Phase 5: Verify
 
 ```bash
-# Top-level broken links
-find ~/.hermes/skills/ -maxdepth 1 -type l -not -exec test -e {} \; -print
+# Prefer -xtype l for broken symlink detection (avoids ELOOP)
+find ~/.hermes/skills/ -maxdepth 1 -xtype l
 # Empty = no broken links at top level
 
-# Internal category broken symlinks (circular chains from re-linking)
-# ⚠️ Use readlink-based detection to avoid ELOOP crashes (see pitfall above)
-find ~/.hermes-feishu/skills/ -type l | while read link; do
-  target=$(readlink "$link" 2>/dev/null)
-  if [ ! -e "$link" ] 2>/dev/null; then
-    echo "BROKEN: $link -> $target"
-  fi
-done
+# Internal category broken symlinks — use -xtype l (same ELOOP-safe approach)
+find ~/.hermes-feishu/skills/ -xtype l
 # Empty = no broken links anywhere in source categories
 ```
 
-If internal broken symlinks are found, they are stale BACKLINK residues — remove them with `rm -f`. See `references/target-unique-injection.md` for the full recovery workflow when injection fails.
-
-**Note**: In cron mode, internal broken symlinks that pre-date the current sync are out of scope — report them but do not attempt to fix. Only fix internal broken links that were created by the current sync operation. See `references/pre-existing-broken-internal-links.md` for the cleanup procedure.
+If broken symlinks are found, remove them with `find <dir> -xtype l -delete`. Do NOT use `find -exec test -e {} \;` — it crashes on circular chains (ELOOP). See `references/source-integrity-check.md` for the full recovery workflow.
 
 ## Mode B: Repo-to-Local Sync
 
@@ -241,16 +251,24 @@ source/github/codebase-inspection → target/github/codebase-inspection → sour
 **Fix**: During Phase 4, BEFORE deleting target, scan source for internal symlinks pointing into target's copy of the same category. Remove them and replace with real content from target. After the sync, also scan for any remaining broken symlinks inside source categories:
 
 ```bash
-# After all sync ops complete
-find "$SOURCE" -type l -not -exec test -e {} \; -print  # list broken
-find "$SOURCE" -type l -not -exec test -e {} \; -delete # clean them
+# After all sync ops complete — use -xtype l (ELOOP-safe)
+find "$SOURCE" -xtype l          # list broken
+find "$SOURCE" -xtype l -delete  # clean them in one pass
 ```
 
 ### `test -e` on broken symlinks can cause "Symlink loop" errors
 
 When a symlink chain is circular (`A → B → A`), `test -e` does NOT just report "broken" — it raises a "Symlink loop" / ELOOP error that can crash the calling process. This is especially dangerous in `find -exec test -e {} \;` where a single circular chain aborts the entire scan.
 
-**Safe alternative**: use `readlink` (without `-f`) and check existence of the resolved target:
+**Preferred approach**: use GNU `find -xtype l` — it matches broken symlinks WITHOUT following or resolving chains, so it never hits ELOOP:
+
+```bash
+# BEST: safe, simple, no loop needed
+find "$SOURCE" -xtype l         # list broken links
+find "$SOURCE" -xtype l -delete # clean them in one pass
+```
+
+**Fallback** (if `-xtype l` unavailable on your system): use `readlink` (without `-f`) and check existence:
 
 ```bash
 # SAFE: detects broken links without following them
@@ -263,6 +281,52 @@ done
 ```
 
 Note: `readlink` without `-f` returns the raw symlink target string without resolving chains, so it never encounters ELOOP. The `2>/dev/null` on `[ ! -e "$link" ]` suppresses the ELOOP error message if the kernel does raise it.
+
+### `find -delete` blocked by Hermes Agent (cron mode silent failure)
+
+In Hermes Agent environments, `find ... -delete` may trigger a safety guard (pattern `find -delete` → `pending_approval`). In cron mode with no user present, the command appears to succeed but no files are deleted. **This is the most common cause of "broken symlinks persist after sync"**.
+
+**Detection**: always run a read-only check first:
+```bash
+BROKEN=$(find "$TARGET" -xtype l 2>/dev/null | wc -l)
+```
+If count > 0 and `find -delete` can't clear them, report the paths — the sync can still proceed safely since broken symlinks don't block new link creation.
+
+### Broken Symlink Cleanup
+
+Broken symlinks in target are the #1 cause of "Connection error" / failed sync notifications in cron mode. Three common sources:
+
+1. **Stale archives** — old `.archive/sync_*` backups whose link targets were deleted
+2. **TARGET_ONLY directories with stale internal links** — e.g., `target/mapping/amap-lbs → source/mapping/amap-lbs` where the source directory doesn't exist
+3. **Post-sync residues** — links that became circular after a previous sync
+
+**Cleanup procedure** (run before any sync):
+
+⚠️ **Cron mode**: `find -delete` may be blocked by Hermes Agent safety guard. Split into read-only check first:
+
+```bash
+# 0. Quick read-only check (always safe)
+BROKEN=$(find "$TARGET" -xtype l 2>/dev/null | wc -l)
+if [ "$BROKEN" -eq 0 ]; then echo "✔ No broken links"; else echo "⚠️ $BROKEN broken links found"; fi
+```
+
+If broken links exist AND you have manual approval capability:
+```bash
+# 1. Wipe stale archive symlinks (archive dirs are disposable)
+find "$TARGET/.archive" -xtype l -delete 2>/dev/null
+
+# 2. Clean target top-level
+find "$TARGET" -maxdepth 1 -xtype l -delete
+
+# 3. Clean inside TARGET_ONLY subdirectories
+for dir in $(ls -d "$TARGET"/*/ 2>/dev/null); do
+  find "$dir" -xtype l -delete 2>/dev/null
+done
+
+# 4. Verify
+find "$TARGET" -xtype l 2>/dev/null
+# Should print nothing
+```
 
 ## Rollback
 

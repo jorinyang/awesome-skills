@@ -185,6 +185,11 @@ Cron 后执行（定时） → 检查注册表 → 已有 → 跳过
 3. 全部已注册 Skill 批量评测
 ```
 
+🔴 **CHECKPOINT** — 评测目标已确定。确认后进入 Phase 2：
+>- [ ] 目标 Skill 名称/路径已明确？
+>- [ ] 评测范围已确认（单次/N次/全量）？
+>- [ ] 若批量评测，数量是否合理（≤5）？
+
 #### Phase 2: 采集执行数据
 
 从 Hermes 会话历史中提取目标 Skill 的执行记录：
@@ -212,6 +217,10 @@ Cron 后执行（定时） → 检查注册表 → 已有 → 跳过
 | 渐进式加载 | SKILL.md 是否 < 500 行，详细内容是否外置到 references/ | low |
 
 #### Phase 4: LLM 六维质量评估（L2）
+
+🔴 **CHECKPOINT** — L1 静态检查已完成。进入 L2 LLM 评估前确认：
+>- [ ] L1 检查结果已复核（高危项是否已修复？）
+>- [ ] 若存在 critical 级问题，不应跳过直接进入 L2
 
 调用 LLM 对 SKILL.md 内容进行六维打分（1-5分）：
 
@@ -251,6 +260,10 @@ graph TD
 
 #### Phase 6: 靶向归因
 
+🔴 **CHECKPOINT** — 执行轨迹对齐已完成。进入靶向归因前确认：
+>- [ ] 所有 ❌/⚠️ 步骤是否已记录？
+>- [ ] 归因分析是否区分了 Skill/模型/环境三个维度？
+
 若存在 ❌ 或 ⚠️ 步骤，进行根因分析：
 
 ```
@@ -270,6 +283,11 @@ graph TD
 ```
 
 #### Phase 7: 输出评测报告
+
+🔴 **CHECKPOINT** — 靶向归因已完成。输出报告前确认：
+>- [ ] 报告中是否包含三维评分 + 过程追溯 + 靶向归因？
+>- [ ] 每个 issue 是否有 severity + evidence + suggestedFix？
+>- [ ] 报告是否已持久化到 eval_results/ 目录？
 
 完整报告结构见 `references/report-template.md`。
 
@@ -328,6 +346,18 @@ graph TD
 - ❌ 评测后不生成改进建议 — 评测的终点是优化方向
 
 ---
+
+## 失败模式与恢复
+
+| # | 触发条件 | 症状 | 一线修复 | 仍失败 → fallback |
+|---|---------|------|---------|-------------------|
+| 1 | `session_search` 无结果或超时 | Phase 2 采集不到执行数据 | 降级为 `glob ~/.hermes-feishu/sessions/session_*.json` 直接读取文件 | 标记 `data_source=fallback_file_scan`，评分可信度降级为 `medium` |
+| 2 | SKILL.md 中无预定义步骤 | Phase 5 轨迹对齐缺少预期路径 | 从 `description` 和 `triggers` 字段推断预期行为 | 跳过轨迹对齐，报告中标注「缺少预定义步骤——无法完成过程追溯」 |
+| 3 | LLM 评测 API 超时/限流 | Phase 4 六维评分中断 | 重试 1 次（间隔 3s）；仍失败 → 仅输出 L1 静态检查结果 | L2 标注为 `skipped (API unavailable)`，不影响 L1 评分 |
+| 4 | `_evaluated_sessions.json` 损坏 | 去重失效，重复评测 | 备份损坏文件 → 重建空注册表 → 重新采集 | 若重建后仍有重复，手动清理 `eval_results/` 目录 |
+| 5 | 自动触发时 Skill 未在 `related_skills` 中注册 | 遗漏评测 | 扫描 `signals.jsonl` 反查实际调用的 Skill | 在报告中标注「未注册但实际使用的 Skill」并建议补全注册 |
+| 6 | `eval_results/` 目录权限不足 | 评测结果无法持久化 | `chmod 755 ~/.hermes-feishu/eval_results/` | 输出到 `/tmp/eval_fallback_{timestamp}.json`，提示用户手动迁移 |
+| 7 | Gateway Hook 未启动（cron 兜底） | auto trigger 未在会话结束时触发 | cron 增量轮询补漏（10 分钟延迟） | 报告标注 `trigger=delayed_auto`，CPSR 指标注明采集延迟 |
 
 ## Pitfalls
 
