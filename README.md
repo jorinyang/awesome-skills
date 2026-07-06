@@ -588,6 +588,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.16 | 2026-07-07 | 97技能 — 70技能内容同步(answer/github-absorb/supabase-backend/windows-troubleshooting-from-wsl references精简清理 + design-md 全量 141 文件推送 + huashu-design 32 references 同步 + 全谱系 SKILL.md 编辑批量覆盖) |
 | v5.4.15 | 2026-07-06 | 97技能 — +1 新增(diagram-cjk-rendering: cairosvg「口」字问题检测→修复→验证流程，与 fireworks-tech-graph 协同；创意内容 6→7) |
 | v5.4.14 | 2026-07-06 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/firecrawl-web/github-release-readme/hermes-instance-sync/ppt-template-filler/skill-evaluator/supply-check/trip-archive/vendor-brief/wechat-article-archive) |
 | v5.4.13 | 2026-07-05 | 96技能 — 7技能内容更新(answer/baoyu-infographic/darwin-skill/ppt-structure-parser/travel-intel/windows-troubleshooting-from-wsl/zhike-task-hub；补同步 v5.4.12 遗漏的技能本地差异) |

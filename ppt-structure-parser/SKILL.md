@@ -76,7 +76,7 @@ triggers:
 pip install python-pptx
 
 # 引擎路径
-PYTHONPATH="/home/aorus/.hermes-feishu:$PYTHONPATH"
+PYTHONPATH="$HOME/.hermes-feishu:$PYTHONPATH"
 ```
 
 > 📄 核心技术验证报告见 `references/cloning-technique.md`（跨模板形状克隆、背景提取、已知陷阱）
@@ -92,21 +92,9 @@ PYTHONPATH="/home/aorus/.hermes-feishu:$PYTHONPATH"
 → 获取 pptx_path + family_name
 ```
 
-🔴 CHECKPOINT 1: 文件合法性验证
-   
-   - [ ] 文件路径非空且以 `.pptx` 结尾
-   - [ ] `os.path.exists(pptx_path)` 返回 True
-   - [ ] `python-pptx` 可打开文件（try `Presentation(pptx_path)`）
-   - [ ] 幻灯片数量 ≥ 1（`len(pres.slides) > 0`）
-   - [ ] 模板族名称非空且不含特殊字符
-   
-   → 不通过则 STOP，提示用户提供正确文件路径。
+🔴 CHECKPOINT: 确认文件存在且为有效 .pptx 格式。
 
 ### Step 2: 逐页拆解
-
-🔴 **CHECKPOINT** — 文件验证通过。解析前确认：
->- [ ] python-pptx 已安装并可导入？
->- [ ] 模板族名称是否唯一（不与已有族名冲突）？
 
 ```python
 from ppt_engine import PPTEngine
@@ -132,11 +120,6 @@ stats = engine.stats()
 ```
 
 ### Step 4: 批量处理
-
-🔴 **CHECKPOINT** — 单模板解析已完成。批量处理前确认：
->- [ ] 所有 .pptx 文件路径已验证存在？
->- [ ] 模板族名称无重复？
->- [ ] 预计入库页数是否合理（单模板 < 200 页）？
 
 ```python
 engine.parse_templates([

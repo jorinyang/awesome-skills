@@ -112,6 +112,12 @@ triggers:
   - "活动策划"
   - "品牌方案"
   - "品牌策划"
+  # PRD/产品需求文档
+  - "写PRD"
+  - "PRD文档"
+  - "产品需求文档"
+  - "需求文档"
+  - "系统建设方案"
   # 迭代/优化/改进类
   - "优化方案"
   - "改进方案"
@@ -1239,6 +1245,8 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 
 > **非飞书环境？** 使用 `answer-standalone` 技能（v2.0.0），纯本地 markdown 输出，零外部依赖。与原版 answer 共享相同的 7 阶段方法论和 6 领域模板。
 
+> **非飞书环境自动降级**：当无飞书 API 时，Phase 1-5 合并为本地 `{项目}_工作流全记录.md`，Phase 6 产出独立 `.md` 文件，Phase 7 追加到全记录。交付物可导出 DOCX（python-docx）或 PDF（Playwright/Chromium，见 `references/pdf-generation-pipeline.md`）。
+
 **独立封装文档**: [Answer 方法论完全指南](https://acn3kz7weyc0.feishu.cn/wiki/JYK4wJTEdiA3TPkN8R3ceMJCnfd) — 脱离 Hermes 技能系统的 18 章独立参考文档，归档于 AI Native 工作流节点下。
 
 ---
@@ -1260,5 +1268,6 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 | `lark-cli-v2-quickref.md` | `references/lark-cli-v2-quickref.md` | lark-cli v2 API 命令速查：创建/写入/删除/验证 Wiki 文档的正确 flags |
 | `lark-cli-v2-create-pitfalls.md` | `references/lark-cli-v2-create-pitfalls.md` | lark-cli v2 `docs +create` 三大坑：--title 废弃、@file 路径限制、两步法空文档 |
 | `standards-for-policy-docs.md` | `references/standards-for-policy-docs.md` | Phase 4 Standards 变体：内部制度/财务文档——中文变量、人话公式、计算器可验算 |
+| `pdf-generation-pipeline.md` | `references/pdf-generation-pipeline.md` | PDF 导出管线：Markdown→HTML→Playwright/Chromium PDF（替代 fpdf2/WeasyPrint） |
 | CHANGELOG.md | GitHub 仓库 | 版本变更记录（v1.0 → v1.1.1） |
 | LICENSE | GitHub 仓库 | MIT 开源许可 |
