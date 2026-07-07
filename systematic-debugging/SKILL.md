@@ -1,6 +1,12 @@
 ---
 name: systematic-debugging
-description: "4-phase root cause debugging: understand bugs before fixing."
+description: 当遇到任何 bug、测试失败或意外行为时，在提出修复方案之前使用——4 阶段根因分析：调查→重现→定位→修复。触发：bug/debug/调试/报错/不工作/测试失败/性能问题
+version: 1.1.0
+metadata:
+  hermes:
+    tags: [debugging, root-cause, troubleshooting, methodology]
+    related_skills: [test-driven-development, verification-before-completion, requesting-code-review]
+  source: 增强自 https://github.com/obra/superpowers (v6.1.1), 原版 Hermes skill
 version: 1.1.0
 author: Hermes Agent (adapted from obra/superpowers)
 license: MIT

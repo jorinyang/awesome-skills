@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-96-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-102-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (21)
+### 🧠 方法论 (23)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -56,6 +56,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [stakeholder-mapping](stakeholder-mapping/SKILL.md) 🆕 | 干系人分析/stakeholder map/谁会影响这个项目 | Power×Interest矩阵定位+四象限沟通策略+冲突识别 |
 | [opportunity-solution-tree](opportunity-solution-tree/SKILL.md) 🆕 | 机会方案树/OST/产品发现/从问题到方案 | Teresa Torres四层发现树——Outcome→Opportunity→Solution→Experiment |
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
+| [writing-skills](writing-skills/SKILL.md) 🆕 | 创建技能/写skill/技能测试/技能验证/技能质量 | TDD驱动的技能工程——压力测试→基线失败→写技能→封堵漏洞 |
+| [verification-before-completion](verification-before-completion/SKILL.md) 🆕 | 完成了/修好了/通过了/发布/deploy/验证 | Iron Law门禁——证据先于声明，未验证不声称完成 |
 
 ### 🏗️ 构建与设计 (24)
 
@@ -86,7 +88,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
-### 🔧 开发工程 (14)
+### 🔧 开发工程 (17)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -95,6 +97,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [coding-agents](coding-agents/SKILL.md) | 派Agent干活/并行开发 | 自主AI编码Agent编排 |
 | [dingtalk-cli](dingtalk-cli/SKILL.md) | 钉钉/dingtalk/dws | 钉钉 CLI——19服务+PAT授权 |
 | [subagent-driven-development](subagent-driven-development/SKILL.md) | 按计划执行/派子Agent | 子Agent驱动——并行执行+两阶段review |
+| [executing-plans](executing-plans/SKILL.md) 🆕 | 执行计划/实现/按计划构建/跑任务清单 | 加载计划→批判审查→逐步执行→完成报告（无子代理回退方案） |
+| [finishing-a-development-branch](finishing-a-development-branch/SKILL.md) 🆕 | 开发完成/合并分支/创建PR/收尾/发布 | 结构化4选项——合并/PR/保留/丢弃+工作区清理 |
+| [receiving-code-review](receiving-code-review/SKILL.md) 🆕 | code review/审查意见/PR反馈/review feedback | 技术严谨回应——验证后实现，不盲从不表演 |
 | [supabase-backend](supabase-backend/SKILL.md) | 数据库/后端/Supabase | Supabase 数据底座——REST API + RLS |
 | [test-driven-development](test-driven-development/SKILL.md) | TDD/测试先行 | TDD强制实施——红灯→绿灯→重构 |
 | [wsl-browser-cdp](wsl-browser-cdp/SKILL.md) ⚠️仅WSL | WSL连Chrome/浏览器CDP | ⚠️仅WSL环境适用——通过CDP连接Windows Chrome（Windows原生环境Chrome直连，无需此技能） |

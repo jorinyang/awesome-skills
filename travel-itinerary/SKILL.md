@@ -13,7 +13,9 @@ triggers:
   - "识别景点/图片识别"
 tags: [travel, itinerary, planning, guizhou, 贵州之客]
 category: travel
-  related_skills: [travel-workflow, double-evolution]
+metadata:
+  hermes:
+    related_skills: [travel-workflow, double-evolution]
 ---
 
 # travel-itinerary — 智能行程规划

@@ -1,6 +1,12 @@
 ---
 name: subagent-driven-development
-description: "Execute plans via delegate_task subagents (2-stage review)."
+description: 使用子代理按任务驱动开发——为每个独立任务分派全新子代理，两阶段审查（规格合规 + 代码质量）。Hermes delegate_task 原生支持。触发：执行计划/子代理开发/dispatch/subagent
+version: 1.2.0
+metadata:
+  hermes:
+    tags: [subagent, delegation, parallel, execution, sdic]
+    related_skills: [writing-plans, executing-plans, requesting-code-review, finishing-a-development-branch, verification-before-completion]
+  source: 增强自 https://github.com/obra/superpowers (v6.1.1)
 version: 1.1.0
 author: Hermes Agent (adapted from obra/superpowers)
 license: MIT
