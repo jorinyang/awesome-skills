@@ -41,9 +41,12 @@ await page.pdf({ path: 'output.pdf', format: 'A4', printBackground: true });
 ```
 
 **踩坑**：
-- Chromium 路径可能不在默认位置。用 `find ~/AppData/Local/ms-playwright -name "chrome.exe"` 查找
-- A3 横版表格用 `format: 'A3', landscape: true`
+- Chromium 路径可能不在默认位置。用 `find ~/AppData/Local/ms-playwright -name "chrome.exe"` 查找。已知有效路径：`C:/Users/Aorus/AppData/Local/ms-playwright/chromium-1223/chrome-win64/chrome.exe`
+- Playwright npm 包必须安装在执行目录：`cd {project_dir} && npm install playwright`
+- Node 中 `file:///` URL 路径必须用正斜杠（`C:/path/`），不能用反斜杠
 - 中文字体：CSS 指定 `"Microsoft YaHei", "PingFang SC", "SimSun"`
+- 转换完成后清理 `_temp.html` 和 `_convert.js` 等临时文件
+- 与 fpdf2 对比：fpdf2 表格对齐不可靠，含表格的 PRD 类文档必须走 Playwright 管线
 
 ### 管线 B：Python fpdf2 直接生成 ⚠️ 仅简单文档
 

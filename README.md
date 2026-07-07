@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-97-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-102-blue)](.)
 
 ---
 
@@ -86,7 +86,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
-### 🔧 开发工程 (14)
+### 🔧 开发工程 (19)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -104,6 +104,11 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [wsl-docker-deploy](wsl-docker-deploy/SKILL.md) 🆕 | 部署docker/自托管/docker pull超时/拉取镜像失败 | WSL2 Docker Desktop代理部署——crane代理拉取→docker load→compose up |
 | [firecrawl-web](firecrawl-web/SKILL.md) 🆕 | 搜索/查资料/抓取/爬取/提取数据 | Firecrawl自托管MCP——搜索网页/抓取内容/爬取网站/结构化数据提取 |
 | [github-release-readme](github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
+| [executing-plans](executing-plans/SKILL.md) 🆕 | 执行计划/按计划构建/跑任务清单 | 书面计划→独立会话执行→批判性审查→任务清单完成→报告 |
+| [finishing-a-development-branch](finishing-a-development-branch/SKILL.md) 🆕 | 开发完成/合并分支/创建PR/收尾/发布 | 结构化选项引导收尾——合并/PR/保留/丢弃四向决策 |
+| [receiving-code-review](receiving-code-review/SKILL.md) 🆕 | code review/审查意见/PR反馈/review feedback | 接收审查反馈——技术严谨+验证先于表演性同意/盲从实现 |
+| [verification-before-completion](verification-before-completion/SKILL.md) 🆕 | 完成了/修好了/通过了/build成功/发布/deploy/提交 | 完成前验证——先跑命令+看输出，证据先于声明 |
+| [writing-skills](writing-skills/SKILL.md) 🆕 | 创建技能/写skill/技能测试/skill验证/技能质量/技能反模式 | TDD方法论应用于Agent技能文档工程——frontmatter+validator+结构化测试 |
 
 ### 🤖 AI 工程 (4) 🆕
 
@@ -553,7 +558,7 @@ for dir in */; do
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
     huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|ppt-structure-parser|ppt-template-filler|humanizer|pretext|sketch|baoyu-*|image-analysis|diagram-cjk-rendering) category="creative" ;;
     ara-*) category="research" ;;
-    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
+    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web|executing-plans|finishing-a-development-branch|receiving-code-review|verification-before-completion|writing-skills) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;
     skill-evaluator|skill-ab-test|benchmark-generator|agent-tool-system) category="ai-engineering" ;;
     requirement-alignment-analysis) category="productivity" ;; 
@@ -588,6 +593,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.17 | 2026-07-08 | 102技能 — +5 新增(executing-plans: 书面计划→独立会话执行；finishing-a-development-branch: 结构化收尾四向决策；receiving-code-review: 接收审查反馈——技术严谨优先于表演性同意；verification-before-completion: 完成前验证——证据先于声明；writing-skills: TDD方法论应用于Agent技能文档工程；开发工程 14→19) + 2技能内容同步(answer/github-absorb) |
 | v5.4.16 | 2026-07-07 | 97技能 — 70技能内容同步(answer/github-absorb/supabase-backend/windows-troubleshooting-from-wsl references精简清理 + design-md 全量 141 文件推送 + huashu-design 32 references 同步 + 全谱系 SKILL.md 编辑批量覆盖) |
 | v5.4.15 | 2026-07-06 | 97技能 — +1 新增(diagram-cjk-rendering: cairosvg「口」字问题检测→修复→验证流程，与 fireworks-tech-graph 协同；创意内容 6→7) |
 | v5.4.14 | 2026-07-06 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/firecrawl-web/github-release-readme/hermes-instance-sync/ppt-template-filler/skill-evaluator/supply-check/trip-archive/vendor-brief/wechat-article-archive) |
