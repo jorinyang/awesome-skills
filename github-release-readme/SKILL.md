@@ -180,6 +180,20 @@ find "$DST" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
 | `cp -rL` | 递归复制 + 穿透所有层级 symlink | `cp -a`（保留 symlink → GitHub 死链接） |
 | `cp -rL` 而非 `cp -r` | 穿透目录级和文件级 symlink | `cp -r` 只处理文件，目录 symlink 仍保留 |
 
+⚠️ **Pitfall: "待更新"技能在 `~/.hermes-feishu/skills/` 下找不到**
+
+`scan_inventory.py` 会扫描所有本地 profile 的技能目录（`~/.hermes/skills/`、`~/.hermes-feishu/skills/` 等），但 Phase 3 的复制指令只覆盖 `~/.hermes-feishu/skills/`。当扫描报告的某个"待更新"技能实际在另一个 profile 下时，`find ~/.hermes-feishu/skills/ -name <skill>` 将返回空。
+
+- **症状**：扫描列出 15 个"待更新"，但手动 `find` 在 `~/.hermes-feishu/skills/` 下只找到 11 个
+- **处理**：先搜 `~/.hermes-feishu/skills/`，找不到则搜 `~/.hermes/skills/`，仍找不到则**跳过**该技能（它可能已被从本地删除但 GitHub 上仍保留旧版；不删除 GitHub 上的副本，也不凭空更新）
+- **搜索命令**：
+  ```bash
+  # 先在主 profile 找
+  src_dir=$(find ~/.hermes-feishu/skills/ -maxdepth 3 -name "$skill" -type d 2>/dev/null | head -1)
+  # 找不到则搜其他 profile
+  [ -z "$src_dir" ] && src_dir=$(find ~/.hermes/skills/ -maxdepth 3 -name "$skill" -type d 2>/dev/null | head -1)
+  ```
+
 ### Phase 4: README 自动更新
 
 基于 GitHub 实际技能清单，更新以下内容：
@@ -399,7 +413,7 @@ A: 先不要假设是 GitHub 问题。按 `references/troubleshooting-connectivi
 > 只有「≥3 技能新增/删除」或「分类/目录重构」才升级 MINOR。
 > MAJOR 不自行决定，必须用户明确要求。
 
-当前：v5.4.3 (93 技能 — 全根目录，8 分类)
+当前：v5.4.14 (96 技能 — 全根目录，8 分类)
 
 ---
 

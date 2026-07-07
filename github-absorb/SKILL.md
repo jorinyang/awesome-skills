@@ -5,7 +5,7 @@ description: >-
   深度分析→业务价值评估→吸收策略分类→独立创建/吸收执行→网格化引用→
   单元测试+全业务链路测试→能力强化报告。触发信号：github.com 链接、
   "这个仓库怎么样"、"帮我看看这个项目"、"能不能用"、"吸收这个仓库"。
-version: 1.6.0
+version: 1.4.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -148,7 +148,7 @@ document.querySelector('#js_content') ?
 - 与 README 互补的实现细节
 - 无法从代码中直接读出的决策背景
 
-### Step 2.2: 分析目录结构 → API 限流检测
+### Step 2.2: 分析目录结构
 
 ```bash
 curl -s https://api.github.com/repos/{owner}/{repo}/contents/ | python3 -c "
@@ -156,59 +156,9 @@ import sys,json
 for i in json.load(sys.stdin):
     print(f'{i[\"type\"]:5s} {i[\"name\"]}')
 "
+
+# 若为 monorepo，深入探索关键子目录
 ```
-
-**⚠️ API Rate Limit 降级**：如果 GitHub API 或 `raw.githubusercontent.com` 返回 429/403，**不要反复重试**。立即 fallback 到浅克隆：
-
-```bash
-cd /tmp && rm -rf {repo} && git clone --depth 1 https://github.com/{owner}/{repo}.git 2>&1
-```
-
-克隆后所有文件读取改用 `read_file` 直接读本地文件（`/tmp/{repo}/...`）。这比等待 rate limit 恢复更快、更可靠。
-
-### Step 2.2b: 技能市场仓库检测
-
-当目录结构分析发现 `skills/` 目录包含多个以技能命名的子目录（如 `brainstorming/`、`test-driven-development/`），且每个子目录包含 `SKILL.md` 文件时，该仓库是 **Agent 技能市场/方法论仓库**。此时切换评估模式：
-
-**检测命令**（克隆后在本地执行）：
-```bash
-ls /tmp/{repo}/skills/ | head -20  # 子目录列表
-grep -l '^name:' /tmp/{repo}/skills/*/SKILL.md  # 验证技能文件
-```
-
-**切换后：**
-1. **跳过** Step 2.3（pygount 代码分析）——仓库主体是 Markdown，非代码
-2. **跳过** Step 2.4（代码文档质量评估）——技能仓库的文档标准不同
-3. **替代分析**：逐技能读取 SKILL.md，按 `name:` / `description:` frontmatter 提取核心能力清单
-4. **检查插件架构**：阅读 `.claude-plugin/`、`.codex-plugin/`、`hooks/` 等目录了解跨平台分发机制
-5. **优先读取元技能**：读取 `skills/using-{repo-name}/SKILL.md`（如 `using-superpowers/SKILL.md`）——这是技能体系的引导入口，揭示了其设计哲学和技能间编排逻辑
-
-> **案例**：`obra/superpowers` 即典型的技能市场仓库（14 个技能 + 多平台插件架构）。评估重点从"代码质量"转向"方法论完整度"和"技能间协同编排"。
-
-### Step 2.2b: 技能仓库检测
-
-当目录结构分析发现 `skills/` 目录包含多个以技能命名的子目录（如 `brainstorming/`、`test-driven-development/`），且每个子目录包含 `SKILL.md` 文件时，该仓库是 **Agent 技能市场/方法论仓库**，而非传统代码仓库。此时需要切换评估模式：
-
-**检测信号：**
-```bash
-# 列出 skills/ 下的技能目录
-curl -s https://api.github.com/repos/{owner}/{repo}/contents/skills | python3 -c "
-import sys,json
-items=json.load(sys.stdin)
-skills=[i['name'] for i in items if i['type']=='dir']
-print(f'Skills count: {len(skills)}')
-for s in skills: print(f'  - {s}')
-"
-```
-
-**切换到技能仓库评估模式后：**
-1. **跳过** Step 2.3（pygount 代码分析）——无意义（仓库主体是 Markdown）
-2. **跳过** Step 2.4（代码文档质量）——技能仓库的文档标准不同
-3. **替代分析**：逐技能读取 SKILL.md，按 `name:` / `description:` frontmatter 提取核心能力清单
-4. **检查插件架构**：阅读 `.claude-plugin/`、`.codex-plugin/`、`hooks/` 等目录，了解跨平台分发机制
-5. **读取元技能**：优先读取 `using-{repo-name}/SKILL.md`（如 `using-superpowers/SKILL.md`）——这是技能体系的引导入口
-
-> **案例**：`obra/superpowers` 即典型的技能市场仓库（14 个技能 + 插件架构）。评估重点从"代码质量"转向"方法论完整度"和"技能间协同关系"。
 
 ### Step 2.3: 代码规模与语言分析
 
@@ -286,82 +236,6 @@ if 仓库是完整可安装工具（CLI/桌面应用/MCP Server/库）且 max(�
 ## Phase 4: 吸收策略分类
 
 基于 Phase 2 的深度分析，对仓库进行**能力拆解**和**分类标注**。
-
-### Step 4.0: 现有技能重叠检查 🔴 CHECKPOINT
-
-在拆解能力单元之前，**必须先检查**源仓库的技能与 Hermes 现有技能的命名重叠和功能重叠：
-
-```bash
-# 扫描源仓库技能名列表
-for d in /tmp/{repo}/skills/*/; do
-  name=$(grep '^name:' "$d/SKILL.md" 2>/dev/null | head -1 | sed 's/name: *//')
-  [ -n "$name" ] && echo "$name"
-done | sort > /tmp/source-skills.txt
-
-# 与 Hermes 现有技能逐个比对
-while read skill; do
-  found=$(find ~/.hermes/skills -maxdepth 3 -name "SKILL.md" -exec grep -l "name: $skill" {} \; 2>/dev/null)
-  if [ -n "$found" ]; then
-    echo "✅ OVERLAP: $skill → $(echo "$found" | head -1)"
-  else
-    echo "❌ NEW: $skill (not in Hermes)"
-  fi
-done < /tmp/source-skills.txt
-```
-
-**重叠分类：**
-| 重叠类型 | 含义 | 处理 |
-|---------|------|------|
-| ✅ 同名技能 | Hermes 已有同名实现 | 在能力拆解中标注 🔵，吸收策略为"增强现有" |
-| ✅ 功能等价 | 名称不同但功能覆盖 | 标注 🟡 参考借鉴，不重复创建 |
-| ❌ 完全缺失 | Hermes 无此能力 | 标注 🟢，考虑独立创建 |
-
-**注意**：同名不代表质量相同。Phase 2 已读取双方 SKILL.md，此时应对比：
-- 行数/字节量 → 初步判断内容丰富度
-- references/ 配套文件数 → 判断支撑材料密度
-- 是否有 Iron Law / HARD-GATE 模式 → 判断方法论成熟度
-
-若源仓库的技能显著更丰富（配套文件 3+ 个 / SKILL.md 行数高出 50%+），即使同名也标注 🔵 吸收增强。
-
-### Step 4.0: 现有技能重叠检查 🔴 CHECKPOINT
-
-在拆解能力单元之前，**必须先检查**源仓库的技能与 Hermes 现有技能的命名重叠和功能重叠。这在技能市场仓库评估中尤其重要——你可能已经有同名技能了：
-
-```bash
-# 扫描源仓库技能名清单（克隆后在本地执行）
-for d in /tmp/{repo}/skills/*/; do
-  name=$(grep '^name:' "$d/SKILL.md" 2>/dev/null | head -1 | sed 's/name: *//')
-  [ -n "$name" ] && echo "$name"
-done | sort > /tmp/source-skills.txt
-
-# 与 Hermes 现有技能逐个比对
-while read skill; do
-  found=$(find ~/.hermes/skills -maxdepth 3 -name "SKILL.md" -exec grep -l "name: $skill" {} \; 2>/dev/null)
-  if [ -n "$found" ]; then
-    echo "✅ OVERLAP: $skill → $(echo "$found" | head -1)"
-  else
-    echo "❌ NEW: $skill (not in Hermes)"
-  fi
-done < /tmp/source-skills.txt
-```
-
-**重叠分类与处理：**
-
-| 重叠类型 | 含义 | 处理 |
-|---------|------|------|
-| ✅ 同名技能 | Hermes 已有同名实现 | 标注 🔵，吸收策略为"增强现有" |
-| ✅ 功能等价 | 名称不同但功能覆盖 | 标注 🟡 参考借鉴，不重复创建 |
-| ❌ 完全缺失 | Hermes 无此能力 | 标注 🟢，考虑独立创建 |
-
-**注意**：同名不代表同质。Phase 2 已读取双方 SKILL.md，此时应做**质量对比**：
-- 行数/字节量对比 → 初步判断内容丰富度
-- `references/` 配套文件数对比 → 判断支撑材料密度  
-- 是否有 Iron Law / HARD-GATE / Red Flags 模式 → 判断方法论成熟度
-- 是否有跨技能引用和编排逻辑 → 判断体系完整度
-
-若源仓库的技能**显著更丰富**（配套文件 3+ 个，或 SKILL.md 行数高出 50%+），即使同名也标注 🔵 吸收增强，而非 🟡 跳过。
-
-> **案例**：超级力量仓库的 `subagent-driven-development` 在 Hermes 中已有同名技能（379 行 vs 418 行 + 2 个 reviewer prompt），差距不足以触发替换，但配套 prompts 值得迁移——标注 🔵 增强。
 
 ### 能力拆解
 
@@ -495,81 +369,13 @@ Layer 3: 对话级临时覆盖
 1. **定位注入点** — 确定目标技能的哪个 Phase/步骤可以增强
 2. **提取核心方法论** — 从源仓库提取算法、模式、检查项
 3. **本地化适配** — 转换为 Hermes 原生措辞和工具调用
-4. **注入** — 用 `skill_manage(action='patch')` 精确插入新内容到 SKILL.md
-5. **迁移配套文件** — 将源仓库技能目录中的支持文件复制到目标 Hermes 技能的 `references/` 下
-6. **更新元数据** — 在目标技能的 frontmatter 中：bump `version`、添加 `source:` 字段标注吸收来源
-7. **记录来源** — 在目标技能正文末尾添加 `> 吸收自: {repo_url}` 引用标注
+4. **注入** — 用 `skill_manage(action='patch')` 精确插入新内容
+5. **记录来源** — 在目标技能中添加 `> 吸收自: {repo_url}` 的引用标注
 
-#### 5B.1: SKILL.md 注入
-
-用 `skill_manage(action='patch', file_path='SKILL.md')` 精确插入新内容。原则：
+注入原则：
 - 只加内容，不改原有核心逻辑
 - 新增内容放在对应 Phase 的末尾（不打断现有流程）
 - 保持原有技能的结构和命名风格
-
-#### 5B.2: References 文件迁移（模式）
-
-当源仓库技能包含**独立的支持文件**（如 reviewer prompts、anti-patterns 文档、技术参考手册），将其复制到目标 Hermes 技能的 `references/` 目录：
-
-```bash
-# 批量迁移 references 文件
-SRC=/tmp/{repo}/skills/{source-skill}
-DST=~/.hermes/skills/{target-skill}/references
-mkdir -p "$DST"
-
-# 复制所有非 SKILL.md 的支持文件
-for f in "$SRC"/*.md "$SRC"/references/*.md; do
-  [ -f "$f" ] && cp "$f" "$DST/$(basename "$f")"
-done
-```
-
-**适用场景**：
-- `implementer-prompt.md` / `task-reviewer-prompt.md` → 子代理调用的独立 prompt 模板
-- `code-reviewer.md` → 代码审查的详细检查清单
-- `testing-anti-patterns.md` → TDD 反模式参考手册
-- `root-cause-tracing.md` / `defense-in-depth.md` → 调试技术深度文档
-- `plan-document-reviewer-prompt.md` → 计划文档审查标准
-
-**迁移后验证**：确认目标 SKILL.md 中已有或新增对 references 文件的引用句（一句即可）：
-```markdown
-详见 `references/{filename}.md`。
-```
-
-**不要迁移**：
-- ❌ 脚本文件（`scripts/`）——除非经过 Hermes 环境适配
-- ❌ 测试文件——源仓库的测试框架与 Hermes 不兼容
-- ❌ 平台特定配置（`plugin.json`, `hooks.json`）——Hermes 有独立触发机制
-
-#### 5B.3: 版本与来源标注
-
-每次 🔵 吸收增强后，更新目标技能的 frontmatter：
-
-```yaml
-# Before
-name: systematic-debugging
-version: 1.0.0
-description: "..."
-
-# After (bump MINOR version + add source)
-name: systematic-debugging
-version: 1.1.0
-metadata:
-  hermes:
-    related_skills: [newly-discovered-deps]
-  source: 增强自 https://github.com/{owner}/{repo} (v{X.Y.Z})
-```
-
-#### 5B.4: 批量执行策略
-
-当多个 🔵 增强涉及"纯文件复制 + 元数据更新"（无 SKILL.md 内容注入），可使用 `terminal` 批量操作；涉及 SKILL.md 内容改变时必须逐个 `patch`。典型执行顺序：
-
-```bash
-# Step 1: 批量复制 references 文件（terminal）
-# Step 2: 逐个 patch frontmatter（skill_manage patch）
-# Step 3: 如有 SKILL.md 正文注入，逐个 patch
-```
-
-> **案例**：在超级力量吸收中，5 个 🔵 增强全部是"references 迁移 + frontmatter 更新"模式（无正文注入），仅 1 个（answer 设计门禁）需要实际内容注入。
 
 ---
 
@@ -850,6 +656,6 @@ python3 ~/.hermes-feishu/skills/methodology/github-absorb/scripts/audit-referenc
 | 仓库只有 README 无代码 | pygount 结果为空 | 按纯知识/方法论仓库处理，评分默认保守 |
 | 多语言混合仓库 | pygount 返回 5+ 种语言 | 只分析主要语言（>20% 占比） |
 | 仓库是 Fork | `fork: true` | 标注 Fork 来源，评估与原版的差异 |
-| API rate limit | 429 返回或 `raw.githubusercontent.com` 限流 | **不要反复重试 API**。立即 fallback 到 `git clone --depth 1 https://github.com/{owner}/{repo}.git /tmp/{repo}` 浅克隆到本地，之后所有文件读取改用 `read_file` / `cat` 直接读本地文件。clone 超时 120s 内通常可完成（仓库 <100MB）。若 clone 也失败，用 `web_search` 获取信息。 |
+| API rate limit | 403 返回 | 等待 60s 重试一次；仍失败则用 `web_search` 获取信息 |
 | 用户中途改变需求 | 任意阶段 | 记录当前进度后调整方向 |
 | 配套微信文章无法直接访问 | `browser_navigate` 超时或返回空白 | 使用 CDP 浏览器 + `browser_console` 提取 `#js_content`（见 Phase 2.1b）。若 CDP 也不可用，仅基于代码分析评估 |

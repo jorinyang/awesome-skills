@@ -94,6 +94,10 @@ source: 吸收自 deepjai-way/ai-viz (MIT) — 提取 + 适配为 Hermes 原生�
 
 ### Step 5: 生成 Draw.io XML
 
+🔴 **CHECKPOINT** — 布局已规划。生成 XML 前确认：
+>- [ ] 节点数是否超标（>20 应拆分为多张图）？
+>- [ ] 配色方案是否已确定（优先 design-language.yaml → 内置 defaults）？
+
 ```
 - 按照 XML Schema 生成 .drawio 文件
 - 节点用 mxCell+mxGeometry
@@ -103,6 +107,10 @@ source: 吸收自 deepjai-way/ai-viz (MIT) — 提取 + 适配为 Hermes 原生�
 ```
 
 ### Step 6: 质量自检（强制）
+
+🔴 **CHECKPOINT** — XML 生成已完成。质量自检前确认：
+>- [ ] 所有节点和连线都有明确的知识源对应？
+>- [ ] 图种选择是否正确（架构图/流程图/ER图等）？
 
 生成后逐项检查（详见下方「质量控制」）：
 
@@ -120,6 +128,11 @@ source: 吸收自 deepjai-way/ai-viz (MIT) — 提取 + 适配为 Hermes 原生�
 ```
 
 ### Step 7: 输出
+
+🔴 **CHECKPOINT** — 质量自检已通过。输出前确认：
+>- [ ] .drawio 文件已写入磁盘？
+>- [ ] 若为对外交付场景，是否已询问用户是否需要导出 PNG/SVG？
+>- [ ] 摘要中是否包含图种 + 节点数 + 打开方式？
 
 ```
 1. .drawio 文件
@@ -343,6 +356,20 @@ npx ai-viz export input.drawio -f pdf
 - 需求变更 > 50% 或图种变更 → 建议切回 Create 模式重生成
 
 ---
+
+## 失败模式与恢复
+
+| # | 触发条件 | 症状 | 一线修复 | 仍失败 → fallback |
+|---|---------|------|---------|-------------------|
+| 1 | XML 标签未闭合或 id 重复 | Step 6 质量自检失败，Draw.io 打开报错 | 重新检查 XML：`xmllint --noout file.drawio` | 回退到 Step 5，从结构提取重新生成 XML |
+| 2 | `source`/`target` 引用不存在的 mxCell | 连线指向空白区域，图看起来有缺线 | 遍历所有 edge 元素，验证 source/target id 存在于 mxCell 列表中 | 删除孤立 edge，报告中标注「已移除 N 条无效连线」 |
+| 3 | 特殊字符未转义（`&` `<` `>` `"`） | XML 解析失败，Draw.io 拒绝打开 | 在 value 属性中执行 `&→&amp; <→&lt; >→&gt; "→&quot;` 替换 | 若仍有非 XML 兼容字符，用 CDATA 包裹 value |
+| 4 | 含 HTML 标签但 `html=1` 缺失 | 节点显示原始 HTML 标签文本而非渲染 | 逐节点检查：`grep 'value=.*<[a-z]' | grep -v 'html=1'` 找出遗漏项 | 批量补充 `html=1;` 到遗漏节点的 style 属性 |
+| 5 | CJK 字符在 Draw.io 导出 PNG 时显示为「口」 | 导出图片中文乱码 | 安装中文字体：`sudo apt install fonts-noto-cjk` | 改用 SVG 导出（矢量格式字体嵌入更可靠），或用 `diagram-cjk-rendering` 技能修复 |
+| 6 | 节点数 > 20 但未拆分 | 图表拥挤、不可读、导出的 PNG 模糊 | 自动建议拆分为 2-3 张子图（按业务边界/层次切分） | 若用户拒绝拆分，降低字体至 10px + 缩小节点间距（最小 120px） |
+| 7 | `design-language.yaml` 不存在 | 配色回退到硬编码默认值 | 检查 `~/.hermes-feishu/design-language.yaml` 是否存在；不存在时使用内置 defaults | 生成后标注「配色使用内置默认值——建议创建 design-language.yaml 统一风格」 |
+| 8 | Draw.io CLI 不可用（导出阶段） | `drawio: command not found` 或 `npx ai-viz` 失败 | 尝试 `npx ai-viz export`；仍失败 → 提示用户手动用 Draw.io Desktop / app.diagrams.net 打开 .drawio 文件导出 | 交付原始 .drawio 文件 + 导出失败说明 |
+| 9 | 节点坐标重叠（间距 < 20px） | 两个节点视觉上叠在一起 | Step 6 质量自检中检测 `mxGeometry` 坐标冲突 → 自动重排（shift 100px） | 标记为「需手动调整——自动布局已尽力」 |
 
 ## 反例（禁止）
 
