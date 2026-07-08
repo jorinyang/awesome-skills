@@ -154,8 +154,6 @@ Slug: 2-4 words kebab-case from topic. Conflict: append `-YYYYMMDD-HHMMSS`.
 5. Save analysis to `analysis.md`
    - **Backup rule**: If `analysis.md` exists, rename to `analysis-backup-YYYYMMDD-HHMMSS.md`
 
-🔴 CHECKPOINT: Verify analysis covers topic, data type, complexity, tone, and audience before proceeding to Step 2.
-
 See `references/analysis-framework.md` for detailed format.
 
 ### Step 2: Generate Structured Content → `structured-content.md`
@@ -190,8 +188,6 @@ Use the `clarify` tool to confirm options with the user. Since `clarify` handles
 
 **Q3 — Language** (only if source ≠ user language): Ask which language the text content should use.
 
-🔴 CHECKPOINT: Before proceeding to generate prompt, confirm all 3 options (combination, aspect, language) are resolved. If any unresolved, repeat clarify step.
-
 ### Step 5: Generate Prompt → `prompts/infographic.md`
 
 **Backup rule**: If `prompts/infographic.md` exists, rename to `prompts/infographic-backup-YYYYMMDD-HHMMSS.md`
@@ -220,8 +216,6 @@ Use the `image_generate` tool with the assembled prompt from Step 5.
 - On failure, auto-retry once
 - Save the resulting image URL/path to the output directory
 
-🛑 STOP: If image_generate fails after retry, do not loop. Report failure, save prompt, suggest alternative model (see Failure Modes).
-
 ### Step 7: Output Summary
 
 Report: topic, layout, style, aspect, language, output path, files created.
@@ -241,54 +235,3 @@ Report: topic, layout, style, aspect, language, output path, files created.
 3. **One message per section** — each infographic section should convey one clear concept. Overloading sections reduces readability.
 4. **Style consistency** — the style definition from the references file must be applied consistently across the entire infographic. Don't mix styles.
 5. **image_generate aspect ratios** — the tool only supports `landscape`, `portrait`, and `square`. Custom ratios like `3:4` should map to the nearest option (portrait in that case).
-
-## Failure Modes
-
-| Failure | Fallback |
-|---------|----------|
-| Source content is empty or unreadable | Ask user to provide content again; do not proceed with empty input |
-| `references/analysis-framework.md` not found | Use inline analysis: topic, data type, complexity, tone, audience directly |
-| `references/layouts/<layout>.md` or `references/styles/<style>.md` not found | Use layout/style name directly in prompt as plain-text description |
-| `image_generate` fails on first attempt | Auto-retry once with same prompt; if still fails, simplify prompt (reduce section count) and retry |
-| `image_generate` fails after retry | Report failure with original prompt saved to `prompts/infographic.md`; suggest user try a different model |
-| `clarify` tool unavailable or user doesn't respond | Use defaults: bento-grid + craft-handmade, landscape (16:9), source language |
-| User provides no layout/style preference | Apply defaults with a brief rationale; do not block for confirmation |
-| Output directory already exists from prior run | Append `-YYYYMMDD-HHMMSS` timestamp to slug; do not overwrite |
-| Source contains mixed languages | Default text to the dominant language; note the choice in `analysis.md` |
-| Content too large for single infographic | Split into multiple infographics; generate series with numbered output dirs |
-
-## ⛔ Anti-Patterns
-
-- ⛔ Never summarize or paraphrase source data — statistics and quotes must be verbatim
-- ⛔ Never include API keys, tokens, passwords, or credentials in any output file
-- ⛔ Never skip the `clarify` confirmation step when user is available
-- ⛔ Never mix visual styles within a single infographic — pick one and apply consistently
-- ⛔ Never generate an image without first saving the prompt to `prompts/infographic.md`
-- ⛔ Never fabricate content to fill gaps — if data is insufficient, ask the user for more
-- ⛔ Never skip the backup-rename step when output files already exist
-
-## Dry Run
-
-**Input**: User says "Make an infographic about climate change impacts, in Chinese, portrait format."
-
-**Walkthrough**:
-1. **Keywords**: "infographic" → auto-select `bento-grid` + `craft-handmade`, append "Minimalist: clean canvas, ample whitespace…" prompt notes
-2. **Step 1 — Analyze**: Save source to `infographic/climate-change-impacts/source.md`, analyze tone (serious/educational), audience (general), language=zh. Save to `analysis.md`.
-3. 🔴 CHECKPOINT: Analysis covers topic, type, complexity, tone, audience → proceed.
-4. **Step 2 — Structure**: Generate `structured-content.md` with title, learning objectives, sections with verbatim data points. Strip any credentials found.
-5. **Step 3 — Recommend**: Keyword already resolved (bento-grid + craft-handmade). Optionally suggest `chalkboard` or `storybook-watercolor` as alternatives.
-6. **Step 4 — Confirm**: `clarify` Q1: bento-grid+craft-handmade ok? Q2: portrait (9:16)? Q3: zh confirmed.
-7. 🔴 CHECKPOINT: All 3 options resolved → proceed.
-8. **Step 5 — Prompt**: Load `references/layouts/bento-grid.md` + `references/styles/craft-handmade.md` + `references/base-prompt.md`, combine with structured content. Aspect=9:16. Save to `prompts/infographic.md`.
-9. **Step 6 — Generate**: `image_generate` with assembled prompt, aspect=portrait.
-10. 🛑 STOP: On failure, retry once. If still failing, report and suggest alternative model.
-11. **Step 7 — Output**: Report path `infographic/climate-change-impacts/infographic.png`.
-
-**Edge cases**:
-- **No user language specified**: Use source language; if source is mixed, use dominant language.
-- **User pastes raw URL instead of content**: Fetch URL, extract text/headlines, proceed with Step 1.
-- **Content is a single statistic** ("Company X grew 47%"): Use `dashboard` layout to emphasize the single metric; skip multi-section structure.
-
-
-
-

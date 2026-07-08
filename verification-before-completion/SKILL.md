@@ -1,7 +1,7 @@
 ---
 name: verification-before-completion
-description: 当即将声称工作完成、修复成功、测试通过，或在提交/部署/发布前——要求先运行验证命令并确认输出，证据先于声明。触发：完成了/修好了/通过了/build成功/发布/deploy/提交
-version: 1.0.0
+description: 当 Agent 即将声称任何工作完成时必须触发——禁止无证据声明。覆盖：文件写入/OSS上传/飞书写入/技能创建/部署/测试通过/bug修复/PR提交。触发词：完成了/搞定/修好了/通过了/build成功/发布/deploy/提交/上传完成/文档已创建/部署完成/可以了/OK了/DONE
+version: 1.0.1
 author: 杨瑒 (月夜)
 metadata:
   hermes:

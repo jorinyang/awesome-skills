@@ -5,7 +5,7 @@ description: >-
   深度分析→业务价值评估→吸收策略分类→独立创建/吸收执行→网格化引用→
   单元测试+全业务链路测试→能力强化报告。触发信号：github.com 链接、
   "这个仓库怎么样"、"帮我看看这个项目"、"能不能用"、"吸收这个仓库"。
-version: 1.4.0
+version: 1.7.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -122,7 +122,9 @@ print(f'Archived: {r.get(\"archived\",False)}')
 4. **docs/ 目录** — 详细文档
 5. **examples/ 目录** — 使用示例
 
-使用 `curl -s 'https://raw.githubusercontent.com/{owner}/{repo}/main/README.md' | head -500` 分块读取。
+优先使用 `web_extract(urls=["https://raw.githubusercontent.com/{owner}/{repo}/main/README.md"])` 或 `curl` 分块读取。
+
+> ⚠️ **文档读取超时是常态**：`web_extract` 对大仓库 README 经常 60s 超时（如 AnythingLLM、LangChain 等 60K+ stars 项目），官方 docs 站点也常因 JS 渲染而超时。超时后**不要反复重试**同一工具——直接 `git clone --depth 1` 读本地文件（`read_file /tmp/{repo}/README.md`）。这个 fallback 对 README / CHANGELOG / docs / openapi.json 等所有文档读取都适用。
 
 ### Step 2.1b: 读取配套文章/博客（如有）
 
@@ -148,7 +150,7 @@ document.querySelector('#js_content') ?
 - 与 README 互补的实现细节
 - 无法从代码中直接读出的决策背景
 
-### Step 2.2: 分析目录结构
+### Step 2.2: 分析目录结构 → API 限流检测
 
 ```bash
 curl -s https://api.github.com/repos/{owner}/{repo}/contents/ | python3 -c "
@@ -156,9 +158,59 @@ import sys,json
 for i in json.load(sys.stdin):
     print(f'{i[\"type\"]:5s} {i[\"name\"]}')
 "
-
-# 若为 monorepo，深入探索关键子目录
 ```
+
+**⚠️ API Rate Limit 降级**：如果 GitHub API 或 `raw.githubusercontent.com` 返回 429/403，**不要反复重试**。立即 fallback 到浅克隆：
+
+```bash
+cd /tmp && rm -rf {repo} && git clone --depth 1 https://github.com/{owner}/{repo}.git 2>&1
+```
+
+克隆后所有文件读取改用 `read_file` 直接读本地文件（`/tmp/{repo}/...`）。这比等待 rate limit 恢复更快、更可靠。
+
+### Step 2.2b: 技能市场仓库检测
+
+当目录结构分析发现 `skills/` 目录包含多个以技能命名的子目录（如 `brainstorming/`、`test-driven-development/`），且每个子目录包含 `SKILL.md` 文件时，该仓库是 **Agent 技能市场/方法论仓库**。此时切换评估模式：
+
+**检测命令**（克隆后在本地执行）：
+```bash
+ls /tmp/{repo}/skills/ | head -20  # 子目录列表
+grep -l '^name:' /tmp/{repo}/skills/*/SKILL.md  # 验证技能文件
+```
+
+**切换后：**
+1. **跳过** Step 2.3（pygount 代码分析）——仓库主体是 Markdown，非代码
+2. **跳过** Step 2.4（代码文档质量评估）——技能仓库的文档标准不同
+3. **替代分析**：逐技能读取 SKILL.md，按 `name:` / `description:` frontmatter 提取核心能力清单
+4. **检查插件架构**：阅读 `.claude-plugin/`、`.codex-plugin/`、`hooks/` 等目录了解跨平台分发机制
+5. **优先读取元技能**：读取 `skills/using-{repo-name}/SKILL.md`（如 `using-superpowers/SKILL.md`）——这是技能体系的引导入口，揭示了其设计哲学和技能间编排逻辑
+
+> **案例**：`obra/superpowers` 即典型的技能市场仓库（14 个技能 + 多平台插件架构）。评估重点从"代码质量"转向"方法论完整度"和"技能间协同编排"。
+
+### Step 2.2b: 技能仓库检测
+
+当目录结构分析发现 `skills/` 目录包含多个以技能命名的子目录（如 `brainstorming/`、`test-driven-development/`），且每个子目录包含 `SKILL.md` 文件时，该仓库是 **Agent 技能市场/方法论仓库**，而非传统代码仓库。此时需要切换评估模式：
+
+**检测信号：**
+```bash
+# 列出 skills/ 下的技能目录
+curl -s https://api.github.com/repos/{owner}/{repo}/contents/skills | python3 -c "
+import sys,json
+items=json.load(sys.stdin)
+skills=[i['name'] for i in items if i['type']=='dir']
+print(f'Skills count: {len(skills)}')
+for s in skills: print(f'  - {s}')
+"
+```
+
+**切换到技能仓库评估模式后：**
+1. **跳过** Step 2.3（pygount 代码分析）——无意义（仓库主体是 Markdown）
+2. **跳过** Step 2.4（代码文档质量）——技能仓库的文档标准不同
+3. **替代分析**：逐技能读取 SKILL.md，按 `name:` / `description:` frontmatter 提取核心能力清单
+4. **检查插件架构**：阅读 `.claude-plugin/`、`.codex-plugin/`、`hooks/` 等目录，了解跨平台分发机制
+5. **读取元技能**：优先读取 `using-{repo-name}/SKILL.md`（如 `using-superpowers/SKILL.md`）——这是技能体系的引导入口
+
+> **案例**：`obra/superpowers` 即典型的技能市场仓库（14 个技能 + 插件架构）。评估重点从"代码质量"转向"方法论完整度"和"技能间协同关系"。
 
 ### Step 2.3: 代码规模与语言分析
 
@@ -231,11 +283,99 @@ if 仓库是完整可安装工具（CLI/桌面应用/MCP Server/库）且 max(�
 | 纯 Demo/Toy 项目 | 无生产价值 | 直接否决（除非方法论创新极强） |
 | README 质量极低 | 项目不成熟 | 减 0.5-1 分 |
 
+### Phase 3 后高频追问（正面评估的延续）
+
+当 Phase 3 门禁通过且用户给出正面信号后，用户常会追问以下三类问题而不等 Phase 4 吸收流程。这些追问**不需重跑整个评估管线**，直接基于已收集的信息回答：
+
+| 追问类型 | 典型问法 | 处理方式 |
+|---------|---------|---------|
+| **部署可行性** | "能部署到我当前设备吗？""怎么装？" | 检查 Docker/Node 环境 → 给出具体命令；同时查 Release 页面有无桌面版安装包 |
+| **集成协作** | "能和 Hermes/n8n/ComfyUI 协作吗？" | 查 API 端点（openapi.json）、MCP 端点、webhook 支持 → 绘制集成拓扑图 |
+| **算力需求** | "需要云端 GPU 吗？""能离线跑吗？" | 查 LLM 提供商列表 + 默认内置模型 → 判断是否支持纯本地/气隙部署 |
+
+回答风格：**直接给结论 + 具体命令 + 集成拓扑**，不套用 Phased 工作流模板。这些是实操问题，不是方法论评估。
+
 ---
 
 ## Phase 4: 吸收策略分类
 
 基于 Phase 2 的深度分析，对仓库进行**能力拆解**和**分类标注**。
+
+### Step 4.0: 现有技能重叠检查 🔴 CHECKPOINT
+
+在拆解能力单元之前，**必须先检查**源仓库的技能与 Hermes 现有技能的命名重叠和功能重叠：
+
+```bash
+# 扫描源仓库技能名列表
+for d in /tmp/{repo}/skills/*/; do
+  name=$(grep '^name:' "$d/SKILL.md" 2>/dev/null | head -1 | sed 's/name: *//')
+  [ -n "$name" ] && echo "$name"
+done | sort > /tmp/source-skills.txt
+
+# 与 Hermes 现有技能逐个比对
+while read skill; do
+  found=$(find ~/.hermes/skills -maxdepth 3 -name "SKILL.md" -exec grep -l "name: $skill" {} \; 2>/dev/null)
+  if [ -n "$found" ]; then
+    echo "✅ OVERLAP: $skill → $(echo "$found" | head -1)"
+  else
+    echo "❌ NEW: $skill (not in Hermes)"
+  fi
+done < /tmp/source-skills.txt
+```
+
+**重叠分类：**
+| 重叠类型 | 含义 | 处理 |
+|---------|------|------|
+| ✅ 同名技能 | Hermes 已有同名实现 | 在能力拆解中标注 🔵，吸收策略为"增强现有" |
+| ✅ 功能等价 | 名称不同但功能覆盖 | 标注 🟡 参考借鉴，不重复创建 |
+| ❌ 完全缺失 | Hermes 无此能力 | 标注 🟢，考虑独立创建 |
+
+**注意**：同名不代表质量相同。Phase 2 已读取双方 SKILL.md，此时应对比：
+- 行数/字节量 → 初步判断内容丰富度
+- references/ 配套文件数 → 判断支撑材料密度
+- 是否有 Iron Law / HARD-GATE 模式 → 判断方法论成熟度
+
+若源仓库的技能显著更丰富（配套文件 3+ 个 / SKILL.md 行数高出 50%+），即使同名也标注 🔵 吸收增强。
+
+### Step 4.0: 现有技能重叠检查 🔴 CHECKPOINT
+
+在拆解能力单元之前，**必须先检查**源仓库的技能与 Hermes 现有技能的命名重叠和功能重叠。这在技能市场仓库评估中尤其重要——你可能已经有同名技能了：
+
+```bash
+# 扫描源仓库技能名清单（克隆后在本地执行）
+for d in /tmp/{repo}/skills/*/; do
+  name=$(grep '^name:' "$d/SKILL.md" 2>/dev/null | head -1 | sed 's/name: *//')
+  [ -n "$name" ] && echo "$name"
+done | sort > /tmp/source-skills.txt
+
+# 与 Hermes 现有技能逐个比对
+while read skill; do
+  found=$(find ~/.hermes/skills -maxdepth 3 -name "SKILL.md" -exec grep -l "name: $skill" {} \; 2>/dev/null)
+  if [ -n "$found" ]; then
+    echo "✅ OVERLAP: $skill → $(echo "$found" | head -1)"
+  else
+    echo "❌ NEW: $skill (not in Hermes)"
+  fi
+done < /tmp/source-skills.txt
+```
+
+**重叠分类与处理：**
+
+| 重叠类型 | 含义 | 处理 |
+|---------|------|------|
+| ✅ 同名技能 | Hermes 已有同名实现 | 标注 🔵，吸收策略为"增强现有" |
+| ✅ 功能等价 | 名称不同但功能覆盖 | 标注 🟡 参考借鉴，不重复创建 |
+| ❌ 完全缺失 | Hermes 无此能力 | 标注 🟢，考虑独立创建 |
+
+**注意**：同名不代表同质。Phase 2 已读取双方 SKILL.md，此时应做**质量对比**：
+- 行数/字节量对比 → 初步判断内容丰富度
+- `references/` 配套文件数对比 → 判断支撑材料密度  
+- 是否有 Iron Law / HARD-GATE / Red Flags 模式 → 判断方法论成熟度
+- 是否有跨技能引用和编排逻辑 → 判断体系完整度
+
+若源仓库的技能**显著更丰富**（配套文件 3+ 个，或 SKILL.md 行数高出 50%+），即使同名也标注 🔵 吸收增强，而非 🟡 跳过。
+
+> **案例**：超级力量仓库的 `subagent-driven-development` 在 Hermes 中已有同名技能（379 行 vs 418 行 + 2 个 reviewer prompt），差距不足以触发替换，但配套 prompts 值得迁移——标注 🔵 增强。
 
 ### 能力拆解
 
@@ -369,13 +509,81 @@ Layer 3: 对话级临时覆盖
 1. **定位注入点** — 确定目标技能的哪个 Phase/步骤可以增强
 2. **提取核心方法论** — 从源仓库提取算法、模式、检查项
 3. **本地化适配** — 转换为 Hermes 原生措辞和工具调用
-4. **注入** — 用 `skill_manage(action='patch')` 精确插入新内容
-5. **记录来源** — 在目标技能中添加 `> 吸收自: {repo_url}` 的引用标注
+4. **注入** — 用 `skill_manage(action='patch')` 精确插入新内容到 SKILL.md
+5. **迁移配套文件** — 将源仓库技能目录中的支持文件复制到目标 Hermes 技能的 `references/` 下
+6. **更新元数据** — 在目标技能的 frontmatter 中：bump `version`、添加 `source:` 字段标注吸收来源
+7. **记录来源** — 在目标技能正文末尾添加 `> 吸收自: {repo_url}` 引用标注
 
-注入原则：
+#### 5B.1: SKILL.md 注入
+
+用 `skill_manage(action='patch', file_path='SKILL.md')` 精确插入新内容。原则：
 - 只加内容，不改原有核心逻辑
 - 新增内容放在对应 Phase 的末尾（不打断现有流程）
 - 保持原有技能的结构和命名风格
+
+#### 5B.2: References 文件迁移（模式）
+
+当源仓库技能包含**独立的支持文件**（如 reviewer prompts、anti-patterns 文档、技术参考手册），将其复制到目标 Hermes 技能的 `references/` 目录：
+
+```bash
+# 批量迁移 references 文件
+SRC=/tmp/{repo}/skills/{source-skill}
+DST=~/.hermes/skills/{target-skill}/references
+mkdir -p "$DST"
+
+# 复制所有非 SKILL.md 的支持文件
+for f in "$SRC"/*.md "$SRC"/references/*.md; do
+  [ -f "$f" ] && cp "$f" "$DST/$(basename "$f")"
+done
+```
+
+**适用场景**：
+- `implementer-prompt.md` / `task-reviewer-prompt.md` → 子代理调用的独立 prompt 模板
+- `code-reviewer.md` → 代码审查的详细检查清单
+- `testing-anti-patterns.md` → TDD 反模式参考手册
+- `root-cause-tracing.md` / `defense-in-depth.md` → 调试技术深度文档
+- `plan-document-reviewer-prompt.md` → 计划文档审查标准
+
+**迁移后验证**：确认目标 SKILL.md 中已有或新增对 references 文件的引用句（一句即可）：
+```markdown
+详见 `references/{filename}.md`。
+```
+
+**不要迁移**：
+- ❌ 脚本文件（`scripts/`）——除非经过 Hermes 环境适配
+- ❌ 测试文件——源仓库的测试框架与 Hermes 不兼容
+- ❌ 平台特定配置（`plugin.json`, `hooks.json`）——Hermes 有独立触发机制
+
+#### 5B.3: 版本与来源标注
+
+每次 🔵 吸收增强后，更新目标技能的 frontmatter：
+
+```yaml
+# Before
+name: systematic-debugging
+version: 1.0.0
+description: "..."
+
+# After (bump MINOR version + add source)
+name: systematic-debugging
+version: 1.1.0
+metadata:
+  hermes:
+    related_skills: [newly-discovered-deps]
+  source: 增强自 https://github.com/{owner}/{repo} (v{X.Y.Z})
+```
+
+#### 5B.4: 批量执行策略
+
+当多个 🔵 增强涉及"纯文件复制 + 元数据更新"（无 SKILL.md 内容注入），可使用 `terminal` 批量操作；涉及 SKILL.md 内容改变时必须逐个 `patch`。典型执行顺序：
+
+```bash
+# Step 1: 批量复制 references 文件（terminal）
+# Step 2: 逐个 patch frontmatter（skill_manage patch）
+# Step 3: 如有 SKILL.md 正文注入，逐个 patch
+```
+
+> **案例**：在超级力量吸收中，5 个 🔵 增强全部是"references 迁移 + frontmatter 更新"模式（无正文注入），仅 1 个（answer 设计门禁）需要实际内容注入。
 
 ---
 
@@ -468,16 +676,24 @@ metadata:
 
 对 📦 类能力单元，执行以下操作：
 
+**0. 安装类型识别**（先判断再行动）：
+- **CLI / 库 / Docker 镜像** → 走步骤 1-5，全自动完成。
+- **Desktop GUI 安装器**（`.exe` / `.dmg` / `.AppImage`）→ 下载到用户路径后**停止自动化**。告知用户手动完成 GUI 安装向导，原因：
+  - SYSTEM 会话无法在用户桌面会话中创建可见窗口（Session 0 隔离）
+  - UAC / 管理员密码弹窗运行在隔离的安全桌面，任何自动化工具（含 cua-driver）均无法交互
+  - 安装器本身的 GUI 向导（"下一步"/"我同意"/"选择路径"）需要人类点击
+  - 用户安装完成后回到自动化流程做后续配置（环境变量、LLM 接入、工作区创建等）
+
 1. **确定安装方式** — 从 README/文档提取安装命令（brew/npm/pip/cargo/docker/二进制下载）
-2. **执行安装** — 在本地环境执行安装
-3. **验证可用性** — 至少执行 3 项验证：
+2. **执行安装** — 在本地环境执行安装（仅 CLI/Docker 类型）
+3. **验证可用性** — 至少执行 3 项验证（仅 CLI/Docker 类型）：
  - 版本号检查（`--version` 或等效）
  - 基础命令验证（CLI `--help` 或 API 健康检查）
  - 端到端功能验证（使用实际数据执行一个完整操作）
 4. **记录环境约束** — 运行时依赖（Node/Bun/Python 版本）、平台限制、已知问题
 5. **创建速查卡** — 记录到最终报告的工具信息表中
 
-> **常见问题**：运行时不匹配（shebang node 但 dist 用 Bun API）、端口与文档不一致、MCP HTTP 需要双 Accept 头、测试文件非真实格式——详见 `references/tool-install-pitfalls.md`。
+> **常见问题**：运行时不匹配、端口不一致、MCP Accept 头、国内下载慢需代理直连、Docker Hub 被墙需镜像/代理、GUI 安装器无法自动化——详见 `references/tool-install-pitfalls.md`。
 
 ---
 
@@ -637,7 +853,7 @@ metadata:
 | `references/report-template.md` | Phase 8 能力强化报告模板 | 每次吸收完成后生成报告 |
 | `references/filtering-criteria.md` | Phase 6B 引用过滤标准 | 判断哪些反向引用值得补、哪些应跳过 |
 | `scripts/audit-reference-network.py` | 技能引用网络双源审计脚本 | 扫描本地+GitHub 全库，输出反向缺口/孤立技能/连通聚类 |
-| `references/tool-install-pitfalls.md` | Phase 5C 独立安装故障排查模式 | 安装后遇到运行时不匹配/端口错误/MCP协议问题/测试文件格式问题时查阅 |
+| `references/tool-install-pitfalls.md` | Phase 5C 独立安装故障排查模式（Docker 镜像源失效/代理直连/Admin Key 长度/OpenClaw HMAC 端点适配/Docker Desktop 管道权限/GitHub Release 下载加速/Desktop GUI 安装器限制） | 安装 Docker/CLI/MCP/GUI 工具遇到网络、认证或会话隔离问题时查阅 |
 
 运行审计脚本：
 ```bash
@@ -656,6 +872,6 @@ python3 ~/.hermes-feishu/skills/methodology/github-absorb/scripts/audit-referenc
 | 仓库只有 README 无代码 | pygount 结果为空 | 按纯知识/方法论仓库处理，评分默认保守 |
 | 多语言混合仓库 | pygount 返回 5+ 种语言 | 只分析主要语言（>20% 占比） |
 | 仓库是 Fork | `fork: true` | 标注 Fork 来源，评估与原版的差异 |
-| API rate limit | 403 返回 | 等待 60s 重试一次；仍失败则用 `web_search` 获取信息 |
+| API rate limit | 429 返回或 `raw.githubusercontent.com` 限流 | **不要反复重试 API**。立即 fallback 到 `git clone --depth 1 https://github.com/{owner}/{repo}.git /tmp/{repo}` 浅克隆到本地，之后所有文件读取改用 `read_file` / `cat` 直接读本地文件。clone 超时 120s 内通常可完成（仓库 <100MB）。若 clone 也失败，用 `web_search` 获取信息。 |
 | 用户中途改变需求 | 任意阶段 | 记录当前进度后调整方向 |
 | 配套微信文章无法直接访问 | `browser_navigate` 超时或返回空白 | 使用 CDP 浏览器 + `browser_console` 提取 `#js_content`（见 Phase 2.1b）。若 CDP 也不可用，仅基于代码分析评估 |

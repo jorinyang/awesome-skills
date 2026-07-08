@@ -79,6 +79,24 @@ PROXY_SERVER=http://host.docker.internal:7890
 | Docker daemon 跑在 Windows 上 | WSL 的环境变量不影响 daemon |
 | crane 走 WSL 的网络栈 | 不受 Docker daemon 网络限制 |
 
+## Docker Desktop × SYSTEM 账户限制
+
+**当 Hermes Agent 以 Windows Service（SYSTEM 账户）运行时，Docker Desktop 无法通过 Agent 自动启动。**
+
+| 症状 | 根因 | Agent 行为 |
+|------|------|------------|
+| `docker ps` → `npipe not found` | Docker Desktop 未运行 | 通知用户手动启动（见下方脚本） |
+| Docker Desktop 进程存在但 `docker` 管道不存在 | WSL2 Linux VM 未启动，WSL2 报 `LOCAL_SYSTEM_NOT_SUPPORTED` | **不要反复重试启动**，直接降级 |
+| `sc start com.docker.service` 后 `docker` 仍不可用 | Docker Desktop 的 Linux 引擎管道 (`dockerDesktopLinuxEngine`) 只在交互式用户会话中创建 | 同上——只能由用户手动启动 |
+
+**Agent 检查清单**：
+1. `tasklist | grep -i docker` → 进程存在？是：等 30s 重试 docker ps；否：通知用户
+2. `docker ps` 30s 后仍失败 → Docker Desktop 在 SYSTEM 下不可恢复
+3. 立即通知用户 + 对依赖 Docker 的服务执行降级方案
+4. **不要**在 SYSTEM 下反复重试 `sc start` 或 `docker` 命令
+
+**Firecrawl 专用恢复**：`C:\Users\Aorus\tmp\firecrawl-selfhost\start-firecrawl.bat` — 用户在桌面双击即可自动完成：Docker Desktop 启动 → 等待 VM 就绪 → `docker compose up -d` → 验证 :3002。
+
 ## Docker Desktop 可用性检测
 
 在 WSL 中执行任何 `docker` 命令前，务必先验证 Docker Desktop 是否在 Windows 端运行：

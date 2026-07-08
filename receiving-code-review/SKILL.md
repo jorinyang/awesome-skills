@@ -1,7 +1,7 @@
 ---
 name: receiving-code-review
-description: 当收到代码审查反馈、在实现建议之前使用，尤其是反馈看起来不清楚或技术上有问题时——要求技术严谨和验证，而非表演性同意或盲从实现。触发：code review/审查意见/PR反馈/review feedback
-version: 1.0.0
+description: 当收到代码审查反馈、PR评论、或他人对你代码的建议时使用——要求验证后实现，禁止表演性同意和盲从。触发词：review意见/审查反馈/PR comments/code review反馈/别人说我代码/按review改/按审查意见修改
+version: 1.0.1
 author: 杨瑒 (月夜)
 metadata:
   hermes:

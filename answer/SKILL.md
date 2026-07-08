@@ -6,7 +6,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [workflow, design-flow, builder, orchestrator]
-    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree]
+    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree, writing-skills, verification-before-completion, executing-plans]
 triggers:
   # 显式调用
   - "answer"
@@ -112,6 +112,12 @@ triggers:
   - "活动策划"
   - "品牌方案"
   - "品牌策划"
+  # PRD/产品需求文档
+  - "写PRD"
+  - "PRD文档"
+  - "产品需求文档"
+  - "需求文档"
+  - "系统建设方案"
   # 迭代/优化/改进类
   - "优化方案"
   - "改进方案"
@@ -300,6 +306,75 @@ triggers:
 🔴 **CHECKPOINT**：领域识别完成后，向用户确认——"识别为 {领域标签}，走对应的 7 阶段追问流程。正确吗？" 确认后再进入 Phase 1。
 
 **领域覆盖后**：自动加载 `references/domain-mapping.md` 中对应领域的追问清单和模板变体。
+
+---
+
+## ⛔ 设计先行门禁（Design-First Gate）
+
+> **吸收自**: [obra/superpowers brainstorming](https://github.com/obra/superpowers) v6.1.1
+
+<HARD-GATE>
+在用户明确批准设计方案之前，**禁止**调用任何实现类技能、写任何代码、搭建任何项目、或采取任何实现动作。这适用于**每个**项目，无论看起来多简单。
+</HARD-GATE>
+
+### Anti-Pattern: "这个太简单不需要设计"
+
+每个项目都走这个流程。Todo List、单功能工具、配置更改——全都要。"简单"项目是未经检验的假设造成最多浪费的地方。设计可以很短（真正简单的项目几句话），但**必须**呈现并获批准。
+
+### 设计门禁检查清单
+
+在进入任何 Phase 6 Build 之前，必须全部完成：
+
+1. ✅ 问题已被理解和重构
+2. ✅ 至少 2-3 种方案已被探讨，有取舍
+3. ✅ 推荐方案已呈现并获用户批准
+4. ✅ 设计范围已明确（包含什么、不包含什么）
+5. ✅ 成功标准已定义且可验证
+
+### Red Flags — 你正在跳过设计
+
+| 想法 | 现实 |
+|------|------|
+| "这只是一个简单的问题" | 问题 = 任务。先设计。 |
+| "我需要更多上下文" | 设计告诉你如何获取上下文。 |
+| "让我先探索代码库" | 设计告诉你探索什么。 |
+| "这不值得正式的设计" | 简单事变得复杂。设计它。 |
+| "设计太过头了" | 过度工程的反面是设计不足。两者都有代价。 |
+| "我知道该怎么做" | 知道概念 ≠ 知道正确的设计。 |
+| "这感觉高效" | 无纪律的行动浪费最多时间。 |
+
+**所有这些都是 STOP 信号——先设计，再构建。**
+
+### 设计门禁与 7 阶段的映射
+
+answer 的 Phase 1 Clarify 和 Phase 2 Brief 本身就是设计门禁的实现。但以下是增强点：
+
+- **Phase 1 Clarify** 必须完成决策树的**完整遍历**——不在未验证的假设上前进
+- **Phase 2 Brief** 必须包含 **≥2 个被探索和拒绝的替代方案**（不只是推荐方案）
+- **Phase 3 Architect** 之前必须有用户对 Brief 的显式批准
+- **Phase 5 Decompose → Phase 6 Build 的门禁**是最关键的：除非设计方案已批准，**绝不进入 Build**
+
+```dot
+digraph design_gate {
+    "用户需求" [shape=ellipse];
+    "Phase 1: Clarify\n(决策树遍历)" [shape=box];
+    "Phase 2: Brief\n(含替代方案对比)" [shape=box];
+    "设计方案已批准？" [shape=diamond];
+    "Phase 3-5\n(架构→标准→拆解)" [shape=box];
+    "Build Gate\n(设计已完整批准？)" [shape=diamond];
+    "Phase 6: Build\n(实现)" [shape=box];
+    "回到设计阶段" [shape=box style=filled fillcolor=#ffcccc];
+
+    "用户需求" -> "Phase 1: Clarify\n(决策树遍历)";
+    "Phase 1: Clarify\n(决策树遍历)" -> "Phase 2: Brief\n(含替代方案对比)";
+    "Phase 2: Brief\n(含替代方案对比)" -> "设计方案已批准？";
+    "设计方案已批准？" -> "Phase 3-5\n(架构→标准→拆解)" [label="yes"];
+    "设计方案已批准？" -> "回到设计阶段" [label="no"];
+    "Phase 3-5\n(架构→标准→拆解)" -> "Build Gate\n(设计已完整批准？)";
+    "Build Gate\n(设计已完整批准？)" -> "Phase 6: Build\n(实现)" [label="yes"];
+    "Build Gate\n(设计已完整批准？)" -> "回到设计阶段" [label="no"];
+}
+```
 
 ---
 
@@ -1239,6 +1314,8 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 
 > **非飞书环境？** 使用 `answer-standalone` 技能（v2.0.0），纯本地 markdown 输出，零外部依赖。与原版 answer 共享相同的 7 阶段方法论和 6 领域模板。
 
+> **非飞书环境自动降级**：当无飞书 API 时，Phase 1-5 合并为本地 `{项目}_工作流全记录.md`，Phase 6 产出独立 `.md` 文件，Phase 7 追加到全记录。交付物可导出 DOCX（python-docx）或 PDF（Playwright/Chromium，见 `references/pdf-generation-pipeline.md`）。
+
 **独立封装文档**: [Answer 方法论完全指南](https://acn3kz7weyc0.feishu.cn/wiki/JYK4wJTEdiA3TPkN8R3ceMJCnfd) — 脱离 Hermes 技能系统的 18 章独立参考文档，归档于 AI Native 工作流节点下。
 
 ---
@@ -1260,5 +1337,6 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 | `lark-cli-v2-quickref.md` | `references/lark-cli-v2-quickref.md` | lark-cli v2 API 命令速查：创建/写入/删除/验证 Wiki 文档的正确 flags |
 | `lark-cli-v2-create-pitfalls.md` | `references/lark-cli-v2-create-pitfalls.md` | lark-cli v2 `docs +create` 三大坑：--title 废弃、@file 路径限制、两步法空文档 |
 | `standards-for-policy-docs.md` | `references/standards-for-policy-docs.md` | Phase 4 Standards 变体：内部制度/财务文档——中文变量、人话公式、计算器可验算 |
+| `pdf-generation-pipeline.md` | `references/pdf-generation-pipeline.md` | PDF 导出管线：Markdown→HTML→Playwright/Chromium PDF（替代 fpdf2/WeasyPrint） |
 | CHANGELOG.md | GitHub 仓库 | 版本变更记录（v1.0 → v1.1.1） |
 | LICENSE | GitHub 仓库 | MIT 开源许可 |
