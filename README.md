@@ -593,6 +593,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.20 | 2026-07-10 | 102技能 — github-absorb 内容更新 |
 | v5.4.19 | 2026-07-09 | 102技能 — 14技能内容同步(writing-skills/finishing-a-development-branch/answer/skill-evaluator/drawio-generation/ppt-template-filler/receiving-code-review/verification-before-completion/executing-plans/firecrawl-web/wsl-docker-deploy/ppt-structure-parser/github-absorb/baoyu-infographic) |
 | v5.4.18 | 2026-07-08 | 102技能 — 15技能内容更新(answer/baoyu-infographic/darwin-skill/drawio-generation/external-skill-evaluation/firecrawl-web/github-absorb/github-release-readme/ppt-structure-parser/ppt-template-filler/sketch/skill-evaluator/test-driven-development/wechat-article-archive/windows-troubleshooting-from-wsl; 常规同步) |
 | v5.4.17 | 2026-07-08 | 102技能 — +5 新增(executing-plans: 书面计划→独立会话执行；finishing-a-development-branch: 结构化收尾四向决策；receiving-code-review: 接收审查反馈——技术严谨优先于表演性同意；verification-before-completion: 完成前验证——证据先于声明；writing-skills: TDD方法论应用于Agent技能文档工程；开发工程 14→19) + 2技能内容同步(answer/github-absorb) |

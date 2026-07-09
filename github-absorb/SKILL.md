@@ -5,7 +5,7 @@ description: >-
   深度分析→业务价值评估→吸收策略分类→独立创建/吸收执行→网格化引用→
   单元测试+全业务链路测试→能力强化报告。触发信号：github.com 链接、
   "这个仓库怎么样"、"帮我看看这个项目"、"能不能用"、"吸收这个仓库"。
-version: 1.7.0
+version: 1.7.1
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -875,3 +875,6 @@ python3 ~/.hermes-feishu/skills/methodology/github-absorb/scripts/audit-referenc
 | API rate limit | 429 返回或 `raw.githubusercontent.com` 限流 | **不要反复重试 API**。立即 fallback 到 `git clone --depth 1 https://github.com/{owner}/{repo}.git /tmp/{repo}` 浅克隆到本地，之后所有文件读取改用 `read_file` / `cat` 直接读本地文件。clone 超时 120s 内通常可完成（仓库 <100MB）。若 clone 也失败，用 `web_search` 获取信息。 |
 | 用户中途改变需求 | 任意阶段 | 记录当前进度后调整方向 |
 | 配套微信文章无法直接访问 | `browser_navigate` 超时或返回空白 | 使用 CDP 浏览器 + `browser_console` 提取 `#js_content`（见 Phase 2.1b）。若 CDP 也不可用，仅基于代码分析评估 |
+| GitHub 下载极慢（中国大陆） | `curl` 速度 < 100KB/s，大文件（>100MB）下载需数小时 | **顺序尝试**：① 检测本机代理（`curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 http://127.0.0.1:7890`）→ ② 若有代理，用 `curl -L --proxy http://127.0.0.1:7890` 加速（通常 10-30s 完成 300MB+）→ ③ 无代理则试 ghproxy.net（对大文件仍慢）→ ④ 放弃二进制下载，走纯代码/文档评估或告知用户手动下载 |
+| Docker Hub 不可用（中国大陆） | `docker pull` 返回 EOF/超时，即使 `daemon.json` 已配代理 | Docker Desktop WSL2 后端不继承 Windows 代理设置。**不要反复重试**——立即切换到非 Docker 方案：桌面版安装包 / 裸金属部署 / 源码构建。对桌面 GUI 安装器，下载完成后告知用户路径让用户手动安装 |
+| 桌面应用安装器无自动化 | Release 含 `.exe`/`.dmg`/`.AppImage`，安装需 GUI 交互 | SYSTEM 会话不在用户桌面会话中，无法创建可见窗口。UAC 安全桌面隔离。**下载完成后立即告知用户文件路径，不浪费时间尝试自动化安装**。用户安装完成后回到流程做后续配置 |
