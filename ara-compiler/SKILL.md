@@ -156,7 +156,7 @@ metadata:
 ## 使用示例
 
 ```
-用户："编译这篇论文 C:/Users/Aorus/papers/attention.pdf"
+用户："编译这篇论文 /home/aorus/papers/attention.pdf"
 
 Hermes 加载 ara-compiler：
 → 阶段 1：提取 3 个 Gap、5 个 Claims、2 个 Experiments、12 个超参

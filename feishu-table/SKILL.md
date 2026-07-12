@@ -416,7 +416,7 @@ lark-cli api POST "/open-apis/sheets/v3/spreadsheets" \
 | 16 | **lark-cli api GET 的 parent_node_token 放 URL 会被忽略** | 必须用 `--params '{"parent_node_token":"xxx"}'` 标志传递查询参数，直接拼在 URL query string 中 API 会忽略并返回 root 节点。 |
 | 17 | **wiki +node-create 输出前3行是状态信息** | JSON 从第 4 行开始。解析前先 `tail -n +4` 或搜索第一个 `{"ok"` 位置。 |
 | 18 | **不能删除 Bitable 的最后一张表** | 错误码 800080004。必须先建新表，再删默认空表。 |
-| 19 | **lark-cli 不在 execute_code 的 PATH 中** | 完整路径 `C:/Users/Aorus/.local/bin/lark-cli`。或用 `terminal()` 运行脚本（PATH 正常）。 |
+| 19 | **lark-cli 不在 execute_code 的 PATH 中** | 完整路径 `/home/aorus/.local/bin/lark-cli`。或用 `terminal()` 运行脚本（PATH 正常）。 |
 | 20 | **+table-create 字段类型错误时表仍创建** | 传入错误的 type 值（如整数而非字符串）时，API 可能返回错误但仍创建了空表（只有默认 auto_number 字段）。检查 `+table-list` 确认，已创建的表需手动加字段或删除重建。 |
 | 20 | **+table-create 字段类型错误时表仍创建** | 传入错误的 type 值（如整数而非字符串）时，API 可能返回错误但仍创建了空表（只有默认 auto_number 字段）。检查 `+table-list` 确认，已创建的表需手动加字段或删除重建。 |
 | 21 | **+table-create 用 string type vs REST API 用 int type** | lark-cli CLI 用 `"text"`/`"number"`/`"datetime"`；REST API `+api POST .../tables` 用整数 1/2/5。混用会报 `800010701 Invalid discriminator`。 |

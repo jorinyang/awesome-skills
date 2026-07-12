@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """入库引擎 — 采集结果 → 飞书文档
 
-分类路由: 竞品关键词→EAMYw1CPoi / 行业→V0Lhwl7KYi
+分类路由: 竞品关键词→E7xyw9pSfibEEckZVEIcU5AynJs / 行业→MYQtwtPEOiu4nZkma9NcEEQ3n6V
 命名: YYYY-MM-DD_类型_主题
 
 Usage:
@@ -29,8 +29,8 @@ COMPETITOR_KW = re.compile(
     re.IGNORECASE,
 )
 
-COMPETITOR_NODE = "EAMYw1CPoipVWtkObbtcR2oDnNc"
-INDUSTRY_NODE = "V0Lhwl7KYiYDDk1vCncv2GhnYf"
+COMPETITOR_NODE = "E7xyw9pSfibEEckZVEIcU5AynJs"
+INDUSTRY_NODE = "MYQtwtPEOiu4nZkma9NcEEQ3n6V"
 DEFAULT_DELAY = 3   # seconds between API calls to avoid rate limit 99991400
 TIMEOUT = 60       # seconds for lark-cli subprocess
 LARK_CLI = shutil.which("lark-cli") or "C:/Users/Aorus/.local/bin/lark-cli"

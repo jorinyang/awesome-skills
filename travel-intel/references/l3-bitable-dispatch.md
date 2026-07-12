@@ -13,7 +13,7 @@ Cloud cron (travel-intel-collect, 07:00)
 WSL crontab (*/5 * * * *) → l3_poller.py
   ├─ 读取 Bitable pending tasks
   ├─ agent-browser 搜索 (百度/B站/头条)
-  ├─ 创建 Wiki 文档 (V0Lhwl7KYi / EAMYw1CPoi)
+  ├─ 创建 Wiki 文档 (MYQtwtPE / E7xyw9pS)
   └─ 更新 Bitable 状态
 ```
 

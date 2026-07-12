@@ -31,7 +31,7 @@
 | 子分类 parent token | `3380002 Parent node not found` | 统一使用 `UF7Cw5w2WiHGfjkKVvBcxj8Hnib`（咨询洞察一级） |
 | **page-limit 截断** | **漏掉最新文档 → Broken pipe** | **所有 node-list 加 --page-limit 25** |
 
-**文档搜索必须三节点并查**：子分类（V0Lhwl7KYi/EAMYw1CPoi）+ 一级分类（UF7Cw5w2Wi），因为 6月5日起新文档全在一级分类下。
+**文档搜索必须两节点并查**：行业资讯（MYQtwtPE）+ 竞品动态（E7xyw9pS），加上一级分类（UF7Cw5w2Wi）中的旧文档。旧子分类节点(V0Lhwl7KYi/EAMYw1CPoi)已彻底失效(131005)，新建子分类节点已恢复。
 
 ### 0. 周度分析 Monday Cron 特殊处理（CRITICAL — 先执行）
 
@@ -60,7 +60,7 @@
 **检测已有报告 — 必须三节点并查（2026-06-06 更新）：**
 ```bash
 # 三节点都要查，因为6月5日起新文档在 UF7Cw5w2Wi 下
-for tok in V0Lhwl7KYiWYDDk1vCncv2GhnYf EAMYw1CPoipVWtkObbtcR2oDnNc UF7Cw5w2WiHGfjkKVvBcxj8Hnib; do
+for tok in MYQtwtPEOiu4nZkma9NcEEQ3n6V E7xyw9pSfibEEckZVEIcU5AynJs UF7Cw5w2WiHGfjkKVvBcxj8Hnib; do
   echo "=== token=$tok ==="
   lark-cli wiki +node-list --space-id 7643710721485753535 \
     --parent-node-token $tok --page-all --page-limit 25 --as bot 2>&1 \
@@ -70,7 +70,7 @@ done
 
 **检测周日新文档（同样三节点）：**
 ```bash
-for tok in V0Lhwl7KYiWYDDk1vCncv2GhnYf EAMYw1CPoipVWtkObbtcR2oDnNc UF7Cw5w2WiHGfjkKVvBcxj8Hnib; do
+for tok in MYQtwtPEOiu4nZkma9NcEEQ3n6V E7xyw9pSfibEEckZVEIcU5AynJs UF7Cw5w2WiHGfjkKVvBcxj8Hnib; do
   lark-cli wiki +node-list --space-id 7643710721485753535 \
     --parent-node-token $tok --page-all --page-limit 25 --as bot 2>&1 \
     | grep -c "YYYY-MM-DD"  # 周日的日期
@@ -143,16 +143,16 @@ week_str = f"{today.year}_{monday.isocalendar()[1]:02d}周"
 
 ### 2. 列出三节点本周文档（并行）★
 
-> ⚠️ **三节点必须全查 (2026-06-06 验证):** 子分类 token (V0Lhwl7KYi, EAMYw1CPoi) 虽对 `docs +create` 返回 3380002，但对 `wiki +node-list` **仍可正常列出历史文档**。但 6月5日起新文档统一创建在「咨询洞察」一级分类下（UF7Cw5w2Wi），**仅查子分类会漏掉最新的每日简报和采集文档**。必须三节点并查。
+> ⚠️ **两节点必须全查 (2026-07-04 更新):** 子分类节点已在咨询洞察下重建（行业=MYQtwtPE, 竞品=E7xyw9pS），新文档直接创建在对应子分类下。同时需检查一级分类（UF7Cw5w2Wi）中的历史文档。旧子分类(V0Lhwl7KYi, EAMYw1CPoi)已永久失效(131005)。
 
 ```bash
 # 行业资讯（子分类 — 含6月4日前的历史文档）
 lark-cli wiki +node-list --space-id 7643710721485753535 \
-  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-all --page-limit 25 --as bot
+  --parent-node-token MYQtwtPEOiu4nZkma9NcEEQ3n6V --page-all --page-limit 25 --as bot
 
 # 竞品动态（子分类 — 含6月4日前的历史文档）
 lark-cli wiki +node-list --space-id 7643710721485753535 \
-  --parent-node-token EAMYw1CPoipVWtkObbtcR2oDnNc --page-all --page-limit 25 --as bot
+  --parent-node-token E7xyw9pSfibEEckZVEIcU5AynJs --page-all --page-limit 25 --as bot
 
 # ★ 咨询洞察一级分类（含6月5日起的新文档 — 每日简报/综合洞察都可能在此）
 lark-cli wiki +node-list --space-id 7643710721485753535 \
@@ -230,7 +230,7 @@ cd /tmp && lark-cli docs +create --api-version v2 \
   --content "$(cat w25_insight.md)" \
   --as bot
 
-# ★ 必须使用一级分类 token（咨询洞察），子分类 V0Lhwl7KYi/EAMYw1CPoi 已全量 3380002
+# ★ 使用子分类 token（行业=MYQtwtPE, 竞品=E7xyw9pS），2026-07-04 已重建
 # ★ API v2 用 --doc-format markdown + --parent-token（非 --wiki-node）
 # ★ --title 已废弃 — 标题来自 Markdown 中第一个 # heading
 # ★ --wiki-space / --wiki-node 已废弃 — 统一用 --parent-token

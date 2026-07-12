@@ -29,8 +29,8 @@ COMPETITOR_KW = re.compile(
     r"桨板|SUP|竞品|新品上线|价格调整|营销活动|促销",
     re.IGNORECASE,
 )
-COMPETITOR_NODE = "EAMYw1CPoipVWtkObbtcR2oDnNc"  # ⚠️ stale 2026-06-04 (3380002)
-INDUSTRY_NODE = "V0Lhwl7KYiWYDDk1vCncv2GhnYf"    # ⚠️ stale 2026-06-04 (3380002)
+COMPETITOR_NODE = "E7xyw9pSfibEEckZVEIcU5AynJs"  # ⚠️ stale 2026-06-04 (3380002)
+INDUSTRY_NODE = "MYQtwtPEOiu4nZkma9NcEEQ3n6V"    # ⚠️ stale 2026-06-04 (3380002)
 FALLBACK_NODE = "UF7Cw5w2WiHGfjkKVvBcxj8Hnib"    # ✅ 一级分类 咨询洞察 (confirmed working)
 # Use FALLBACK_NODE as primary until sub-tokens are refreshed
 DEFAULT_NODE = FALLBACK_NODE

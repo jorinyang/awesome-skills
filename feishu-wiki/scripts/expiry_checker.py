@@ -116,15 +116,15 @@ def get_date(item):
             pass
     return None
 
-LARK_CLI = "C:/Users/Aorus/AppData/Roaming/npm/lark-cli.cmd"
-
 def add_comment(doc_token, text):
+    env = os.environ.copy()
+    env["PATH"] = os.path.expanduser("~/.local/bin") + ":" + env.get("PATH", "")
     cj = json.dumps([{"type": "text", "text": text}], ensure_ascii=False)
     r = subprocess.run(
-        [LARK_CLI, "drive", "+add-comment",
+        ["lark-cli", "drive", "+add-comment",
          "--doc", doc_token, "--type", "docx", "--full-comment",
          "--content", cj, "--as", "bot"],
-        capture_output=True, text=True, timeout=15)
+        capture_output=True, text=True, timeout=15, env=env)
     raw = r.stdout.strip() or r.stderr.strip()
     try:
         resp = json.loads(raw)

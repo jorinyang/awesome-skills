@@ -1,6 +1,6 @@
 # 事后分拣工作流 — 一级分类 → 子分类批量移动
 
-> **背景**：行业资讯 (`V0Lhwl7KYi`) 和竞品动态 (`EAMYw1CPoi`) 的 node_token 在 doc create 时返回 3380002，但 **Move API 不受影响**。新文档创建在咨询洞察一级 (`UF7Cw5w2Wi`) 下，需定期通过 Move API 分拣到子分类。
+> **背景**：行业资讯 (`MYQtwtPE`) 和竞品动态 (`E7xyw9pS`) 的 node_token 在 doc create 时返回 3380002，但 **Move API 不受影响**。新文档创建在咨询洞察一级 (`UF7Cw5w2Wi`) 下，需定期通过 Move API 分拣到子分类。
 
 ## 前提条件
 
@@ -52,8 +52,8 @@ def fetch_children(page_token=None):
 ### Step 3: 批量移动
 
 ```python
-target_parent = 'V0Lhwl7KYiWYDDk1vCncv2GhnYf'  # 行业资讯
-# 或 'EAMYw1CPoipVWtkObbtcR2oDnNc'  # 竞品动态
+target_parent = 'MYQtwtPEOiu4nZkma9NcEEQ3n6V'  # 行业资讯
+# 或 'E7xyw9pSfibEEckZVEIcU5AynJs'  # 竞品动态
 
 import time
 

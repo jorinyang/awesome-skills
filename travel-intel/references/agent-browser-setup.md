@@ -168,7 +168,7 @@ document.querySelectorAll('a')
 
 ```bash
 lark-cli docs +create \
-  --wiki-node "EAMYw1CPoipVWtkObbtcR2oDnNc" \
+  --wiki-node "E7xyw9pSfibEEckZVEIcU5AynJs" \
   --title "文档标题" \
   --markdown "**通道:** L1 | **来源:** baidu\n\n**原文链接:** https://..." \
   --as bot

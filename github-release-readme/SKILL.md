@@ -73,16 +73,27 @@ cd /tmp && rm -rf awesome-skills
 git clone --depth 1 https://github.com/jorinyang/awesome-skills.git
 
 # 扫描本地 + GitHub 双源（使用 skill 自带的 scan_inventory.py）
-python3 scripts/scan_inventory.py
+# ⚠️ 不要直接用 os.walk/find -L — 见下方 Pitfall
+python3 "$(readlink -f ~/.hermes-feishu/skills/github/github-release-readme/scripts/scan_inventory.py)"
 ```
+
+⚠️ **Pitfall: `os.walk` / `find -L` 在 200+ symlink 环境下必超时**
+
+本地技能目录含 200+ 个 symlink（跨 profile 链接、分类子目录链接、循环链接）。
+- `os.walk(followlinks=False)`（默认）：不穿透 symlink 目录 → 只扫到 55/141 技能
+- `os.walk(followlinks=True)` + ELOOP filter：指数级重复遍历 → 60s 超时
+- `find -L -maxdepth 2`："Too many levels of symbolic links" 陷入循环 → 超时
+
+**正确方案**：shell glob（`for d in base/*/; do ... done`）。Bash glob 只展开一层目录入口，
+对每个入口直接检查 `SKILL.md` 是否存在，然后最多再展开一层子目录。这完全避免了 symlink
+循环问题。`scan_inventory.py` v3.0 已改用此方案（`subprocess.run` 调用 shell glob）。
 
 **扫描输出示例**：
 ```
-本地: 124 技能 | GitHub: 102 技能
-  共享: 87 | 仅本地: 37 | 仅GitHub: 6
-  本地独有-应同步(自建+三方): 8
-  本地独有-官方/插件(排除): 29
-  内容差异: 12
+本地: 141 技能 | GitHub: 96 技能
+  共享: 91 | 仅本地: 50 | 仅GitHub: 5
+  本地独有-应同步(自建+三方): 0
+  待更新(内容差异): 12
 ```
 
 ### Phase 2: 技能分类
@@ -169,6 +180,20 @@ find "$DST" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
 | `cp -rL` | 递归复制 + 穿透所有层级 symlink | `cp -a`（保留 symlink → GitHub 死链接） |
 | `cp -rL` 而非 `cp -r` | 穿透目录级和文件级 symlink | `cp -r` 只处理文件，目录 symlink 仍保留 |
 
+⚠️ **Pitfall: "待更新"技能在 `~/.hermes-feishu/skills/` 下找不到**
+
+`scan_inventory.py` 会扫描所有本地 profile 的技能目录（`~/.hermes/skills/`、`~/.hermes-feishu/skills/` 等），但 Phase 3 的复制指令只覆盖 `~/.hermes-feishu/skills/`。当扫描报告的某个"待更新"技能实际在另一个 profile 下时，`find ~/.hermes-feishu/skills/ -name <skill>` 将返回空。
+
+- **症状**：扫描列出 15 个"待更新"，但手动 `find` 在 `~/.hermes-feishu/skills/` 下只找到 11 个
+- **处理**：先搜 `~/.hermes-feishu/skills/`，找不到则搜 `~/.hermes/skills/`，仍找不到则**跳过**该技能（它可能已被从本地删除但 GitHub 上仍保留旧版；不删除 GitHub 上的副本，也不凭空更新）
+- **搜索命令**：
+  ```bash
+  # 先在主 profile 找
+  src_dir=$(find ~/.hermes-feishu/skills/ -maxdepth 3 -name "$skill" -type d 2>/dev/null | head -1)
+  # 找不到则搜其他 profile
+  [ -z "$src_dir" ] && src_dir=$(find ~/.hermes/skills/ -maxdepth 3 -name "$skill" -type d 2>/dev/null | head -1)
+  ```
+
 ### Phase 4: README 自动更新
 
 基于 GitHub 实际技能清单，更新以下内容：
@@ -243,6 +268,26 @@ git push origin main  # 在 terminal(background=true, notify_on_complete=true) �
 
 ⚠️ **WSL push 铁律**：`git push`（包括 `git push origin main` 和 `git push origin vX.Y.Z`）在 WSL 前台模式下总是超时。必须使用 `terminal(background=true, notify_on_complete=true)`。
 
+⚠️ **Pitfall: 远程竞态条件（Remote Race Condition）**
+
+其他 cron 任务或手动操作可能在你扫描和推送之间已经推送了新版本。如果 push 被 reject：
+
+1. `git pull --rebase origin main`
+2. 如有冲突：`git rebase --abort` → `git reset --hard origin/main` → 重新应用变更
+3. 版本号升级（如远程已有 v5.4.12，则本地变更为 v5.4.13）
+4. 重新 commit + push
+
+⚠️ **Pitfall: WSL git push 凭证链断裂**
+
+在 cron 环境下，`gh auth git-credential` helper 可能不可用（非交互式终端、PATH 差异）。
+多重试模式均可能失败：
+- 标准 `git push origin main` → SSL timeout / Username prompt
+- `export GITHUB_TOKEN=$(gh auth token)` → 被安全系统拦截（sensitive_env_export）
+- `git push https://jorinyang:${TOKEN}@github.com/...` → credential helper 冲突
+
+**最可靠方案**：`gh release create` 自带完整的 GitHub 认证，创建 Release 时会自动推送关联的 tag。
+主分支 push 仍走 `git push`（后台模式），tag push 不再需要单独执行——`gh release create` 一体化处理。
+
 ### Phase 6: 创建 Release（必做 🔴）
 
 > 🔴 **铁律：每次同步必须创建 Release。** 这是全自动闭环的最后一步，不可跳过。
@@ -250,24 +295,32 @@ git push origin main  # 在 terminal(background=true, notify_on_complete=true) �
 > 因为 Phase 6 被当作"可选"跳过了 5 个版本。
 
 ```bash
-# 1. 写 release notes（⚠️ 用 write_file 而非 heredoc——见下方 Pitfall）
-#    然后用 gh release create --notes-file 引用
-
-# 2. 创建 tag（如果 Phase 5 未创建）
-git tag -a "v{M}.{m}.{p}" -m "v{M}.{m}.{p} — {一句话总结}"
-#    ⚠️ tag push 也需要后台模式（WSL 前台同样超时）
-git push origin "v{M}.{m}.{p}"  # 在 terminal(background=true) 中执行
-
-# 3. 创建 Release
+# 方案A（推荐）：gh release create 一体化 — 自动创建 tag + push tag + 创建 Release
+#   gh 自带完整 GitHub 认证，不会遇到 git push 的凭证链断裂问题
 gh release create "v{M}.{m}.{p}" \
   --title "v{M}.{m}.{p} — {一句话总结}" \
-  --notes-file /tmp/release_notes.md
+  --notes-file /tmp/release_notes.md \
+  --repo jorinyang/awesome-skills
 
-# 4. 验证
+# 方案B（备用）：手动 git tag + push + gh release create
+#   仅在方案A不可用时使用；tag push 同样需要后台模式
+git tag -a "v{M}.{m}.{p}" -m "v{M}.{m}.{p} — {一句话总结}"
+# tag push 后台模式（WSL 前台超时）
+git push origin "v{M}.{m}.{p}"  # terminal(background=true, notify_on_complete=true)
+gh release create "v{M}.{m}.{p}" \
+  --title "v{M}.{m}.{p} — {一句话总结}" \
+  --notes-file /tmp/release_notes.md \
+  --repo jorinyang/awesome-skills
+
+# 验证
 gh release view "v{M}.{m}.{p}" --repo jorinyang/awesome-skills
 ```
 
-⚠️ **Pitfall: heredoc 写 release notes 被安全系统拦截**
+> ⚠️ `gh release create` 在本地已有未推送 tag 时，会自动将 tag 一起推送到 GitHub。因此方案A
+> 可以完全替代「手动 git tag + git push tag + gh release create」三步操作，极大降低
+> WSL 环境下的凭证问题。
+
+⚠️ **Pitfall: heredoc 写 release notes 被安全系统拦截** （同上）
 
 当 release notes 中包含安全敏感模式（如 `find -delete` 作为文档文本）时，`cat > /tmp/release_notes.md << 'RNEOF'` 形式的 heredoc 会被 Hermes Agent 安全系统识别为 "find -delete" 模式并触发审批（`pending_approval`）。在 cron 模式下审批静默失败，导致 release notes 文件为空。
 
@@ -319,6 +372,8 @@ gh release view "v{M}.{m}.{p}" --repo jorinyang/awesome-skills
 A: 检查 SKILL.md 中是否有 `plugin:` / `superpowers:` 标记，或来源是否为 Hermes 官方仓库。详见 `references/skill-source-analysis.md` 四维判定方法论。lark-cli/lark-* 系列虽然部分自建，但因含飞书内部 API 配置，也划为"仅本地"。
 
 ### Q: 遇到 symlink 怎么办？
+
+详见 `references/symlink-safe-scanning.md` — 完整记录了三种遍历方法在 200+ symlink 环境下的失败模式和 shell-glob 替代方案。
 A: 本地技能目录使用 `hermes-instance-sync` 创建了大量软链接（当前 212 个）。
 - **读取前**：`readlink -f <path>` 解析到真实文件
 - **复制时**：`cp -rL` 穿透所有层级 symlink，复制真实内容
@@ -358,7 +413,7 @@ A: 先不要假设是 GitHub 问题。按 `references/troubleshooting-connectivi
 > 只有「≥3 技能新增/删除」或「分类/目录重构」才升级 MINOR。
 > MAJOR 不自行决定，必须用户明确要求。
 
-当前：v5.4.3 (93 技能 — 全根目录，8 分类)
+当前：v5.4.14 (96 技能 — 全根目录，8 分类)
 
 ---
 

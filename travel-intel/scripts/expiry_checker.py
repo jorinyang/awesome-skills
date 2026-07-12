@@ -10,8 +10,9 @@ import argparse, datetime, json, logging, os, re, subprocess, sys, time, yaml
 
 log = logging.getLogger(__name__)
 RULES_FILE = os.path.join(os.path.dirname(__file__), "..", "references", "expiry-rules.yaml")
-NODES = ["V0Lhwl7KYiWYDDk1vCncv2GhnYf", "EAMYw1CPoipVWtkObbtcR2oDnNc",
-         "UF7Cw5w2WiHGfjkKVvBcxj8Hnib"]
+# 2026-07-04: V0Lhwl7KYi (行业资讯) and EAMYw1CPoi (竞品动态) 子分类节点
+# 已全部 131005 not found。仅保留一级分类「咨询洞察」节点。
+NODES = ["UF7Cw5w2WiHGfjkKVvBcxj8Hnib"]
 SPACE_ID = "7643710721485753535"
 TZ = datetime.timezone(datetime.timedelta(hours=8))
 TIMEOUT = 20
@@ -169,6 +170,10 @@ def list_docs(node_token):
         )
         try:
             data = json.loads(r.stdout)
+            code = data.get("code", 0)
+            if code != 0:
+                log.warning("node %s: API error code=%s msg=%s", node_token[:12], code, data.get("msg", ""))
+                break
             inner = data.get("data", data)
             nodes = inner.get("nodes", inner.get("items", []))
             if not nodes:

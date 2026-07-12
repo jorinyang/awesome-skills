@@ -268,33 +268,6 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 → 详细案例数据见 [references/skilllens-evidence.md](references/skilllens-evidence.md)
 → 收敛数据与天花板分析见 [references/convergence-data-14skills-6rounds.md](references/convergence-data-14skills-6rounds.md)
 
-## Git 仓库不可用时的降级模式（实测 2026-07-02）
-
-当 `~/.hermes-feishu/skills/` 顶层不是 git 仓库时（`git rev-parse --is-inside-work-tree` 失败），按以下降级流程执行，**不要**自作主张 `git init`（仓库初始化是用户决策，涉及 `.gitignore` 策略、远程仓库、首次 commit message）：
-
-```
-1. 检测 git → 失败 → 进入降级模式
-2. 仅执行 Phase 1 基线评分（9 维 dry_run）
-3. results.tsv 仍写入，commit 字段填 `nogit-<date>` 占位
-4. 日报标题加 ⚠️ Git 不可用 标记
-5. 「优化详情」段全部状态 = 跳过（Git 不可用）
-6. 「仍需关注」段重点标注高风险低分技能
-7. 关键发现加行动项：建议用户在桌面时段 git init
-```
-
-**恢复命令**（一次性，用户可控时段执行）：
-
-```bash
-cd ~/.hermes-feishu/skills/
-git init
-git add -A
-git commit -m "snapshot: pre-darwin baseline 2026-07-02"
-```
-
-建议 `.gitignore` 忽略：`__pycache__/`、`*.pyc`、`data/`、`*.log`。
-
-**降级 cron 仍有价值**：基线评分是发现结构缺失技能（如无 workflow 结构的 search-fallback 52.7 分）的唯一手段；纯依赖优化循环会漏掉这类严重缺失。
-
 ---
 
 ## 优化策略库（按优先级）

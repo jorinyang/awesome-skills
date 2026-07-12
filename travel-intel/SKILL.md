@@ -11,7 +11,7 @@ triggers:
   - "travel-intel query"
 tags: [travel, intel, collector, reporter, querier, 贵州之客]
 category: travel
-version: 1.5.6
+version: 1.6.0
 dependencies:
   skills: [feishu-wiki, opencli]
   commands: [lark-cli, agent-browser, opencli]
@@ -29,7 +29,7 @@ dependencies:
   ├─ L1b: opencli 微博热搜+知乎热榜 (WSL本地 06:35) ★新增
   ├─ L2: urllib 站点直抓 (云端 07:00)
   ├─ L3: Bitable 队列分发 → agent-browser 深度搜索 (WSL本地 每5分钟)
-  ├─ 分类路由：竞品→EAMYw1CPoi / 行业→V0Lhwl7KYi (⚠️ 子分类已失效→回退至UF7Cw5w2Wi)
+  ├─ 分类路由：竞品→VYsjwBZ6Ri / 行业→WnAmwXK6xi (✅ 2026-07-04 节点重建)
   └─ 同 URL 去重
       ↓
 校验层 (Expiry)
@@ -50,9 +50,9 @@ dependencies:
 
 | 节点 | Wiki Token | 所属分类 | 内容 |
 |------|-----------|---------|------|
-| 行业资讯 | `V0Lhwl7KYiWYDDk1vCncv2GhnYf` | 咨询洞察 | 政策/景点/交通/酒店/活动/报告 |
-| 竞品动态 | `EAMYw1CPoipVWtkObbtcR2oDnNc` | 咨询洞察 | 竞品价格/新品/营销/社媒 |
-| **🔧 咨询洞察(一级)** | **`UF7Cw5w2WiHGfjkKVvBcxj8Hnib`** | **一级分类回退** | **2026-06-04确认：子分类token全部3380002，入库统一使用此token** |
+| 行业资讯 | `WnAmwXK6xiqlh3kXGN6cHYGinxe` | 咨询洞察 | 政策/景点/交通/酒店/活动/报告 |
+| 竞品动态 | `VYsjwBZ6Rif5dFkboigchjgDnac` | 咨询洞察 | 竞品价格/新品/营销/社媒 |
+| **咨询洞察(一级)** | **`UF7Cw5w2WiHGfjkKVvBcxj8Hnib`** | **一级分类** | **回退节点；正常情况使用子分类** |
 | L3 任务队列 | `TDYYwZ0T0ifLtdkK9iOcp2HTnwf` (Bitable) | 咨询洞察·行业资讯下 | 深度搜索关键词队列 |
 | Space ID | `7643710721485753535` | | |
 | 推送群 | `oc_40570cc921ca1f645f8667151c1e85e6` | | |
@@ -139,8 +139,8 @@ L1 通用搜索:
   └─ 🔍 夸克 10 关键词        → ~34条  (攻略/8264/跨平台)
 
 去重 → lark-cli → 飞书 Wiki
-  ├─ 行业资讯 V0Lhwl7KYiWYDDk1vCncv2GhnYf
-  └─ 竞品动态 EAMYw1CPoipVWtkObbtcR2oDnNc
+  ├─ 行业资讯 WnAmwXK6xiqlh3kXGN6cHYGinxe
+  └─ 竞品动态 VYsjwBZ6Rif5dFkboigchjgDnac
 ```
 
 **平台实测结果 (2026-05-30, 更新 2026-06-01):**
@@ -226,7 +226,7 @@ python3 scripts/l2_prefilter.py
 | 竞品动态 | 探洞|天坑|桨板|SUP|竞品|新品|价格调整|营销|
 | 行业资讯 | 其余全部 + 政策|规划|景区|5A|旅居|康养|酒店|交通|节庆|
 
-> ⚠️ 由于子分类 token 3380002 问题，新文档统一创建在「咨询洞察」一级分类下，需定期通过 Move API 分拣至子分类。完整工作流见 [references/reclassification-workflow.md](references/reclassification-workflow.md)。
+> ✅ 2026-07-04 节点重建后，新文档直接创建在对应子分类下。分拣工作流已废弃，保留 [references/reclassification-workflow.md](references/reclassification-workflow.md) 作为故障恢复参考。
 
 ### 命名规范
 
@@ -336,7 +336,7 @@ Wiki 搜索 → 过期降权(过滤权重<30%) → 有效结果？
 | l2_collect.py | `skills/travel/travel-intel/scripts/l2_collect.py` | L2 urllib 站点直抓 (品橙/迈点/闻旅/执惠) — cron 直接调用 |
 | l2_ingestor.py | `skills/travel/travel-intel/scripts/l2_ingestor.py` | L2 urllib 结果入库 (替代有 bug 的 ingestor.py，批冷却防限流) |
 | l2_prefilter.py | `skills/travel/travel-intel/scripts/l2_prefilter.py` | L2 三阶段预过滤：去模板 → 旅行关键词 → 去导航+去重 |
-| ingestor.py | `skills/travel/travel-intel/scripts/ingestor.py` | 通用入库引擎 (⚠️ 当前有 3380002 bug，建议用 l2_ingestor.py) |
+| ingestor.py | `skills/travel/travel-intel/scripts/ingestor.py` | 通用入库引擎 (✅ 2026-07-04 节点重建后可用，l2_ingestor.py 仍为首选) |
 | browser_collector.py | `skills/travel/travel-intel/scripts/browser_collector.py` | L1a 百度+夸克 agent-browser 采集 |
 | hotlist_collector.py | `skills/travel/travel-intel/scripts/hotlist_collector.py` | L1b 微博+知乎 opencli 热榜采集 |
 | classify_daily_docs.py | `skills/travel/travel-intel/scripts/classify_daily_docs.py` | 每日简报分类脚本：wiki node-list输出→按贵州/户外/政策/常规分组 |
@@ -522,7 +522,7 @@ travel-intel-insight (周六 10:00 综合洞察) 可能已为当前周生成了 
 ```bash
 # Step 1: 检测已有报告
 lark-cli wiki +node-list --space-id 7643710721485753535 \
-  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-all --as bot 2>&1 \
+  --parent-node-token WnAmwXK6xiqlh3kXGN6cHYGinxe --page-all --as bot 2>&1 \
   | grep "{YYYY}_WW周_周度分析"
 
 # Step 2: 如存在 → grep 检查周日新增文档 → 读取最新每日简报 → append 补充
@@ -709,22 +709,22 @@ curl -sL 'https://www.meadin.com/wl/' | grep -c '<img alt='
 
 ### 过期校验覆盖缺口：顶层节点未扫描 (2026-06-09, ✅ 已修复 2026-06-10) ★
 
-`expiry_checker.py` 仅扫描两个子分类节点（`V0Lhwl7KYi` + `EAMYw1CPoi`），但子分类 token 3380002 失效后，L1/L2/L3 新增文档统一创建在「咨询洞察」一级节点 `UF7Cw5w2Wi` 下。**这些新文档完全不在过期扫描范围内**。
+`expiry_checker.py` 仅扫描两个子分类节点（`WnAmwXK6xi` + `VYsjwBZ6Ri`），但子分类 token 3380002 失效后，L1/L2/L3 新增文档统一创建在「咨询洞察」一级节点 `UF7Cw5w2Wi` 下。**这些新文档完全不在过期扫描范围内**。
 
 > **2026-06-10 已修复**: `expiry_checker.py` L13 已更新，NODES 列表加入 `UF7Cw5w2WiHGfjkKVvBcxj8Hnib`。现在三节点全量覆盖：行业资讯 593 + 竞品动态 333 + 咨询洞察 527 = 1,453 篇。
 
 2026-06-09 巡检数据（修复前）：
 | 扫描节点 | 文档数 | 状态 |
 |----------|:--:|------|
-| 行业资讯 `V0Lhwl7KYi` | 593 | 已覆盖 |
-| 竞品动态 `EAMYw1CPoi` | 333 | 已覆盖 |
+| 行业资讯 `WnAmwXK6xi` | 593 | 已覆盖 |
+| 竞品动态 `VYsjwBZ6Ri` | 333 | 已覆盖 |
 | **咨询洞察 `UF7Cw5w2Wi`** | **432** | **❌ 未覆盖** |
 
 2026-06-10 巡检数据（修复后）：
 | 扫描节点 | 文档数 | 状态 |
 |----------|:--:|------|
-| 行业资讯 `V0Lhwl7KYi` | 593 | ✅ 已覆盖 |
-| 竞品动态 `EAMYw1CPoi` | 333 | ✅ 已覆盖 |
+| 行业资讯 `WnAmwXK6xi` | 593 | ✅ 已覆盖 |
+| 竞品动态 `VYsjwBZ6Ri` | 333 | ✅ 已覆盖 |
 | 咨询洞察 `UF7Cw5w2Wi` | 527 | ✅ 已覆盖 |
 | **合计** | **1,453** | **全量覆盖**
 
@@ -815,21 +815,41 @@ lark-cli api GET "/open-apis/bitable/v1/apps/TDYYwZ0T0ifLtdkK9iOcp2HTnwf/tables"
 # 正常返回 tables 列表，包含 tblVKG82oOl3UaNW
 ```
 
-### 子分类 node_token 全量 3380002 确认 + 回退验证 (2026-06-04) ★
+### 子分类节点物理删除 (131005) + 重建流程 (2026-07-04) ★★★
 
-`V0Lhwl7KYiWYDDk1vCncv2GhnYf` (行业资讯) 和 `EAMYw1CPoipVWtkObbtcR2oDnNc` (竞品动态) 两个子分类 token 已**确认全部失效**。l2_ingestor.py 使用这两个 token 作为 `--parent-token` 时，100% 返回 3380002 "Parent node not found"（69 条全量失败）。
+子分类节点被物理删除后返回 `131005 not found`（区别于 `3380002 Parent node not found`）。`3380002` 是 token 仍在 wiki 树中但创建文档时挂载失败；`131005` 是节点不存在——**历史文档随节点删除永久丢失**。
 
-**回退验证**：改用一级分类 token `UF7Cw5w2WiHGfjkKVvBcxj8Hnib`（咨询洞察）后，69/69 条全部成功创建，零失败。批冷却 12s/8条 + 每条 4s 延迟策略有效，未触发 99991400 限流。
+**重建步骤：**
+```bash
+# REST API 创建 wiki 节点（lark-cli wiki +node-create 也可用，但只创建 docx origin）
+lark-cli api POST "/open-apis/wiki/v2/spaces/{space_id}/nodes" \
+  --as bot \
+  --data '{"parent_node_token":"PARENT_TOKEN","node_type":"origin","obj_type":"docx","title":"行业资讯"}'
+```
 
-**★ Move API 不受影响 (2026-06-05 验证)**：3380002 仅影响 `docs +create` 的 `--parent-token` 参数。**Move API (`POST /wiki/v2/spaces/{id}/nodes/{nt}/move`) 使用 `target_parent_token` 仍可正常将文档移入子分类节点**。这意味着事后分拣完全可行——文档先创建在一级分类下，再通过 Move API 批量移入行业资讯/竞品动态。
+**重建后必须更新的文件（7+个）：**
 
-**对策**：
-1. `l2_ingestor.py` 已改为统一使用 `UF7Cw5w2WiHGfjkKVvBcxj8Hnib` 作为默认 parent token
-2. L1 采集脚本（browser_collector.py, hotlist_collector.py）需同步更新，使用一级分类 token
-3. 文档创建在「咨询洞察」一级分类下 → 通过 Move API 批量分拣至子分类（见 [references/reclassification-workflow.md](references/reclassification-workflow.md)）
-4. 飞书 UI 中删除旧子分类节点并重建，可使 token 恢复（但需手动重新挂载现有文档）
+| 文件 | 更新内容 |
+|------|---------|
+| `SKILL.md` | 存储节点表（全 token）、架构图注释、代码示例中的 token |
+| `expiry_checker.py` | `NODES` 列表 |
+| `l2_ingestor.py` | `COMPETITOR_NODE`/`INDUSTRY_NODE`/`DEFAULT_NODE` |
+| `ingestor.py` | 同上 |
+| `querier.py` | `WIKI_NODES` |
+| `classify_daily_brief.py` | `V0_TOKEN`/`EA_TOKEN` |
+| `insight-execution-guide.md` | 三节点 token + 注释 |
+| `travel-intel-expire` cron prompt | token 引用 |
 
-**历史**：feishu-doc 技能中 2026-06-03 记录为「可能失效」，本日（2026-06-04）确认全部失效。2026-06-05 验证 Move API 不受影响。
+> ⚠️ 用 `replace_all` 分别替换全 token 和短 token（如 `V0Lhwl7KYiWYDDk1vCncv2GhnYf` 和短引用 `V0Lhwl7KYi`），确保代码块和注释内引用全部覆盖。
+
+**验证：** 节点重建后 `docs +create --parent-token <新token>` 直接写入 wiki 树正常，无需两步法。
+
+| 节点 | 旧 Token | 新 Token (2026-07-04) |
+|------|---------|----------------------|
+| 行业资讯 | ~~`V0Lhwl7KYiWYDDk1vCncv2GhnYf`~~ | `WnAmwXK6xiqlh3kXGN6cHYGinxe` |
+| 竞品动态 | ~~`EAMYw1CPoipVWtkObbtcR2oDnNc`~~ | `VYsjwBZ6Rif5dFkboigchjgDnac` |
+
+**历史 (2026-06-04)：** 原子分类 token 对 `docs +create` 全量返回 3380002。回退使用 UF7Cw5w2Wi 一级分类 + Move API 分拣方案运行至 7月4日节点重建。Move API 不受 3380002 影响。
 
 ### lark-cli 内容写入与验证陷阱 ★ (2026-06-01 定位+校正, 2026-06-15 更新)
 
@@ -969,7 +989,7 @@ except json.JSONDecodeError:
 **API 端点验证**：用 `lark-cli --dry-run` 确认正确端点格式（不要盲改 Python f-string）：
 ```bash
 lark-cli wiki +node-list --space-id 7643710721485753535 \
-  --parent-node-token V0Lhwl7KYiWYDDk1vCncv2GhnYf --page-size 3 --dry-run --as bot
+  --parent-node-token WnAmwXK6xiqlh3kXGN6cHYGinxe --page-size 3 --dry-run --as bot
 # 输出显示实际调用的 endpoint URL 和 params
 ```
 
