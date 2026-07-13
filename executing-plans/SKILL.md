@@ -1,7 +1,7 @@
 ---
 name: executing-plans
-description: 当你有书面的实现计划要在单独会话中执行，带审查检查点时使用——加载计划、批判性审查、执行所有任务、完成后报告。触发：执行计划/实现/按计划构建/跑任务清单
-version: 1.0.0
+description: 当有已编写好的实现计划需要逐步执行时使用（subagent-driven-development 的回退方案——当任务高度耦合或不适合并行子代理时）。触发词：执行计划/按计划做/按方案执行/按任务清单构建/逐步实现/照计划来/implement plan
+version: 1.0.1
 author: 杨瑒 (月夜)
 metadata:
   hermes:

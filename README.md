@@ -592,6 +592,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.22 | 2026-07-14 | 102技能 — 5技能内容同步(executing-plans/finishing-a-development-branch/receiving-code-review/verification-before-completion/writing-skills v1.0.0→v1.0.1)；3技能unclassified REPORT待用户决策(external-skill-evaluation/strategy-plan-writing/supabase-backend)；darwin-skill本地v2.1.2为Cron精简版(2271字节)，GH HEAD v2.1.1为完整版(20072字节)，按v5.4.21方向验证规则跳过避免倒退 |
 | v5.4.11 | 2026-07-04 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/feishu-wiki/github-absorb/github-release-readme/hermes-instance-sync/ppt-structure-parser/ppt-template-filler/skill-evaluator/travel-intel/trip-archive) |
 | v5.4.10 | 2026-07-04 | 96技能（+2 新增 ppt-structure-parser + ppt-template-filler：PPT模板拆解→页面库 + 跨模板拼装生成，回归 v5.4.9 误删的两技能；构建与设计 22→24）+ 20技能内容更新(answer/ara-compiler/darwin-skill/dingtalk-cli/external-skill-evaluation/feishu-doc/feishu-table/feishu-wiki/firecrawl-web/github-absorb/github-release-readme/hermes-instance-sync/jimeng-video/sketch/strategy-plan-writing/supabase-backend/test-driven-development/travel-intel/trip-archive/windows-troubleshooting-from-wsl) |
 | v5.4.9 | 2026-07-03 | 94技能（-2 移除：ppt-structure-parser + ppt-template-filler 迁移至独立仓库 jorinyang/ppt-engine-ref refactor；构建与设计 24→22；修复 badge 计数 96→94 + 移除遗留引用 + 安装脚本清理） |

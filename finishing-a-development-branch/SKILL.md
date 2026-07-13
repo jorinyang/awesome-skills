@@ -1,7 +1,7 @@
 ---
 name: finishing-a-development-branch
-description: 当实现完成、所有测试通过、需要决定如何集成工作时使用——通过结构化选项引导开发完成：合并、PR、保留或丢弃。触发：开发完成/合并分支/创建PR/收尾/发布
-version: 1.0.0
+description: 当开发分支上的所有任务完成、测试通过、需要决定如何集成代码时使用——提供结构化4选项（合并/PR/保留/丢弃）+工作区清理。触发词：开发完成/合并分支/创建PR/怎么合并/收尾/发版/发布版本/提交PR/merge/PR ready/git分支完成
+version: 1.0.1
 author: 杨瑒 (月夜)
 metadata:
   hermes:

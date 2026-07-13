@@ -1,12 +1,12 @@
 ---
 name: writing-skills
-description: 创建新技能、编辑已有技能、或在部署前验证技能有效性时使用——将 TDD 方法论应用于 Agent 技能文档工程。触发：创建技能/写skill/技能测试/skill验证/技能质量/技能反模式
-version: 1.0.0
+description: 当创建新技能、编辑已有技能、验证技能有效性、或提升技能质量时使用——TDD驱动的技能工程方法论。触发：创建新技能/写一个skill/新增技能/技能质量检查/技能测试/skill怎么写/skill模板/skill规范
+version: 1.0.1
 author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [skill-engineering, tdd, quality, methodology, meta-skill]
-    related_skills: [test-driven-development, skill-evaluator, benchmark-generator, darwin-skill, hermes-agent-skill-authoring]
+    related_skills: [test-driven-development, skill-evaluator, benchmark-generator, darwin-skill, hermes-agent-skill-authoring, verification-before-completion]
   source: 吸收自 https://github.com/obra/superpowers (v6.1.1)
 ---
 
