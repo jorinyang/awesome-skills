@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-102-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-101-blue)](.)
 
 ---
 
@@ -35,7 +35,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 ### 🧠 方法论 (23)
 
 | 技能 | 触发词 | 核心能力 |
-|------|--------|---------|
+|------|------|----------|
+| v5.4.23 | 2026-07-15 | 101技能 — +1 新增(web-spa: Web SPA 开发模式与陷阱——CSS居中+溢出坑/数据加载/JS作用域/选项格式化管道，构建与设计 22→23)；修复v5.4.22 pre-flight audit发现的README孤儿引用(ppt-structure-parser/ppt-template-filler已在commit da15e38删除但README未清理，构建与设计24→23)；answer SKILL.md新增docx-quiz-extraction.md reference + 更新related_skills；17 unclassified REPORT待用户决策 |
+|--------|---------|
 | [advanced-elicitation](advanced-elicitation/SKILL.md) | 深度审视/换个角度/red team | 69+3种追问方法，产出后自动触发多维审视 |
 | [author-methodology-analysis](author-methodology-analysis/SKILL.md) | 分析博主方法论/拆解公众号套路/提炼写作框架/内容方法论 | 21维度作者内容方法论分析→报告+文案框架+HTML看板+飞书同步 |
 | [blue-team](blue-team/SKILL.md) | 帮我看看这个方案/challenge一下 | 6阶段破坏性逻辑审查 |
@@ -59,7 +61,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-skills](writing-skills/SKILL.md) 🆕 | 创建技能/写skill/技能测试/技能验证/技能质量 | TDD驱动的技能工程——压力测试→基线失败→写技能→封堵漏洞 |
 | [verification-before-completion](verification-before-completion/SKILL.md) 🆕 | 完成了/修好了/通过了/发布/deploy/验证 | Iron Law门禁——证据先于声明，未验证不声称完成 |
 
-### 🏗️ 构建与设计 (24)
+### 🏗️ 构建与设计 (23)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -75,8 +77,6 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [fireworks-tech-graph](fireworks-tech-graph/SKILL.md) | 画图/架构图/流程图/可视化 | NL→SVG+PNG 技术图表，五维质控+轻量路由+设计语言注入 |
 | [hallmark](hallmark/SKILL.md) | 审查AI味/audit/发射前检查 | Anti-AI-slop 58道关卡质量门禁 |
 | [html-ppt](html-ppt/SKILL.md) | 做幻灯片/PPT/演示文稿 | HTML 幻灯片工厂 |
-| [ppt-structure-parser](ppt-structure-parser/SKILL.md) 🆕 | 解析PPT模板/拆PPT/PPT组件化 | PPT模板拆解→三级标签分类→可检索页面库 |
-| [ppt-template-filler](ppt-template-filler/SKILL.md) 🆕 | 组装PPT/做PPT/填充模板 | 页面库查询→跨模板拼装→四阶段流水线（匹配→分析→组装→校验） |
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo/高保真UI | HTML高保真原型/动画/幻灯片/品牌设计 |
 | [humanizer](humanizer/SKILL.md) | 去AI味/润色文案 | 29种文本模式去除AI写作痕迹 |
 | [pretext](pretext/SKILL.md) | 创意浏览器demo | @chenglou/pretext 创意 Demo |
@@ -86,6 +86,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [strategy-plan-writing](strategy-plan-writing/SKILL.md) | 写战略/写方案/商业计划 | 商业战略、运营规划、市场分析方案写作 |
 | [taste-skill](taste-skill/SKILL.md) | 设计方向/设计调参/风格方向 | 三旋钮(V/M/D)+Brief推断+风格预设——设计管线第一环 |
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
+| [web-spa](web-spa/SKILL.md) 🆕 | 写Web SPA/前端陷阱/全屏演示 | CSS居中+溢出坑、数据加载、JS作用域、选项格式化管道 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 
 ### 🔧 开发工程 (17)
@@ -555,7 +556,7 @@ for dir in */; do
     answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
     feishu-*|zhike-*|project-kanban) category="productivity" ;;
     travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|ppt-structure-parser|ppt-template-filler|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
+    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|web-spa|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
     ara-*) category="research" ;;
     subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
     supabase-backend|dingtalk-cli) category="devops" ;;

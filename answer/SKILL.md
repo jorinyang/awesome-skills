@@ -6,7 +6,7 @@ author: 杨瑒 (月夜)
 metadata:
   hermes:
     tags: [workflow, design-flow, builder, orchestrator]
-    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree]
+    related_skills: [advanced-elicitation, editorial-review-prose, editorial-review-structure, blue-team, huashu-design, feishu-html, feishu-doc, trip-landing, pm-prioritization-frameworks, stakeholder-mapping, opportunity-solution-tree, writing-skills, verification-before-completion, executing-plans]
 triggers:
   # 显式调用
   - "answer"
@@ -1338,5 +1338,6 @@ GitHub: **[jorinyang/answer](https://github.com/jorinyang/answer)** — SKILL.md
 | `lark-cli-v2-create-pitfalls.md` | `references/lark-cli-v2-create-pitfalls.md` | lark-cli v2 `docs +create` 三大坑：--title 废弃、@file 路径限制、两步法空文档 |
 | `standards-for-policy-docs.md` | `references/standards-for-policy-docs.md` | Phase 4 Standards 变体：内部制度/财务文档——中文变量、人话公式、计算器可验算 |
 | `pdf-generation-pipeline.md` | `references/pdf-generation-pipeline.md` | PDF 导出管线：Markdown→HTML→Playwright/Chromium PDF（替代 fpdf2/WeasyPrint） |
+| `docx-quiz-extraction.md` | `references/docx-quiz-extraction.md` | DOCX 题库提取：python-docx 预处理、状态机解析、去重策略、LLM vs 正则选型 |
 | CHANGELOG.md | GitHub 仓库 | 版本变更记录（v1.0 → v1.1.1） |
 | LICENSE | GitHub 仓库 | MIT 开源许可 |
