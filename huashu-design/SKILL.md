@@ -229,6 +229,8 @@ huashu-design 有**两层**设计参考，按需选用：
 | **设计Hero Section** — 9种构图变体+分节多样性规则（打破"左文右图"默认） | `references/hero-composition-variants.md`（吸收自 taste-skill/imagegen-frontend-web） |
 | **做Bento网格布局** — 无缝Bento规则/2行Hero铁律/AIDA页面结构 | `references/bento-grid-mastery.md`（吸收自 taste-skill/gpt-tasteskill） |
 | **做活动海报/物料效果图**（端午/节日活动宣传，KT板背板设计，签到拱门，氛围挂幅） | `references/event-poster-pattern.md`（绿调国潮KT板 + 海洋波浪海报 + 设计迭代教训） |
+| **题库/问答系统 UI** — 选项标准化流水线、LLM 生成 Prompt 模板、数据审计脚本 | `references/quiz-option-standardization.md` |
+| **CSS 布局/居中/滚动被裁切问题** — flexbox 溢出裁剪、响应式缩放失效、JS var/function 重名 | `references/css-layout-patterns.md`（::before/::after 伪元素居中、var/function 命名冲突） |
 - **B2B单页材料（海报式推介）** | 上下分区布局：上部实拍照片+标题，下部深色纯色背景承载信息。统计栏放图片下方而非叠在图上——避免遮挡人物主体。用 VLM 逐版评审迭代。 |
 
 ## 技术红线

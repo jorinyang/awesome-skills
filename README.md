@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-101-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-108-blue)](.)
 
 ---
 
@@ -32,10 +32,11 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (23)
+### 🧠 方法论 (24)
 
 | 技能 | 触发词 | 核心能力 |
 |------|------|----------|
+| v5.4.24 | 2026-07-16 | 108技能 — +7 新增(alicloud-fc-deploy/darwin-skill-cron/dashiai-ppt-hermes/hermes-performance-diagnosis/hermes-windows-native/question-bank-pipeline/wukong-skill-center) + 2 README orphan 补录(diagram-cjk-rendering/double-evolution，磁盘有但README未列)；github-absorb v1.7.1→v1.8.0 + huashu-design 内容更新同步；4 unclassified REPORT待用户决策(external-skill-evaluation/requirement-alignment-analysis/strategy-plan-writing/supabase-backend) |
 | v5.4.23 | 2026-07-15 | 101技能 — +1 新增(web-spa: Web SPA 开发模式与陷阱——CSS居中+溢出坑/数据加载/JS作用域/选项格式化管道，构建与设计 22→23)；修复v5.4.22 pre-flight audit发现的README孤儿引用(ppt-structure-parser/ppt-template-filler已在commit da15e38删除但README未清理，构建与设计24→23)；answer SKILL.md新增docx-quiz-extraction.md reference + 更新related_skills；17 unclassified REPORT待用户决策 |
 |--------|---------|
 | [advanced-elicitation](advanced-elicitation/SKILL.md) | 深度审视/换个角度/red team | 69+3种追问方法，产出后自动触发多维审视 |
@@ -60,8 +61,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 | [writing-skills](writing-skills/SKILL.md) 🆕 | 创建技能/写skill/技能测试/技能验证/技能质量 | TDD驱动的技能工程——压力测试→基线失败→写技能→封堵漏洞 |
 | [verification-before-completion](verification-before-completion/SKILL.md) 🆕 | 完成了/修好了/通过了/发布/deploy/验证 | Iron Law门禁——证据先于声明，未验证不声称完成 |
-
-### 🏗️ 构建与设计 (23)
+| [darwin-skill-cron](darwin-skill-cron/SKILL.md) 🆕 | darwin cron/技能自动巡检/skill nightly optimize | Darwin Skill Cron自动化模式——9维评分+棘轮机制+并行子agent+自包含prompt模板 || [double-evolution](double-evolution/SKILL.md) 🆕 | 技能进化/双速进化/MOMO CODE/Pioneer | 双速技能进化引擎——吸收MOMO CODE/Pioneer Agent方法论，技能自优化 |
+### 🏗️ 构建与设计 (25)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -88,8 +89,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [web-spa](web-spa/SKILL.md) 🆕 | 写Web SPA/前端陷阱/全屏演示 | CSS居中+溢出坑、数据加载、JS作用域、选项格式化管道 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
-
-### 🔧 开发工程 (17)
+| [dashiai-ppt-hermes](dashiai-ppt-hermes/SKILL.md) 🆕 | 做PPT/生成PPT/DashiAI PPT/大师PPT/网页PPT/汇报材料 | DashiAI PPT生成器——12套视觉主题+1020个版式，浏览器编辑+导出PPTX/PDF || [diagram-cjk-rendering](diagram-cjk-rendering/SKILL.md) 🆕 | CJK图表/中文SVG/口字/兜底字体 | cairosvg CJK字体渲染兜底——「口」字检测→修复→验证流程 |
+### 🔧 开发工程 (21)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -110,7 +111,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [wsl-docker-deploy](wsl-docker-deploy/SKILL.md) 🆕 | 部署docker/自托管/docker pull超时/拉取镜像失败 | WSL2 Docker Desktop代理部署——crane代理拉取→docker load→compose up |
 | [firecrawl-web](firecrawl-web/SKILL.md) 🆕 | 搜索/查资料/抓取/爬取/提取数据 | Firecrawl自托管MCP——搜索网页/抓取内容/爬取网站/结构化数据提取 |
 | [github-release-readme](github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
-
+| [alicloud-fc-deploy](alicloud-fc-deploy/SKILL.md) 🆕 | 部署FC/函数计算/阿里云FC/Serverless部署/fcapp.run | 阿里云FC部署Python函数——OpenAPI创建服务/函数/HTTP触发器+ACS3-HMAC-SHA256签名+WSGI模板 || [hermes-performance-diagnosis](hermes-performance-diagnosis/SKILL.md) 🆕 | 执行慢/很慢/卡住了/性能/优化/诊断 | Hermes性能瓶颈诊断——文件搜索/网络搜索/LLM推理三大根因+优先级修复 || [hermes-windows-native](hermes-windows-native/SKILL.md) 🆕 | Windows原生/Hermes Windows配置 | Hermes Agent Windows原生配置+故障排查（post-WSL迁移） || [question-bank-pipeline](question-bank-pipeline/SKILL.md) 🆕 | 题库/quiz system/知识竞答/试卷/题目导入/大比武 | 题库全栈开发管线——docx/xlsx/md解析→Supabase JSONB→Web SPA大屏→OSS部署 || [wukong-skill-center](wukong-skill-center/SKILL.md) 🆕 | 悟空技能中心/企业技能中心/Wukong Skill Hub/技能路由/ExclusiveSkillHub | 钉钉悟空企业技能中心集成——SkillBridge iframe+FC路由服务两种模式 |
 ### 🤖 AI 工程 (4) 🆕
 
 | 技能 | 触发词 | 核心能力 |
