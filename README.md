@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-108-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-111-blue)](.)
 
 ---
 
@@ -79,6 +79,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [hallmark](hallmark/SKILL.md) | 审查AI味/audit/发射前检查 | Anti-AI-slop 58道关卡质量门禁 |
 | [html-ppt](html-ppt/SKILL.md) | 做幻灯片/PPT/演示文稿 | HTML 幻灯片工厂 |
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo/高保真UI | HTML高保真原型/动画/幻灯片/品牌设计 |
+| [apple-design](apple-design/SKILL.md) | Apple风格/流体交互/spring动画 | Apple设计原则与流体交互（17条原则） |
+| [emil-design-eng](emil-design-eng/SKILL.md) | 设计工程/动画决策/UI打磨 | Emil Kowalski的设计工程哲学 |
+| [find-animation-opportunities](find-animation-opportunities/SKILL.md) | 动画机会/哪里加动画 | 动画机会发现与过滤 |
 | [humanizer](humanizer/SKILL.md) | 去AI味/润色文案 | 29种文本模式去除AI写作痕迹 |
 | [pretext](pretext/SKILL.md) | 创意浏览器demo | @chenglou/pretext 创意 Demo |
 | [redesign-skill](redesign-skill/SKILL.md) | redesign/升级设计/翻新页面 | 7维60+项审计→诊断→修复——页面系统性升级 |
@@ -163,7 +166,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [ara-rigor-reviewer](ara-rigor-reviewer/SKILL.md) | 审查论文/审稿 | 六维认识论审查 |
 | [systematic-debugging](systematic-debugging/SKILL.md) | 帮我debug/排查bug | 4阶段根因调试 |
 
-### 🎨 创意内容 (6)
+### 🎨 创意内容 (9)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -594,6 +597,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.25 | 2026-07-16 | 111技能 — +3 新增(apple-design/emil-design-eng/find-animation-opportunities: 吸收自 emilkowalski/skills 的Apple设计原则/动画决策框架/动画机会发现，创意分类 6→9)；hallmark 融入 review-animations 动画专项审查能力；redesign-skill 融入 improve-animations 动画审计优化能力；huashu-design 更新路由表和 related_skills；完整技能引用网络已建立 |
 | v5.4.22 | 2026-07-14 | 102技能 — 5技能内容同步(executing-plans/finishing-a-development-branch/receiving-code-review/verification-before-completion/writing-skills v1.0.0→v1.0.1)；3技能unclassified REPORT待用户决策(external-skill-evaluation/strategy-plan-writing/supabase-backend)；darwin-skill本地v2.1.2为Cron精简版(2271字节)，GH HEAD v2.1.1为完整版(20072字节)，按v5.4.21方向验证规则跳过避免倒退 |
 | v5.4.11 | 2026-07-04 | 96技能 — 11技能内容更新(drawio-generation/external-skill-evaluation/feishu-wiki/github-absorb/github-release-readme/hermes-instance-sync/ppt-structure-parser/ppt-template-filler/skill-evaluator/travel-intel/trip-archive) |
 | v5.4.10 | 2026-07-04 | 96技能（+2 新增 ppt-structure-parser + ppt-template-filler：PPT模板拆解→页面库 + 跨模板拼装生成，回归 v5.4.9 误删的两技能；构建与设计 22→24）+ 20技能内容更新(answer/ara-compiler/darwin-skill/dingtalk-cli/external-skill-evaluation/feishu-doc/feishu-table/feishu-wiki/firecrawl-web/github-absorb/github-release-readme/hermes-instance-sync/jimeng-video/sketch/strategy-plan-writing/supabase-backend/test-driven-development/travel-intel/trip-archive/windows-troubleshooting-from-wsl) |
