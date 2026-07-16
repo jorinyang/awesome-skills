@@ -286,3 +286,7 @@ taste-skill 🔮     →  apple-design 🍎     →  hallmark 🛡️
 - **与 huashu-design**：当用户要求"Apple风格"或"iOS风格"时，先加载本技能获取原则，再用 huashu-design 执行具体设计
 - **与 hallmark**：hallmark 的交互检查（I1-I8）与本技能的动效原则互补
 - **与 emil-design-eng**：本技能聚焦Apple特定原则，emil-design-eng 提供更广泛的动画决策框架
+
+## 实战参考
+
+详见 `references/pitfalls-web.md`——CSS flex Overflow 裁剪修复、`clamp()` 大屏流光适配、毛玻璃 auto-hide、Web Audio 嘀嘀声、卡片弹簧转场、Supabase JSONB 防御、OSS 缓存爆破等 Web 实现中常见的坑及其还原方案。

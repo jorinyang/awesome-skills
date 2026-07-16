@@ -13,10 +13,18 @@ triggers:
   - 反 AI slop
   - 用 Hallmark 检查
   - hallmark
+  - 审查动画
+  - 检查动效
+  - review animations
+  - 动画审查
+  - 动效检查
+  - 动画质量
+  - animation review
+  - animation quality
 metadata:
   hermes:
     tags: [design, quality, anti-slop, audit, study]
-    related_skills: [huashu-design, feishu-html, design-md, humanizer]
+    related_skills: [huashu-design, feishu-html, design-md, humanizer, apple-design, emil-design-eng, find-animation-opportunities, redesign-skill]
   upstream: https://github.com/Nutlope/hallmark (MIT, by Together AI)
 ---
 
@@ -220,12 +228,77 @@ metadata:
 
 ---
 
+## 动画专项审查（融合自 review-animations）
+
+当用户要求"审查动画质量"、"检查动效"、"review animations"时，执行以下专项动画审查：
+
+### 十条不可妥协标准
+
+每个动画都必须对照这些标准，违规即为发现：
+
+1. **有理由的运动** — 每个动画必须回答"为什么这个要动画？"——空间一致性、状态指示、反馈、解释、或防止突变。"看起来酷"在高频元素上是阻断项。
+
+2. **频率匹配** — 匹配运动与它被看到的频率。键盘触发和100+/天的操作**不要**动画。每天几十次的减少运动。偶尔的标准。稀少/首次可以有愉悦感。
+
+3. **响应式缓动** — 进入/退出元素使用 `ease-out` 或强自定义曲线。UI上的 `ease-in` 是阻断项——它延迟了用户最关注的时刻。内置CSS缓动太弱；期望自定义三次贝塞尔。
+
+4. **UI 300ms以下** — UI动画保持在300ms以下；更慢的需要理由否则就是发现。
+
+5. **起源与物理正确** — 弹窗/下拉/工具提示从触发器缩放（`transform-origin`），不是从中心。永远不要从 `scale(0)` 动画——从 `scale(0.9–0.97)` + opacity 开始。模态豁免——保持居中。
+
+6. **可中断性** — 快速触发或手势驱动的运动必须可中断——CSS transitions或从当前状态重新目标的弹簧，不是从零重新开始的关键帧。
+
+7. **仅GPU属性** — 只动画 `transform` 和 `opacity`。动画 `width`/`height`/`margin`/`padding`/`top`/`left` 是性能发现。
+
+8. **无障碍** — `prefers-reduced-motion` 被尊重（更温和，不是零——保持opacity/color，去掉移动）。悬停动画在 `@media (hover: hover) and (pointer: fine)` 后面。
+
+9. **非对称进入/退出** — 故意操作（按下、长按、破坏性确认）动画更慢；系统响应快速。按下-释放或长按交互上的对称计时是发现。
+
+10. **内聚力** — 运动匹配组件的个性和产品其余部分——俏皮可以更弹跳，仪表盘保持清脆。不匹配的个性是发现。
+
+### 动画审查触发条件
+
+| 触发词 | 动作 |
+|--------|------|
+| "审查动画" / "检查动效" / "review animations" | 运行动画专项审查 |
+| "这个动画对吗" / "动效有问题吗" | 针对性动画检查 |
+| 在 huashu-design 产出动画后 | 自动触发动画审查 |
+
+### 动画审查输出格式
+
+**第一部分——发现表**
+
+| Before | After | Why |
+|--------|-------|-----|
+| `transition: all 300ms` | `transition: transform 200ms ease-out` | 指定确切属性；`all` 动画了非GPU属性 |
+| `transform: scale(0)` | `transform: scale(0.95); opacity: 0` | 没有东西从虚无中出现 |
+| `ease-in` on dropdown | `ease-out` + 自定义曲线 | `ease-in` 延迟用户最关注的时刻 |
+| `transform-origin: center` on popover | `var(--radix-popover-content-transform-origin)` | 弹窗从触发器缩放，不是中心 |
+
+**第二部分——判定**
+
+按影响层级分组，最高优先：
+1. **感觉破坏的退化** — 迟钝的缓动、不知从哪来、在高频/键盘操作上触发
+2. **错过简化** — 应该被移除或大幅减少的动画
+3. **性能** — 非GPU属性、掉帧风险、重排风暴
+4. **可中断性与计时** — 关键帧应该用transitions/springs的地方；应该非对称的对称计时
+5. **起源、物理与内聚力** — 错误起源、不匹配个性、突兀交叉淡入
+6. **无障碍** — 减弱动效和指针/悬停门控
+
+以明确决定关闭：
+- **阻断** — 任何感觉破坏的退化、键盘/高频操作上的动画、UI上的 `scale(0)`/`ease-in`、有简单GPU修复的非GPU动画
+- **通过** — 无感觉破坏的退化、无应该删除的明显运动、持续时间和缓动在范围内、可中断性处理好、减弱动效被尊重
+
+---
+
 ## 技术说明
 
 - **上游**：https://github.com/Nutlope/hallmark (MIT, Together AI)
+- **动画审查上游**：https://github.com/emilkowalski/skills (MIT, Emil Kowalski)
 - **完整 58 道关卡**：见 upstream `skills/hallmark/references/slop-test.md`
 - **完整反模式清单**：见 upstream `skills/hallmark/references/anti-patterns.md`
 - **本技能** 是对上游中适用于 Hermes（HTML 产出审查）的核心规则的精简适配
+- **动画审查能力** 融合自 emilkowalski/skills 的 review-animations，补充了 hallmark 在动画质量审查方面的空白
 - **不与 humanizer 冲突**：humanizer 管文案反 AI 味，Hallmark 管 UI 反 AI 味
 - **不与 huashu-design 冲突**：huashu 是创意工具（怎么设计），Hallmark 是品控工具（检查设计）
 - **实战案例**：`references/audit-example-workshop-voting.md` — 对 workshop-voting SPA 的完整 audit（14/17 通过 + 3 项修复建议 + 六轴评分）

@@ -491,3 +491,110 @@ Same benefits: Better quality, fewer surprises, bulletproof results.
 | `hermes-agent-skill-authoring` | sibling | Hermes 特定语法和规范 |
 
 > 吸收自: https://github.com/obra/superpowers (v6.1.1)
+
+---
+
+## 技能吸收标准流程（必须动作）
+
+> **铁律：技能创建/吸收后必须完成以下5步，缺一不可。**
+
+### Step 1: 技能引用网络
+
+为新技能建立完整的 `related_skills` 引用：
+
+1. **新技能 → 相关技能**：新技能的 `related_skills` 包含所有相关技能
+2. **相关技能 → 新技能**：更新所有相关技能的 `related_skills` 添加新技能
+3. **验证双向引用**：确保引用关系一致（除非明确是单向）
+
+```bash
+# 检查引用完整性
+grep -l "new-skill" ~/.hermes/skills/*/SKILL.md
+```
+
+### Step 2: 技能执行测试
+
+验证技能可以正常加载和触发：
+
+```python
+# 1. 文件可读性
+skill_view(name="new-skill")
+
+# 2. 元数据完整性
+- name, description, version, triggers 存在
+- related_skills 引用的技能都存在
+- references 目录下的文件可读
+
+# 3. 触发词验证
+- triggers 不与现有技能冲突
+- 触发词准确描述使用场景
+```
+
+### Step 3: 审计产出结果
+
+检查技能质量和规范：
+
+| 检查项 | 标准 |
+|--------|------|
+| 来源标记 | 吸收技能必须有 `吸收自 xxx` 或 `adapted from xxx` |
+| upstream | metadata 中必须有 `upstream` 字段 |
+| 版本号 | 首次创建为 `1.0.0` |
+| 格式 | 遵循 SKILL.md 规范（frontmatter + markdown） |
+| 内容 | 无敏感信息、无硬编码路径、无过时内容 |
+
+### Step 4: 上传到 GitHub
+
+使用 `github-release-readme` 技能执行同步：
+
+```bash
+# 1. 双源扫描
+python3 scripts/scan_inventory.py
+
+# 2. 复制技能（穿透 symlink）
+cp -rL ~/.hermes/skills/category/new-skill /tmp/awesome-skills/
+
+# 3. 更新 README
+- Badge 计数 +1
+- 分类表添加条目
+- 版本历史添加新行
+
+# 4. 提交推送
+git add -A && git commit -m "v{x.y.z}: +1 新增(new-skill)"
+git push origin main  # WSL 必须后台模式
+
+# 5. 创建 Release
+gh release create "v{x.y.z}" --notes-file release_notes.md
+```
+
+### Step 5: 记录变更
+
+更新 MEMORY 中的技能计数和版本信息。
+
+### 检查清单
+
+每次技能吸收前确认：
+
+- [ ] 引用网络已建立（双向验证）
+- [ ] 执行测试通过（文件可读、元数据完整）
+- [ ] 审计通过（来源标记、upstream、版本号、格式）
+- [ ] GitHub 同步完成（README 更新、Release 创建）
+- [ ] MEMORY 已更新
+
+### 执行顺序（铁律）
+
+**先做完全部 Step 1-3，再做 Step 4。** 不要创建完技能就停下。
+用户纠正过："以后技能吸收以上这几个步骤为技能创建后必须动作"——
+创建只是第一步，引用网络/测试/审计/上传是必须动作，不是可选。
+
+### 🚨 Pitfall: GitHub push 代理超时
+
+`git push` 通过 HTTP 代理经常超时（尤其 WSL/Windows 环境），原因是
+credential manager 交互式认证卡住。**解法：用 `gh auth token` 嵌入 URL。**
+
+```bash
+cd /tmp/awesome-skills
+TOKEN=$(gh auth token)
+git remote set-url origin "https://用户名:${TOKEN}@github.com/用户名/仓库.git"
+git push origin main
+```
+
+此方式绕过 credential manager，推送立即成功。推送后记得清理 URL 避免 token 残留。

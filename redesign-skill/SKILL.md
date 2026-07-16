@@ -13,10 +13,18 @@ triggers:
   - 视觉升级
   - 重构UI
   - 优化现有页面
+  - 改善动画
+  - 审计运动
+  - improve animations
+  - audit motion
+  - 动画优化
+  - 让这个感觉更好
+  - make this feel better
+  - 动画改进计划
 metadata:
   hermes:
     tags: [redesign, audit, upgrade, quality, anti-slop]
-    related_skills: [huashu-design, hallmark, taste-skill]
+    related_skills: [huashu-design, hallmark, taste-skill, apple-design, emil-design-eng, find-animation-opportunities]
     scope: interface-upgrade
   upstream: https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill (MIT)
 ---
@@ -191,6 +199,91 @@ redesign-skill 🔧      → huashu-design 🎨       → hallmark 🛡️
 - 如果项目用 Tailwind，检查版本（v3 vs v4）
 - 如果项目无框架，用 vanilla CSS
 - 改动可控、可审查——小步定向改进，不大拆大建
+
+## 动画审计与优化（融合自 improve-animations）
+
+当用户要求"改善动画"、"审计运动"、"让这个app感觉更好"时，执行以下动画审计与优化流程：
+
+### 定位
+
+使用高级模型完成判断复合的部分——理解代码库的运动、决定什么值得修复、编写规范——然后将执行交给任何代理，包括更便宜的模型。它**只做一件事**：调查动画和运动代码，然后生成优先级发现和实施计划。它不审查单个diff（那是 hallmark 的动画审查），也不自己实施修复。
+
+### 硬规则
+
+1. **永远不修改源代码。** 你创建或编辑的唯一文件在 `plans/`（或 `animation-plans/`）下。如果被要求"直接修复"，拒绝并指向执行计划。
+2. **没有变更操作。** 没有安装、没有副作用的构建、没有提交、没有格式化。只读分析。
+3. **计划必须完全自包含。** 执行者没有这个对话的上下文和品味。永远不要写"使用上面讨论的缓动"——内联确切的三次贝塞尔、确切的持续时间、确切的文件路径和代码摘录。
+
+### 工作流
+
+#### 阶段一——侦察（始终先做）
+
+在判断之前映射运动表面：
+- **技术栈**：框架、运动库（Framer Motion/Motion、React Spring、GSAP、纯CSS、WAAPI）、组件库
+- **运动在哪**：全局CSS/tokens、Tailwind配置、关键帧定义、transition/animate props、手势处理器
+- **惯例**：现有的缓动tokens、持续时间尺度、弹簧配置
+- **个性**：这是俏皮的消费者应用还是清脆的仪表盘？
+- **频率图**：哪些动画元素每天被命中100+次 vs 偶尔 vs 稀少
+
+有用的扫描：grep `transition`、`animation`、`@keyframes`、`ease-in`、`transition: all`、`scale(0)`、`prefers-reduced-motion`、`transform-origin`
+
+#### 阶段二——审计
+
+按以下8个类别审计：
+1. 目的与频率
+2. 缓动与持续时间
+3. 物理性与起源
+4. 可中断性
+5. 性能
+6. 无障碍
+7. 内聚力与tokens
+8. 错过的机会
+
+#### 阶段三——审查、优先级、确认
+
+对每个发现重新阅读引用的代码。拒绝任何设计好的、误归因的、重复的或豁免的。
+
+呈现审查后的发现为一个表，按杠杆（影响÷努力）排序：
+
+| # | 严重性 | 类别 | 位置 | 发现 | 修复摘要 |
+|---|--------|------|------|------|---------|
+
+严重性：**高** = 感觉破坏（UI上错误缓动、键盘/高频操作上的动画、掉帧、`scale(0)`）；**中** = 明显偏离（错误起源、不可中断的动态UI、缺少减弱动效）；**低** = 打磨（错开、模糊遮罩交叉淡入、token整合）
+
+#### 阶段四——编写计划
+
+每个选定发现一个计划，写入 `plans/` 为 `NNN-short-slug.md`。
+
+每个计划包含：
+- 确切的文件路径和当前代码摘录
+- 确切的目标值（三次贝塞尔、持续时间、弹簧配置）
+- 有序步骤
+- 硬范围边界
+- 验证部分（如何*感觉检查*结果：慢动作、逐帧、真实设备）
+
+### 优先级修复偏好层级
+
+1. **删除动画**（高频/无目的/键盘触发）
+2. **减少它** — 更短持续时间、更小变换、更少动画属性
+3. **修复缓动** — `ease-in`→`ease-out`/自定义曲线
+4. **修复起源/物理性** — 纠正 `transform-origin`；替换 `scale(0)`
+5. **使其可中断** — 关键帧→transitions或弹簧
+6. **移到GPU** — 布局属性→`transform`/`opacity`
+7. **非对称计时** — 慢故意阶段，快速响应
+8. **打磨** — 模糊遮罩交叉淡入、错开、`@starting-style`
+9. **无障碍与内聚力** — 添加减弱动效+悬停门控
+
+### 调用变体
+
+| 调用 | 行为 |
+|------|------|
+| 裸调用 | 完整工作流：侦察→审计所有类别→审查→确认→计划 |
+| `quick` / `deep` | 调整审计努力 |
+| 类别焦点 | 侦察+仅审计该类别 |
+| `plan <描述>` | 跳过审计；侦察刚好足够指定，然后写一个计划 |
+| `reconcile` | 重新检查 `plans/` 对当前代码：标记完成计划，刷新过时引用 |
+
+---
 
 ## 与设计管线的关系
 

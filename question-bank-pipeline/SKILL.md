@@ -178,13 +178,12 @@ bucket.put_object_from_file(key, local, headers={
 8. **选项前缀正则**：使用 `[.\u3001\uFF0C\s\)）]+` 覆盖 A. / A、/ A) / A ）等多种分隔符，而非仅 `[\.\、]`
 9. **Supabase 凭证位置**：完整凭证（含 service_key/DB密码/PAT）在 `.ClawShell/.env.supabase`，建表/批量导入用 DB 直连 psycopg2
 10. **白底配色方案**：投影展示用 `--bg:#fff; --surface:#f8fafc; --text:#1e293b; --text2:#64748b`，题型用靛蓝/琥珀/玫红区分
-
-## 📚 引用文件索引
-
-| 文件 | 路径 | 用途 |
-|------|------|------|
-| supabase-credentials.md | `references/supabase-credentials.md` | Supabase 凭证文件格式、DB直连模板、JSON导出验证模板 |
-| white-theme-css.md | `references/white-theme-css.md` | 白底配色方案CSS变量、字号规范、题型颜色映射 |\n\n1. **docx 选项内联**：同一行 `A.xx B.xx C.xx D.xx` 格式，正则需处理空格分隔\n2. **去重用前缀截取**：题目开头高度相似，必须用全文+选项哈希\n3. **多选题被标记为单选**：`LENGTH(correct_answer) > 1` 的应批量修正为多选题\n4. **LLM JSON 损坏**：题目中的引号/特殊字符导致 JSON 解析失败 → 分块+重试+正则提取\n5. **匿名 key 无 DDL 权限**：建表需用 service_role key 或直接连 PostgreSQL\n6. **前端 JSONB 字段**：永远做类型检查，不要假设返回类型\n7. **Supabase `select('*')` 默认分页**：不加 `.limit(1000)` 可能只返回部分数据 → 展示页可选静态 JSON 兜底\n8. **选项前缀正则**：使用 `[.\\u3001\\uFF0C\\s\\)）]+` 覆盖 A. / A、/ A) / A ）等多种分隔符，而非仅 `[\\.\\、]`\n9. **Supabase 凭证位置**：完整凭证（含 service_key/DB密码/PAT）在 `.ClawShell/.env.supabase`，建表/批量导入用 DB 直连 psycopg2\n10. **白底配色方案**：投影展示用 `--bg:#fff; --surface:#f8fafc; --text:#1e293b; --text2:#64748b`，题型用靛蓝/琥珀/玫红区分
+11. **CSS flex居中+overflow裁剪**：`align-items:center` + `overflow-y:auto` 导致长内容顶端不可达。修复：`#main::before,#main::after{content:'';flex:1;min-height:0}` + `#card{margin:auto 0}`，用伪元素做弹性占位而非 flex 居中
+12. **LLM 选项重排导致答案错位**：LLM 补全缺失选项时可能改变原选项顺序，但 `correct_answer` 字母未更新。修复方案：① System Prompt 明确"选项顺序与原文一致，不可重排"；② 导入后用 docx 正确答案文本匹配 DB 选项内容，重新计算正确字母
+13. **选项格式标准化**：数据库中所有选项统一为 `A.xxx` 格式（禁止 A、/A)/A，），LLM 生成的选项必须归一化
+14. **JS 变量/函数重名**：全局 `var sel=null` 和 `function sel()` 冲突，首次调用后变量覆盖函数导致后续 TypeError。修复：重命名变量为 `selType`
+15. **近似重复检测**：`一个月内` vs `1个月内`（数字格式差异）→ 同表内 Levenshtein ≤ 2 且答案相同的视为重复并去重；跨表（必答/抢答）不删
+16. **答案验证应比较选项内容而非字母**：对比 docx 的正确答案选项文本与 DB 对应位置的选项文本是否一致，而非仅比字母。LLM 重排选项后字母不变但内容错位
 
 ## 📚 引用文件索引
 
@@ -192,3 +191,14 @@ bucket.put_object_from_file(key, local, headers={
 |------|------|------|
 | supabase-credentials.md | `references/supabase-credentials.md` | Supabase 凭证文件格式、DB直连模板、JSON导出验证模板 |
 | white-theme-css.md | `references/white-theme-css.md` | 白底配色方案CSS变量、字号规范、题型颜色映射 |
+| llm-import-prompt.md | `references/llm-import-prompt.md` | LLM 导入 System Prompt 模板、常见错误、校验清单 |
+| css-display-patterns.md | `references/css-display-patterns.md` | 大屏展示 CSS 布局模式：伪元素居中、clamp()响应式、白底配色 |\n\n1. **docx 选项内联**：同一行 `A.xx B.xx C.xx D.xx` 格式，正则需处理空格分隔\n2. **去重用前缀截取**：题目开头高度相似，必须用全文+选项哈希\n3. **多选题被标记为单选**：`LENGTH(correct_answer) > 1` 的应批量修正为多选题\n4. **LLM JSON 损坏**：题目中的引号/特殊字符导致 JSON 解析失败 → 分块+重试+正则提取\n5. **匿名 key 无 DDL 权限**：建表需用 service_role key 或直接连 PostgreSQL\n6. **前端 JSONB 字段**：永远做类型检查，不要假设返回类型\n7. **Supabase `select('*')` 默认分页**：不加 `.limit(1000)` 可能只返回部分数据 → 展示页可选静态 JSON 兜底\n8. **选项前缀正则**：使用 `[.\\u3001\\uFF0C\\s\\)）]+` 覆盖 A. / A、/ A) / A ）等多种分隔符，而非仅 `[\\.\\、]`\n9. **Supabase 凭证位置**：完整凭证（含 service_key/DB密码/PAT）在 `.ClawShell/.env.supabase`，建表/批量导入用 DB 直连 psycopg2\n10. **白底配色方案**：投影展示用 `--bg:#fff; --surface:#f8fafc; --text:#1e293b; --text2:#64748b`，题型用靛蓝/琥珀/玫红区分
+
+## 📚 引用文件索引
+
+| 文件 | 路径 | 用途 |
+|------|------|------|
+| supabase-credentials.md | `references/supabase-credentials.md` | Supabase 凭证文件格式、DB直连模板、JSON导出验证模板 |
+| white-theme-css.md | `references/white-theme-css.md` | 白底配色方案CSS变量、字号规范、题型颜色映射 |
+| llm-import-prompt.md | `references/llm-import-prompt.md` | LLM 导入 System Prompt 模板、常见错误、校验清单 |
+| css-display-patterns.md | `references/css-display-patterns.md` | 大屏展示 CSS 布局模式：伪元素居中、clamp()响应式、白底配色 |

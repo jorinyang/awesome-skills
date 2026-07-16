@@ -2,7 +2,7 @@
 name: huashu-design
 description: 花叔Design（Huashu-Design）——用HTML做高保真原型、交互Demo、幻灯片、动画、设计变体探索+设计方向顾问+专家评审的一体化设计能力。触发词：做原型、设计Demo、交互原型、HTML演示、动画Demo、设计变体、hi-fi设计、UI mockup、prototype、做个HTML页面、做个可视化、app原型、iOS原型、移动应用mockup、导出MP4、导出GIF、设计风格、设计方向、配色方案、视觉风格、评审。触发词（活动物料）：海报、活动海报、效果图、KT板、签到背板、氛围布置、活动物料设计、泡沫板喷绘、拱门设计、挂幅、打卡点设计。
 tags: [design, prototype, html, brand]
-related_skills: [design-md, popular-web-designs, hallmark]
+related_skills: [design-md, popular-web-designs, hallmark, apple-design, emil-design-eng, find-animation-opportunities, redesign-skill, taste-skill]
 ---
 
 # 花叔Design · Huashu-Design
@@ -207,6 +207,9 @@ huashu-design 有**两层**设计参考，按需选用：
 
 | 任务 | 读 |
 |------|-----|
+| **Apple风格/iOS风格设计** | **→ 先加载 `apple-design` 技能** 获取Apple设计原则，再用本技能执行 |
+| **动画决策（该不该动画/用什么缓动）** | **→ 加载 `emil-design-eng` 技能** 获取动画决策框架 |
+| **寻找动画机会（哪里可以加动画）** | **→ 加载 `find-animation-opportunities` 技能** |
 | 开工前问问题、定方向 | `references/workflow.md` |
 | 反AI slop、内容规范 | `references/content-guidelines.md` |
 | React+Babel项目setup | `references/react-setup.md` |
