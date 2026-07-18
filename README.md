@@ -36,9 +36,6 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 | 技能 | 触发词 | 核心能力 |
 |------|------|----------|
-| v5.4.24 | 2026-07-16 | 108技能 — +7 新增(alicloud-fc-deploy/darwin-skill-cron/dashiai-ppt-hermes/hermes-performance-diagnosis/hermes-windows-native/question-bank-pipeline/wukong-skill-center) + 2 README orphan 补录(diagram-cjk-rendering/double-evolution，磁盘有但README未列)；github-absorb v1.7.1→v1.8.0 + huashu-design 内容更新同步；4 unclassified REPORT待用户决策(external-skill-evaluation/requirement-alignment-analysis/strategy-plan-writing/supabase-backend) |
-| v5.4.23 | 2026-07-15 | 101技能 — +1 新增(web-spa: Web SPA 开发模式与陷阱——CSS居中+溢出坑/数据加载/JS作用域/选项格式化管道，构建与设计 22→23)；修复v5.4.22 pre-flight audit发现的README孤儿引用(ppt-structure-parser/ppt-template-filler已在commit da15e38删除但README未清理，构建与设计24→23)；answer SKILL.md新增docx-quiz-extraction.md reference + 更新related_skills；17 unclassified REPORT待用户决策 |
-|--------|---------|
 | [advanced-elicitation](advanced-elicitation/SKILL.md) | 深度审视/换个角度/red team | 69+3种追问方法，产出后自动触发多维审视 |
 | [author-methodology-analysis](author-methodology-analysis/SKILL.md) | 分析博主方法论/拆解公众号套路/提炼写作框架/内容方法论 | 21维度作者内容方法论分析→报告+文案框架+HTML看板+飞书同步 |
 | [blue-team](blue-team/SKILL.md) | 帮我看看这个方案/challenge一下 | 6阶段破坏性逻辑审查 |
@@ -61,7 +58,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [external-skill-evaluation](external-skill-evaluation/SKILL.md) 🆕 | 评估外部技能/这个skill对我们有用吗 | 能力扫描→深度阅读→业务映射→风险识别→优先级排序→吸收策略 |
 | [writing-skills](writing-skills/SKILL.md) 🆕 | 创建技能/写skill/技能测试/技能验证/技能质量 | TDD驱动的技能工程——压力测试→基线失败→写技能→封堵漏洞 |
 | [verification-before-completion](verification-before-completion/SKILL.md) 🆕 | 完成了/修好了/通过了/发布/deploy/验证 | Iron Law门禁——证据先于声明，未验证不声称完成 |
-| [darwin-skill-cron](darwin-skill-cron/SKILL.md) 🆕 | darwin cron/技能自动巡检/skill nightly optimize | Darwin Skill Cron自动化模式——9维评分+棘轮机制+并行子agent+自包含prompt模板 || [double-evolution](double-evolution/SKILL.md) 🆕 | 技能进化/双速进化/MOMO CODE/Pioneer | 双速技能进化引擎——吸收MOMO CODE/Pioneer Agent方法论，技能自优化 |
+| [darwin-skill-cron](darwin-skill-cron/SKILL.md) 🆕 | darwin cron/技能自动巡检/skill nightly optimize | Darwin Skill Cron自动化模式——9维评分+棘轮机制+并行子agent+自包含prompt模板
+| [double-evolution](double-evolution/SKILL.md) 🆕 | 技能进化/双速进化/MOMO CODE/Pioneer | 双速技能进化引擎——吸收MOMO CODE/Pioneer Agent方法论，技能自优化 |
 ### 🏗️ 构建与设计 (25)
 
 | 技能 | 触发词 | 核心能力 |
@@ -79,9 +77,6 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [hallmark](hallmark/SKILL.md) | 审查AI味/audit/发射前检查 | Anti-AI-slop 58道关卡质量门禁 |
 | [html-ppt](html-ppt/SKILL.md) | 做幻灯片/PPT/演示文稿 | HTML 幻灯片工厂 |
 | [huashu-design](huashu-design/SKILL.md) | 做原型/设计Demo/高保真UI | HTML高保真原型/动画/幻灯片/品牌设计 |
-| [apple-design](apple-design/SKILL.md) | Apple风格/流体交互/spring动画 | Apple设计原则与流体交互（17条原则） |
-| [emil-design-eng](emil-design-eng/SKILL.md) | 设计工程/动画决策/UI打磨 | Emil Kowalski的设计工程哲学 |
-| [find-animation-opportunities](find-animation-opportunities/SKILL.md) | 动画机会/哪里加动画 | 动画机会发现与过滤 |
 | [humanizer](humanizer/SKILL.md) | 去AI味/润色文案 | 29种文本模式去除AI写作痕迹 |
 | [pretext](pretext/SKILL.md) | 创意浏览器demo | @chenglou/pretext 创意 Demo |
 | [redesign-skill](redesign-skill/SKILL.md) | redesign/升级设计/翻新页面 | 7维60+项审计→诊断→修复——页面系统性升级 |
@@ -92,8 +87,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [writing-plans](writing-plans/SKILL.md) | 写个计划/实施方案 | 实现计划——bite-sized任务/路径/代码 |
 | [web-spa](web-spa/SKILL.md) 🆕 | 写Web SPA/前端陷阱/全屏演示 | CSS居中+溢出坑、数据加载、JS作用域、选项格式化管道 |
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
-| [dashiai-ppt-hermes](dashiai-ppt-hermes/SKILL.md) 🆕 | 做PPT/生成PPT/DashiAI PPT/大师PPT/网页PPT/汇报材料 | DashiAI PPT生成器——12套视觉主题+1020个版式，浏览器编辑+导出PPTX/PDF || [diagram-cjk-rendering](diagram-cjk-rendering/SKILL.md) 🆕 | CJK图表/中文SVG/口字/兜底字体 | cairosvg CJK字体渲染兜底——「口」字检测→修复→验证流程 |
-### 🔧 开发工程 (21)
+| [dashiai-ppt-hermes](dashiai-ppt-hermes/SKILL.md) 🆕 | 做PPT/生成PPT/DashiAI PPT/大师PPT/网页PPT/汇报材料 | DashiAI PPT生成器——12套视觉主题+1020个版式，浏览器编辑+导出PPTX/PDF
+| [diagram-cjk-rendering](diagram-cjk-rendering/SKILL.md) 🆕 | CJK图表/中文SVG/口字/兜底字体 | cairosvg CJK字体渲染兜底——「口」字检测→修复→验证流程 |
+### 🔧 开发工程 (22)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -114,7 +110,11 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [wsl-docker-deploy](wsl-docker-deploy/SKILL.md) 🆕 | 部署docker/自托管/docker pull超时/拉取镜像失败 | WSL2 Docker Desktop代理部署——crane代理拉取→docker load→compose up |
 | [firecrawl-web](firecrawl-web/SKILL.md) 🆕 | 搜索/查资料/抓取/爬取/提取数据 | Firecrawl自托管MCP——搜索网页/抓取内容/爬取网站/结构化数据提取 |
 | [github-release-readme](github-release-readme/SKILL.md) 🆕 | 同步技能/更新awesome-skills/发release | GitHub同步→README更新→Release创建流水线 |
-| [alicloud-fc-deploy](alicloud-fc-deploy/SKILL.md) 🆕 | 部署FC/函数计算/阿里云FC/Serverless部署/fcapp.run | 阿里云FC部署Python函数——OpenAPI创建服务/函数/HTTP触发器+ACS3-HMAC-SHA256签名+WSGI模板 || [hermes-performance-diagnosis](hermes-performance-diagnosis/SKILL.md) 🆕 | 执行慢/很慢/卡住了/性能/优化/诊断 | Hermes性能瓶颈诊断——文件搜索/网络搜索/LLM推理三大根因+优先级修复 || [hermes-windows-native](hermes-windows-native/SKILL.md) 🆕 | Windows原生/Hermes Windows配置 | Hermes Agent Windows原生配置+故障排查（post-WSL迁移） || [question-bank-pipeline](question-bank-pipeline/SKILL.md) 🆕 | 题库/quiz system/知识竞答/试卷/题目导入/大比武 | 题库全栈开发管线——docx/xlsx/md解析→Supabase JSONB→Web SPA大屏→OSS部署 || [wukong-skill-center](wukong-skill-center/SKILL.md) 🆕 | 悟空技能中心/企业技能中心/Wukong Skill Hub/技能路由/ExclusiveSkillHub | 钉钉悟空企业技能中心集成——SkillBridge iframe+FC路由服务两种模式 |
+| [alicloud-fc-deploy](alicloud-fc-deploy/SKILL.md) 🆕 | 部署FC/函数计算/阿里云FC/Serverless部署/fcapp.run | 阿里云FC部署Python函数——OpenAPI创建服务/函数/HTTP触发器+ACS3-HMAC-SHA256签名+WSGI模板
+| [hermes-performance-diagnosis](hermes-performance-diagnosis/SKILL.md) 🆕 | 执行慢/很慢/卡住了/性能/优化/诊断 | Hermes性能瓶颈诊断——文件搜索/网络搜索/LLM推理三大根因+优先级修复
+| [hermes-windows-native](hermes-windows-native/SKILL.md) 🆕 | Windows原生/Hermes Windows配置 | Hermes Agent Windows原生配置+故障排查（post-WSL迁移）
+| [question-bank-pipeline](question-bank-pipeline/SKILL.md) 🆕 | 题库/quiz system/知识竞答/试卷/题目导入/大比武 | 题库全栈开发管线——docx/xlsx/md解析→Supabase JSONB→Web SPA大屏→OSS部署
+| [wukong-skill-center](wukong-skill-center/SKILL.md) 🆕 | 悟空技能中心/企业技能中心/Wukong Skill Hub/技能路由/ExclusiveSkillHub | 钉钉悟空企业技能中心集成——SkillBridge iframe+FC路由服务两种模式 |
 ### 🤖 AI 工程 (4) 🆕
 
 | 技能 | 触发词 | 核心能力 |
@@ -176,6 +176,9 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [baoyu-infographic](baoyu-infographic/SKILL.md) | 信息图/可视化 | 信息图——21布局×21风格 |
 | [baoyu-translate](baoyu-translate/SKILL.md) | 翻译/精翻/快翻 | 三模式翻译——快翻/标准/精翻 + 受众×风格参数化 |
 | [image-analysis](image-analysis/SKILL.md) 🆕 | 分析图片/图片内容识别 | MiniMax VLM 图片分析——JPEG/PNG/WebP，URL或本地文件 |
+| [apple-design](apple-design/SKILL.md) | Apple风格/流体交互/spring动画 | Apple设计原则与流体交互（17条原则） |
+| [emil-design-eng](emil-design-eng/SKILL.md) | 设计工程/动画决策/UI打磨 | Emil Kowalski的设计工程哲学 |
+| [find-animation-opportunities](find-animation-opportunities/SKILL.md) | 动画机会/哪里加动画 | 动画机会发现与过滤 |
 
 ---
 
@@ -555,17 +558,23 @@ cd awesome-skills
 for dir in */; do
   name=$(basename "$dir")
   case "$name" in
-    advanced-elicitation|edge-case-hunter|systematic-debugging|darwin-skill|dynamic-workflow|author-methodology-analysis|external-skill-evaluation|github-absorb) category="methodology" ;;
-    editorial-review-prose|editorial-review-structure) category="productivity" ;;
-    answer|answer-standalone|blue-team|strategy-plan-writing) category="productivity" ;;
-    feishu-*|zhike-*|project-kanban) category="productivity" ;;
-    travel-*|trip-*|amap-lbs|jimeng-video|wechat-article-archive|cost-engine|customer-view|guide-exec|supply-check|vendor-brief) category="travel" ;;
-    huashu-design|claude-design|hallmark|taste-skill|brandkit|redesign-skill|architecture-diagram|design-md|fireworks-tech-graph|html-ppt|web-spa|humanizer|pretext|sketch|baoyu-*|image-analysis) category="creative" ;;
-    ara-*) category="research" ;;
-    subagent-driven-development|test-driven-development|coding-agents|agent-native-cli-design|writing-plans|cross-project-adaptation|wsl-browser-cdp|hermes-instance-sync|github-release-readme|technical-documentation-production|windows-troubleshooting-from-wsl|wsl-docker-deploy|firecrawl-web) category="software-development" ;;
-    supabase-backend|dingtalk-cli) category="devops" ;;
-    skill-evaluator|skill-ab-test|benchmark-generator|agent-tool-system) category="ai-engineering" ;;
-    requirement-alignment-analysis) category="productivity" ;; 
+    # 🧠 方法论 (24)
+    advanced-elicitation|author-methodology-analysis|blue-team|book-deconstruct|darwin-skill|darwin-skill-cron|deep-think|domain-decompose|double-evolution|edge-case-hunter|editorial-review-prose|editorial-review-structure|external-skill-evaluation|github-absorb|ljg-elicitation-modes|ljg-infographic-design|ljg-writing-voice|opportunity-solution-tree|pm-prioritization-frameworks|qa-extract|relationship-analysis|stakeholder-mapping|verification-before-completion|writing-skills) category="methodology" ;;
+    # 🏗️ 构建与设计 (25)
+    answer|answer-standalone|architecture-diagram|brandkit|claude-design|dashiai-ppt-hermes|design-md|diagram-cjk-rendering|drawio-generation|dynamic-workflow|feishu-html|fireworks-tech-graph|hallmark|html-ppt|huashu-design|humanizer|pretext|redesign-skill|requesting-code-review|requirement-alignment-analysis|sketch|strategy-plan-writing|taste-skill|web-spa|writing-plans) category="build-design" ;;
+    # 🔧 开发工程 (22)
+    agent-native-cli-design|alicloud-fc-deploy|coding-agents|cross-project-adaptation|dingtalk-cli|executing-plans|finishing-a-development-branch|firecrawl-web|github-release-readme|hermes-instance-sync|hermes-performance-diagnosis|hermes-windows-native|question-bank-pipeline|receiving-code-review|subagent-driven-development|supabase-backend|technical-documentation-production|test-driven-development|windows-troubleshooting-from-wsl|wsl-browser-cdp|wsl-docker-deploy|wukong-skill-center) category="dev-engineering" ;;
+    # 🤖 AI 工程 (4)
+    agent-tool-system|benchmark-generator|skill-ab-test|skill-evaluator) category="ai-engineering" ;;
+    # 📋 飞书系列 (7)
+    feishu-doc|feishu-table|feishu-voice|feishu-wiki|feishu-wiki-file-routing|project-kanban|zhike-task-hub) category="feishu" ;;
+    # 🏔️ 贵州之客 · 旅行社全链路 (16)
+    amap-lbs|cost-engine|customer-view|guide-exec|jimeng-video|supply-check|travel-intel|travel-itinerary|travel-workflow|trip-archive|trip-briefing|trip-landing|trip-quote|vendor-brief|wechat-article-archive|zhike-content-output) category="travel" ;;
+    # 🔬 研究 (4)
+    ara-compiler|ara-research-manager|ara-rigor-reviewer|systematic-debugging) category="research" ;;
+    # 🎨 创意内容 (9)
+    apple-design|baoyu-article-illustrator|baoyu-comic|baoyu-cover-image|baoyu-infographic|baoyu-translate|emil-design-eng|find-animation-opportunities|image-analysis) category="creative" ;;
+    *) category="misc" ;;
   esac
   mkdir -p "$HOME/.hermes/skills/$category/$name"
   cp "$name/SKILL.md" "$HOME/.hermes/skills/$category/$name/"
