@@ -223,6 +223,7 @@ huashu-design 有**两层**设计参考，按需选用：
 | 设计评审/打分 | `references/critique-guide.md` |
 | 没有design context | `references/design-context.md` |
 | **做纯 Markdown 文档**（README/提案/飞书文档） | `references/markdown-design.md`（轻量注入模式） |
+| **做单文件HTML幻灯片SPA**（培训课件/企业演示，零依赖，48页验证通过） | `references/html-spa-presentation.md`（完整骨架+交互+pitfalls） |
 | **做海报/高清图导出**（用户要PNG不要链接） | `references/poster-export.md`（Playwright截图交付） |
 | **做B2B推介海报**（旅行社/研学机构单页） | `references/b2b-poster-pattern.md`（明亮色调+上下分区+自检迭代） |
 | **做 B2B 推介单页**（旅行社/机构合作材料） | `references/b2b-poster-patterns.md`（上下分区布局 + 照片/纯设计取舍） |
@@ -234,6 +235,7 @@ huashu-design 有**两层**设计参考，按需选用：
 | **做活动海报/物料效果图**（端午/节日活动宣传，KT板背板设计，签到拱门，氛围挂幅） | `references/event-poster-pattern.md`（绿调国潮KT板 + 海洋波浪海报 + 设计迭代教训） |
 | **题库/问答系统 UI** — 选项标准化流水线、LLM 生成 Prompt 模板、数据审计脚本 | `references/quiz-option-standardization.md` |
 | **CSS 布局/居中/滚动被裁切问题** — flexbox 溢出裁剪、响应式缩放失效、JS var/function 重名 | `references/css-layout-patterns.md`（::before/::after 伪元素居中、var/function 命名冲突） |
+| **HTML Slide 维护/主题迁移/图片修复** — dark→white 迁移、base64 图片操作、浏览器验证技巧、彩色背景文字对比度、PNG透明度保留 | `references/html-slide-maintenance.md`（内联样式优先级陷阱、patch 截断 base64、闭包内导航、#e6edf3彩色底陷阱、quantize压缩） |
 - **B2B单页材料（海报式推介）** | 上下分区布局：上部实拍照片+标题，下部深色纯色背景承载信息。统计栏放图片下方而非叠在图上——避免遮挡人物主体。用 VLM 逐版评审迭代。 |
 
 ## 技术红线

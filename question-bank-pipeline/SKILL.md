@@ -1,6 +1,6 @@
 ---
 name: question-bank-pipeline
-description: 题库系统全栈开发 — 从文档解析→数据库入库→Web SPA展示的完整管线。覆盖 docx/xlsx/md 题目提取、Supabase JSONB 存储、前端大屏展示、OSS 部署。
+description: 题库系统全栈开发 — 从文档解析→数据库入库→Web SPA展示的完整管线。覆盖 docx/xlsx/md 题目提取、Supabase JSONB 存储、前端大屏展示、考试系统（登录/答题/评分/错题分析/后台管理）、LLM 主观题评分、OSS 部署。
 version: 1.2.0
 author: 杨瑒 (月夜)
 metadata:
@@ -16,6 +16,11 @@ triggers:
   - "大比武"
   - "抢答"
   - "必答题"
+  - "考试系统"
+  - "exam system"
+  - "在线考试"
+  - "评分系统"
+  - "错题分析"
 ---
 
 # question-bank-pipeline — 题库系统全栈开发
@@ -166,7 +171,129 @@ bucket.put_object_from_file(key, local, headers={
 })
 ```
 
-## Phase 6: 前端数据加载策略（关键）\n\n### 方案对比\n\n| 方案 | 优点 | 缺点 | 适用场景 |\n|------|------|------|---------|\n| Supabase JS 客户端 | 实时性、支持 CRUD | JSONB 可能返回字符串、分页默认值不确定 | 管理后台（admin） |\n| 静态 JSON 文件 | 100% 可靠、零中间层、性能好 | 修改后需重新导出 | 展示页（display） |\n\n### 静态 JSON 加载模式\n\n**当展示页出现数据不完整（如选项丢失）且排查无果时，直接切换到静态 JSON 模式。**\n\n1. Python 从 PostgreSQL 导出完整数据（含 JSON 序列化验证）\n2. 上传 JSON 到 OSS（`x-oss-object-acl: public-read`）\n3. 前端通过 `fetch(DATA_URL)` 加载\n\n```javascript\nvar resp = await fetch('https://domain.com/quiz_data.json');\nvar allData = await resp.json();\nquestionPool.required = allData.required || [];\nconfig = allData.config;\n```\n\n导出脚本示例（含逐题验证）：\n```python\ncur.execute('SELECT * FROM questions_required ORDER BY id')\ncols = [d[0] for d in cur.description]\nfor row in cur.fetchall():\n    item = dict(zip(cols, row))\n    opts = item.get('options')\n    if isinstance(opts, str): item['options'] = json.loads(opts)\n    # 验证\n    assert item['question_type'] != '单选题' or (isinstance(item['options'], list) and len(item['options']) >= 2)\n    all_data['required'].append(item)\n```\n\n### Supabase JS 客户端分页问题\n\n**PITFALL**: `db.from('table').select('*')` 不加 `.limit(1000)` 时，某些版本的 Supabase JS v2 可能使用低默认分页值（如 100），导致数据截断。\n\n```javascript\n// ❌ 可能丢失数据\ndb.from('questions_required').select('*')\n\n// ✅ 显式设置\ndb.from('questions_required').select('*').limit(1000)\n```\n\n## Pitfalls
+## Phase 6: 前端数据加载策略（关键）\n\n### 方案对比\n\n| 方案 | 优点 | 缺点 | 适用场景 |\n|------|------|------|---------|\n| Supabase JS 客户端 | 实时性、支持 CRUD | JSONB 可能返回字符串、分页默认值不确定 | 管理后台（admin） |\n| 静态 JSON 文件 | 100% 可靠、零中间层、性能好 | 修改后需重新导出 | 展示页（display） |\n\n### 静态 JSON 加载模式\n\n**当展示页出现数据不完整（如选项丢失）且排查无果时，直接切换到静态 JSON 模式。**\n\n1. Python 从 PostgreSQL 导出完整数据（含 JSON 序列化验证）\n2. 上传 JSON 到 OSS（`x-oss-object-acl: public-read`）\n3. 前端通过 `fetch(DATA_URL)` 加载\n\n```javascript\nvar resp = await fetch('https://domain.com/quiz_data.json');\nvar allData = await resp.json();\nquestionPool.required = allData.required || [];\nconfig = allData.config;\n```\n\n导出脚本示例（含逐题验证）：\n```python\ncur.execute('SELECT * FROM questions_required ORDER BY id')\ncols = [d[0] for d in cur.description]\nfor row in cur.fetchall():\n    item = dict(zip(cols, row))\n    opts = item.get('options')\n    if isinstance(opts, str): item['options'] = json.loads(opts)\n    # 验证\n    assert item['question_type'] != '单选题' or (isinstance(item['options'], list) and len(item['options']) >= 2)\n    all_data['required'].append(item)\n```\n\n### Supabase JS 客户端分页问题\n\n**PITFALL**: `db.from('table').select('*')` 不加 `.limit(1000)` 时，某些版本的 Supabase JS v2 可能使用低默认分页值（如 100），导致数据截断。\n\n```javascript\n// ❌ 可能丢失数据\ndb.from('questions_required').select('*')\n\n// ✅ 显式设置\ndb.from('questions_required').select('*').limit(1000)\n```\n\n## Phase 7: 考试系统架构（完整考试场景）
+
+当需求从"题目展示"升级为"在线考试"时，需要以下额外组件：
+
+### 考试系统数据模型
+
+```sql
+-- 题库（含多题型）
+CREATE TABLE exam_questions (
+  id BIGSERIAL PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('choice','truefalse','shortanswer')),
+  question TEXT NOT NULL,
+  options JSONB,            -- choice题: {"A":"...","B":"..."}
+  answer TEXT NOT NULL,     -- choice/truefalse: 标准答案; shortanswer: 参考答案
+  reference_answer TEXT,    -- shortanswer题的参考答案
+  key_points JSONB,         -- shortanswer题的评分要点
+  category TEXT DEFAULT '', -- 知识分类标签
+  difficulty TEXT DEFAULT 'medium' CHECK (difficulty IN ('easy','medium','hard')),
+  explanation TEXT DEFAULT ''
+);
+
+-- 考试配置（单行）
+CREATE TABLE exam_configs (
+  id BIGSERIAL PRIMARY KEY,
+  num_choice INT DEFAULT 15,
+  num_truefalse INT DEFAULT 10,
+  num_shortanswer INT DEFAULT 3,
+  time_limit_minutes INT DEFAULT 60,
+  max_retakes INT DEFAULT 3,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 答卷记录
+CREATE TABLE exam_records (
+  id BIGSERIAL PRIMARY KEY,
+  student_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  score NUMERIC,
+  total INT,
+  details JSONB,           -- 每题得分/答案/解析
+  answers JSONB,           -- 学员原始答案
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS: anon 可读题库和配置，可插入答卷
+ALTER TABLE exam_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE exam_configs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE exam_records ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read" ON exam_questions FOR SELECT USING (true);
+CREATE POLICY "anon_read" ON exam_configs FOR SELECT USING (true);
+CREATE POLICY "anon_insert" ON exam_records FOR INSERT WITH CHECK (true);
+-- 写操作（题库管理）
+CREATE POLICY "anon_write_q" ON exam_questions FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "anon_write_c" ON exam_configs FOR UPDATE USING (true);
+```
+
+### 考试系统前端架构
+
+两个独立 SPA，均部署到 OSS：
+
+| 页面 | 文件 | 功能 | 认证 |
+|------|------|------|------|
+| 学员端 | index.html | 登录→答题→评分→错题解析 | 姓名+手机号 |
+| 后台管理 | admin.html | 成绩查询/题库CRUD/参数配置 | 管理密码 |
+
+### 学员端核心流程
+
+```
+登录(姓名+手机) → 加载配置 → 从题库随机抽取N题 → 答题(计时/逐题导航)
+→ 交卷 → 客观题自动评分 → 主观题LLM评分 → 展示结果 → 错题解析(LLM生成)
+```
+
+**随机抽取**：客户端从 Supabase 加载全量题库 → 按类型分组 → `shuffle()` → 按配置数量 `slice()`。不依赖数据库随机函数。
+
+### 后台管理核心功能
+
+- **数据概览**：考试人次/平均分/通过率/成绩分布/错误率最高题目
+- **考试记录**：搜索/筛选/排序/导出CSV
+- **题库管理**：CRUD + 按类型/分类/难度筛选
+- **考试设置**：题量/时间/重考次数
+
+### LLM 主观题评分（MiniMax 示例）
+
+```javascript
+async function gradeShortAnswer(studentAnswer, referenceAnswer, keyPoints) {
+  var prompt = '你是一位专业的企业培训考试评分专家。\\n\\n' +
+    '参考答案：' + referenceAnswer + '\\n\\n' +
+    '评分要点：' + (keyPoints || '无') + '\\n\\n' +
+    '学员答案：' + studentAnswer + '\\n\\n' +
+    '请根据参考答案和评分要点，对学员答案进行评分（0-100分）。\\n' +
+    '返回JSON格式：{"score": 分数, "feedback": "评语"}';
+  
+  var resp = await fetch('https://api.minimax.chat/v1/text/chatcompletion_v2', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + MINIMAX_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'MiniMax-Text-01',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3
+    })
+  });
+  // Parse score from response...
+}
+```
+
+**错题解析生成**：将题目+学员答案+正确答案发给 LLM，要求生成针对性解析。
+
+### OSS 部署（Python oss2）
+
+```python
+import oss2
+auth = oss2.Auth(AK, SK)
+bucket = oss2.Bucket(auth, 'https://oss-cn-hongkong.aliyuncs.com', 'clawshell-vault')
+bucket.put_object('exam/index.html', open('index.html','rb'), headers={
+    'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache'
+})
+```
+
+**Bucket 名**：`clawshell-vault`（对应 gzzhike.cn 域名）。凭证在 `~/.ossutilconfig`。
+
+## Pitfalls
+
+1. **Supabase service key 浏览器 CORS 拦截**：`sb_secret_*` service key 从浏览器 fetch 调用会被 CORS 策略拦截（HTTP 401），即使 key 正确。**解决方案**：前端 SPA（包括 admin 后台）必须使用 `sb_publishable_*` anon key。需要写操作时，为 anon 角色添加 RLS INSERT/UPDATE/DELETE 策略。service key 仅用于服务端（Python/Node.js/Edge Functions）。这不影响安全——admin 页面已有自己的密码认证层。
 
 1. **docx 选项内联**：同一行 `A.xx B.xx C.xx D.xx` 格式，正则需处理空格分隔
 2. **去重用前缀截取**：题目开头高度相似，必须用全文+选项哈希

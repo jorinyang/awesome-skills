@@ -289,4 +289,4 @@ taste-skill 🔮     →  apple-design 🍎     →  hallmark 🛡️
 
 ## 实战参考
 
-详见 `references/pitfalls-web.md`——CSS flex Overflow 裁剪修复、`clamp()` 大屏流光适配、毛玻璃 auto-hide、Web Audio 嘀嘀声、卡片弹簧转场、Supabase JSONB 防御、OSS 缓存爆破等 Web 实现中常见的坑及其还原方案。
+详见 `references/pitfalls-web.md`——CSS flex Overflow 裁剪修复、`clamp()` 大屏流光适配、毛玻璃 auto-hide、Web Audio 嘀嘀声、卡片弹簧转场、**`::before` 多层级伪元素继承坑**、Supabase JSONB 防御、OSS 缓存爆破等 Web 实现中常见的坑及其还原方案。

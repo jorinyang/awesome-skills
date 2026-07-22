@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-111-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-112-blue)](.)
 
 ---
 
@@ -89,7 +89,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 | [dashiai-ppt-hermes](dashiai-ppt-hermes/SKILL.md) 🆕 | 做PPT/生成PPT/DashiAI PPT/大师PPT/网页PPT/汇报材料 | DashiAI PPT生成器——12套视觉主题+1020个版式，浏览器编辑+导出PPTX/PDF
 | [diagram-cjk-rendering](diagram-cjk-rendering/SKILL.md) 🆕 | CJK图表/中文SVG/口字/兜底字体 | cairosvg CJK字体渲染兜底——「口」字检测→修复→验证流程 |
-### 🔧 开发工程 (22)
+### 🔧 开发工程 (23)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -115,6 +115,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [hermes-windows-native](hermes-windows-native/SKILL.md) 🆕 | Windows原生/Hermes Windows配置 | Hermes Agent Windows原生配置+故障排查（post-WSL迁移）
 | [question-bank-pipeline](question-bank-pipeline/SKILL.md) 🆕 | 题库/quiz system/知识竞答/试卷/题目导入/大比武 | 题库全栈开发管线——docx/xlsx/md解析→Supabase JSONB→Web SPA大屏→OSS部署
 | [wukong-skill-center](wukong-skill-center/SKILL.md) 🆕 | 悟空技能中心/企业技能中心/Wukong Skill Hub/技能路由/ExclusiveSkillHub | 钉钉悟空企业技能中心集成——SkillBridge iframe+FC路由服务两种模式 |
+| [github-sync-cron-pitfalls](github-sync-cron-pitfalls/SKILL.md) 🆕 | GitHub skill-repo sync cron troubleshooting/class-level pitfalls | 日常 sync cron 踩过的类级坑——codeload 429 fallback、reset --soft race、CRLF 归一化、unclassified 三子桶、bytes ratio 截获精简版 |
 ### 🤖 AI 工程 (4) 🆕
 
 | 技能 | 触发词 | 核心能力 |
@@ -606,6 +607,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.30 | 2026-07-23 | 112技能（+1 新增 github-sync-cron-pitfalls: GitHub skill-repo sync cron troubleshooting 实战踩坑分类与防御；开发工程 22→23）+5 内容更新(apple-design v1.0.0 新增::before 多层级伪元素继承坑、huashu-design v0.0.0 新增 HTML Slide 维护+主题迁移 references、question-bank-pipeline v1.2.0 新增考试系统/评分系统触发词、sketch v1.0.0 移除永久排除 spike 引用、skill-evaluator v1.2.0 新增 cron script 部署双方式 A/B）；5 SKIP(DO NOT OVERWRITE: firecrawl-web本地精简版 vs GH完整版、test-driven-development/wechat-article-archive/wsl-docker-deploy/systematic-debugging本地内容少于GH保留GH完整度)；76 unclassified REPORT 待用户决策分类 |
 | v5.4.26 | 2026-07-17 | 111技能 — 9技能内容同步(answer v1.6.0+docx-quiz-extraction reference升级、apple-design v1.0.0细化原则、hallmark v1.0.0扩充58关卡+review-animations专项、huashu-design v0.0.0路由表+related_skills、question-bank-pipeline v1.2.0管线优化、redesign-skill v1.0.0升级7维审计、sketch v1.0.0+disposable mode、wechat-article-archive v1.0.0+🛑 STOP验证项、writing-skills v1.0.1)；2跳过(darwin-skill本地v2.1.2 Cron精简版2271b < GH v2.1.1完整版20072b、web-spa本地v1.2.0精简版10009b < GH v1.0.0基础版4673b，按v5.4.22 bytes ratio < 0.7 疑似精简版规则跳过)；4 unclassified REPORT(external-skill-evaluation/requirement-alignment-analysis/strategy-plan-writing/supabase-backend)；版本号继续PATCH(111技能数未变) |
 | v5.4.25 | 2026-07-16 | 111技能 — +3 新增(apple-design/emil-design-eng/find-animation-opportunities: 吸收自 emilkowalski/skills 的Apple设计原则/动画决策框架/动画机会发现，创意分类 6→9)；hallmark 融入 review-animations 动画专项审查能力；redesign-skill 融入 improve-animations 动画审计优化能力；huashu-design 更新路由表和 related_skills；完整技能引用网络已建立 |
 | v5.4.22 | 2026-07-14 | 102技能 — 5技能内容同步(executing-plans/finishing-a-development-branch/receiving-code-review/verification-before-completion/writing-skills v1.0.0→v1.0.1)；3技能unclassified REPORT待用户决策(external-skill-evaluation/strategy-plan-writing/supabase-backend)；darwin-skill本地v2.1.2为Cron精简版(2271字节)，GH HEAD v2.1.1为完整版(20072字节)，按v5.4.21方向验证规则跳过避免倒退 |
