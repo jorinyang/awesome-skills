@@ -1,11 +1,11 @@
 ---
 name: web-spa
-description: Web SPA 开发模式与陷阱——全屏演示/答题类单页应用的最佳实践。覆盖 CSS 居中+溢出的经典坑、数据加载方案选择、JS 作用域陷阱、选项格式化管道。
-version: 1.0.0
+description: Web SPA 开发模式与陷阱——全屏演示/答题类单页应用的最佳实践。覆盖 CSS 居中+溢出的经典坑、数据加载方案选择、JS 作用域陷阱、选项格式化管道、倒计时音效、自动隐藏导航、流体排版、Apple 风格 UI。
+version: 1.2.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
-    tags: [frontend, spa, css, layout, js]
+    tags: [frontend, spa, css, layout, js, audio]
 triggers:
   - "做个web SPA"
   - "单页应用"
@@ -16,6 +16,9 @@ triggers:
   - "选项不显示"
   - "CSS 居中问题"
   - "flex overflow bug"
+  - "倒计时音效"
+  - "Web Audio beep"
+  - "导航条自动隐藏"
 ---
 
 # web-spa — Web SPA 开发模式与陷阱
@@ -28,7 +31,21 @@ triggers:
 | Supabase REST API `fetch()` 直调 | 只读、高性能 | 无自动重试，需手动 `limit=1000` |
 | OSS 预生成 JSON → fetch | **最可靠**，零运行时风险 | 需 cron 定时同步，非实时 |
 
-**推荐**：答题/展示类 SPA → OSS JSON，admin 操作通过 cron 自动同步。
+**分离原因**：题库是"慢数据"（数百题 x 完整选项），用预生成 JSON 最可靠；配置是"快数据"（几个数字），从 Supabase 直读实现零延迟同步。
+
+**CDN 缓存陷阱**：OSS JSON 被 CDN 缓存后，即使设 `Cache-Control: no-cache`，浏览器仍可能用旧文件。修复：**JSON 文件名版本化** `quiz_data_{timestamp}.json`，每次同步生成新文件名，display.html 中引用新 URL。
+
+```javascript
+// 题库从 JSON → 配置从 Supabase REST
+fetch('https://gzzhike.cn/funv-quiz/quiz_data_1784263695.json')  // 版本化文件名
+  .then(r => r.json())
+  .then(d => { pool = d.required; })
+  .then(() => fetch(SUPABASE + '/rest/v1/exam_config?select=*&limit=1', { headers }))
+  .then(r => r.json())
+  .then(cfg => { config = cfg[0]; })
+```
+
+**分离原因**：题库是"慢数据"（数百题 x 完整选项），用预生成 JSON 最可靠；配置是"快数据"（几个数字），从 Supabase 直读实现零延迟同步。
 
 **Supabase JS 客户端正确用法**（当必须使用时）：
 ```javascript
@@ -58,34 +75,30 @@ function normalizeOptions(opts) {
 ```
 **症状**：内容超出视口时，顶部被裁切不可滚动，底部选项消失。
 
-### ✅ JS 动态居中（最可靠）
+### ✅ 推荐方案 A：`::before`/`::after` 伪元素（最可靠，纯 CSS）
 ```css
-#main { flex: 1; overflow-y: auto; padding: 0 32px 60px; }
-#card { max-width: 960px; margin: 0 auto; }
+#main {
+  display: flex; flex-direction: column; align-items: center;
+  flex: 1; min-height: 0;          /* ← min-height:0 是关键 */
+  overflow-y: auto; overflow-x: hidden;
+}
+#main::before, #main::after { content: ''; flex: 1; min-height: 0; }
+#card { max-width: 960px; width: 100%; }
 ```
+**原理**：`::before` 和 `::after` 是 flex 弹性占位符，`flex: 1` 平分剩余空间→居中。内容溢出时 `min-height: 0` 让占位符缩到零，所有内容可滚动。
+
+**优点**：纯 CSS、缩放/窗口变化自动响应、不依赖 JS 计算。
+
+### ✅ 方案 B：JS 动态居中
 ```javascript
 function center() {
-  setTimeout(function() {
-    var c = document.getElementById('card');
-    var m = document.getElementById('main');
-    c.style.marginTop = '0';
-    var ch = c.offsetHeight, mh = m.clientHeight;
-    if (ch < mh) c.style.marginTop = Math.floor((mh - ch) / 2) + 'px';
-    else c.style.marginTop = '16px';
-  }, 50);
+  var c = document.getElementById('card');
+  var m = document.getElementById('main');
+  var ch = c.offsetHeight, mh = m.clientHeight;
+  c.style.marginTop = (ch < mh) ? Math.floor((mh - ch) / 2) + 'px' : '16px';
 }
 ```
-
-### ✅ `margin:auto` 方案（次选）
-```css
-.container {
-  flex: 1; display: flex; flex-direction: column;
-  overflow-y: auto;
-  /* 不用 align-items:center; 不用 justify-content:center; */
-}
-.card { margin: auto 0; align-self: center; }
-```
-`margin: auto 0` 在内容短时居中，长时塌缩为 0 允许滚动。**但不能用 `align-items: center`**，否则 auto margin 失效。
+**注意**：页面缩放后不重新计算，可能导致导航被挤出视口。方案 A 更优。
 
 ## 3. JS 变量名与函数名冲突
 
@@ -106,54 +119,169 @@ var selType = null;
 function sel(t, el) { selType = t; }
 ```
 
-## 4. 选项标准化管道
+## 4. LLM 生成结构化数据的铁律（题库导入核心教训）
 
-当选项来源不统一（原始文档/LLM 生成/手动录入）时：
+**核心坑**：LLM 重排选项导致答案字母错位——补全缺失选项时改变了 ABCD 排列顺序，但 `correct_answer` 字母未更新，导致指向错误选项。一次 session 中发现 38 处此类错误。
 
+### 规避策略（按优先级）
+
+1. **System Prompt 强制声明**：
 ```
-原始数据 ──→ 归一化脚本 ──→ DB 统一格式 ──→ JSON 导出 ──→ 前端简单渲染
-              ↓
-         strip all prefixes
-         replace with "A.xxx" format
+铁律：选项顺序与原文保持一致，不可重排！答案字母必须与选项位置对应。
+选项固定4个，统一 "A.xxx" "B.xxx" "C.xxx" "D.xxx" 格式。
+严禁使用 A、 A) A， 等分隔符。
 ```
 
-**归一化正则**（Python）：
+2. **导入后自动校验**：每道题检查 `correct_answer` 指向的选项文本与原始文档是否一致。
+
+3. **答案字母错位修复脚本**（比内容文本，非字母）：
+```python
+# 38 处字母错位 → 修复脚本：对每道题，匹配 docx 正确答案文本到 DB 选项位置
+for q in db_questions:
+    dx_text = docx_correct_answer_text.get(q['question_text'][:80])
+    for idx, opt in enumerate(q['options']):
+        opt_clean = re.sub(r'^[A-D]\\.\\s*', '', str(opt)).strip()
+        if prefix_match(opt_clean, dx_text) > 0.5:
+            if chr(65+idx) != q['correct_answer']:
+                update_db(q['id'], chr(65+idx))
+```
+
+### 其他常见错误（本项目实际踩坑）
+
+| 错误类型 | 现象 | 修复 |
+|----------|------|------|
+| 选项合并 | "C.xxxD.xxx" 被当成一个选项 | 正则 `([A-D])\\\\.` 拆分 |
+| 缺 D 选项(58题) | 只有 3 个选项 | LLM 补全但保持前 3 个顺序不变 |
+| 答案字母错位(38题) | 补选项后答案字母未更新 | 修复脚本比内容文本重新匹配位置 |
+| 题号污染 | 选项文本中含 "B1-1 (√)" | `re.sub(r'[BQ]\\\\d+-\\\\d+.*', '', opt)` |
+| 跨套重复 | 不同套同名题目 | 按 question_text 去重 |
+| 近似重复 | "一个月内"/"1个月内" | Levenshtein ≤2 且答案相同→删一条 |
+| JSON 非法 | 题目中引号未转义 | 导入前 `json.dumps` 校验 |
+| 配置不实时 | admin 改完配置 display 页不变 | 配置从 Supabase 直读，不用 JSON 同步 |
+
+## 5. 选项标准化管道
+
+归一化所有选项为 `A.xxx` 格式，让前端渲染只需最简单正则：
+
+**后端归一化（Python）**：
 ```python
 def normalize_option(opt, letter):
-    stripped = re.sub(r'^[A-Da-d][.\u3001\uFF0C\s\)）．:：]+', '', str(opt)).strip()
+    stripped = re.sub(r'^[A-Da-d][.\u3001\uFF0C\s\））．:：]+', '', str(opt)).strip()
     return f'{letter}.{stripped}'
 ```
 
-**前端渲染**（JS，所有格式已统一后最简单）：
+**前端渲染（JS，格式统一后）**：
 ```javascript
-String(o).replace(/^[A-D]\.\s*/, '')  // 只处理 "A." 前缀
+String(o).replace(/^[A-D]\.\s*/, '')  // 只需处理 "A." 前缀
 ```
 
-## 5. 全屏演示 SPA 的 CSS 基线
+## 6. 响应式流体排版
+
+用 `clamp()` 替代固定 `px` 和手动 `@media`：
 
 ```css
-/* 防裁切 */
-#main {
-  overflow-y: auto;        /* NOT hidden */
-  overflow-x: hidden;
-}
-.opt {
-  overflow: hidden;        /* 单选项文字过长隐藏，非整题隐藏 */
-  word-break: break-word;
-  min-height: 52px;        /* 保证空内容也可见 */
-}
+.qtext { font-size: clamp(22px, 2.5vw, 38px); }  /* 题目 */
+.opt   { font-size: clamp(14px, 1.4vw, 22px); }  /* 选项 */
+#card  { max-width: clamp(600px, 70vw, 960px); }  /* 卡牌 */
 ```
 
-## 6. 调试技巧
+**效果**：一个声明覆盖 720p→4K 所有分辨率，UI 缩放 150% 时字体等比缩小。比手动 `@media(max-height:800px)` 更平滑。
 
-无法看到实际渲染问题时，给页面加调试面板：
+## 7. 倒计时 + Web Audio 音效
+
+**场景**：答题/竞赛类 SPA 需要在指定时间点发出音频提示。
+
+**Web Audio API 合成嘟声（无需外部音频文件）**：
 ```javascript
-window.onerror = function(msg, src, line) {
-  // 显示在固定底部面板
-};
+var _actx = null;
+function beep(n) {
+  try {
+    if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+    for (var k = 0; k < n; k++) {
+      (function(d) { setTimeout(function() {
+        var o = _actx.createOscillator(), g = _actx.createGain();
+        o.type = 'square'; o.frequency.value = 880; g.gain.value = 0.06;
+        o.connect(g); g.connect(_actx.destination);
+        o.start(); o.stop(_actx.currentTime + 0.1);
+      }, d); })(k * 350);
+    }
+  } catch(e) {}
+}
+
+// 高频警报"滴滴滴滴"（8声，两两分组）
+function beepAlert() {
+  var count = 0;
+  var id = setInterval(function() {
+    if (count >= 8) { clearInterval(id); return; }
+    var o = _actx.createOscillator(), g = _actx.createGain();
+    o.type = 'square'; o.frequency.value = 1200; g.gain.value = 0.12;
+    o.connect(g); g.connect(_actx.destination);
+    o.start(); o.stop(_actx.currentTime + 0.15);
+    count++;
+  }, 300);
+}
 ```
-或关键渲染处打印 `console.log` 输出数据结构和类型。
+
+**时间点触发模式**：
+```javascript
+// 1分钟时：2声嘟
+if (left === 60 && lastAlert > 60) { beep(2); }
+// 10→1秒：红色脉冲（可配合每秒 beep(1)）
+if (left >= 1 && left <= 10) { el.classList.add('warn'); }
+// 归零
+if (left <= 0) { stopTimer(); beepAlert(); }
+```
+
+**显示**：大号 `MM:SS` 格式 + 缩放适配：
+```javascript
+function fmtTime(s) {
+  var m = Math.floor(s / 60), sec = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+```
+
+## 8. 导航条自动隐藏（沉浸式全屏）
+
+**场景**：大屏投影答题时，顶栏和底栏默认隐藏，鼠标移到触发区时淡入。
+
+**CSS 实现**：
+```css
+/* 导航条：默认滑出隐藏 */
+#topbar {
+  opacity: 0; transform: translateY(-100%);
+  transition: opacity .35s ease, transform .35s ease;
+  backdrop-filter: blur(20px); /* Apple 毛玻璃 */
+}
+#topbar:hover, #topbar.show { opacity: 1; transform: translateY(0); }
+
+/* 透明触发区（扩大 hover 范围） */
+.top-zone { position: fixed; top: 0; left: 0; right: 0; height: 44px; z-index: 21; }
+```
+
+底栏同理，用 `translateY(100%)`。首次进入时给导航条加 `.show` class 亮相 3 秒后自动移除作为提示。
+
+## 9. Apple 风格 UI（关联技能）
+
+需要 Apple 设计语言时加载 `apple-design` 技能。在实际项目中应用的组件：
+- 毛玻璃：`backdrop-filter: blur(20px) saturate(180%)`
+- 弹簧动画：`cubic-bezier(0.32,0.72,0,1)` / `cubic-bezier(0.34,1.56,0.64,1)`
+- 胶囊按钮 + `:active { transform: scale(0.96) }` 按压反馈
+- SF 风格字体：`letter-spacing: -0.022em`（大标题收紧）
+
+## 10. 调试技巧
+
+```javascript
+// 全局错误捕获
+window.onerror = function(msg, src, line) { /* 显示在固定底部面板 */ };
+
+// 渲染关键节点打印数据结构
+console.log('q:', q[i], 'opts type:', typeof q[i].options, 'len:', q[i].options?.length);
+```
+
+在页面底部放红色调试面板，按 `D` 键切换显示。加载完成后自动隐藏。
 
 ## 参考文件
 
 - `references/css-flex-overflow-bug.md` — CSS flex 居中+overflow bug 详细复现与解决方案
+- `references/llm-import-guardrails.md` — LLM 批量生成题库的导入规范、System Prompt 模板、校验清单
+- `web-quiz-system` — 问答系统专用技能：Supabase题库+大屏展示+LLM导入+OSS部署（本项目实际应用）
