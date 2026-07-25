@@ -7,7 +7,7 @@ description: >-
   the sync shows unexpected sync candidates, deletes tracked files,
   double-counts or under-counts skills, or fails to rebase correctly.
   Each pitfall has a tested recipe.
-version: 1.0.0
+version: 1.1.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -253,6 +253,75 @@ line. Discard the initial scan output.
 
 ---
 
+## Pitfall 9: Same-version line additions are not a direction signal
+
+**Symptom**: A scanner marks every same-version file with local-only lines as `SYNC`, even when the local copy is an older platform-specific fork.
+
+**v5.4.31 evidence**:
+- `skill-evaluator` was v1.2.0 on both sides. The local file added old Linux cron paths while deleting newer Windows deployment guidance. Blind `extra_in_local` logic would have regressed GitHub.
+- `sketch` was also v1.0.0 on both sides, but its only semantic change removed the permanently excluded `spike` reference. That cleanup was safe to sync.
+
+**Recipe — require an authoritative direction signal**:
+```python
+removed = [line for line in gh_lines if line not in local_lines]
+removed_excluded_ref = any(
+    any(name in line for name in PERMANENTLY_EXCLUDED)
+    for line in removed
+)
+
+if local_v == gh_v and removed_excluded_ref:
+    return 'SYNC', 'same-version cleanup of permanently-excluded reference'
+if local_v == gh_v and local_added_reference_files:
+    return 'SYNC', 'same-version reference expansion'
+if local_v == gh_v and extra_in_local:
+    return 'REPORT', 'semantic direction audit required'
+```
+
+For platform paths, cron wrappers, credential locations, or deployment instructions, compare against the current host and latest verified execution log. Never treat set-difference alone as proof that local is newer.
+
+---
+
+## Pitfall 10: README category sums need a scoped parser
+
+**Symptom**: Badge, disk count, and index unique references all equal 112, while a broad category regex reports 108 and creates a false inconsistency alert.
+
+**Root cause**: `re.findall(r'^### .*\((\d+)\)$', readme, re.M)` is not scoped to the skill index and can miss or mix unrelated level-three headings. Installation-script comments are a separate count surface and must not be summed together with index headings.
+
+**Recipe**:
+```python
+start = readme.index('## 📚 技能索引')
+end = readme.index('\n## ', start + 1)
+index_block = readme[start:end]
+category_sum = sum(map(int, re.findall(r'^### .*\((\d+)\)\s*$', index_block, re.M)))
+```
+
+Validate four independent invariants:
+1. badge == on-disk skill directories
+2. unique index links == on-disk skill directories
+3. index category sum == badge
+4. install-script case coverage == on-disk skills (audited separately)
+
+---
+
+## Pitfall 11: Windows line endings can inflate diff statistics
+
+**Symptom**: A one-line README insertion appears as hundreds of insertions/deletions, or a one-line SKILL.md change appears as a full-file rewrite.
+
+**Root cause**: Codeload and local skill files can use different LF/CRLF representations. Ordinary `git diff --stat` reports line-ending churn as content churn.
+
+**Recipe**:
+```bash
+git diff --ignore-space-at-eol --numstat
+git add <specific-paths>
+git diff --cached --check
+```
+
+Use the first command to estimate semantic change size and the second as the completion gate for staged whitespace errors. Do not report ordinary unnormalized `git diff --stat` as the real change size.
+
+Session evidence and the exact decision matrix are in `references/v5.4.31-direction-and-line-ending-lessons.md`.
+
+---
+
 ## Quick Verification Suite
 
 Run these checks after every cron completion (before commit):
@@ -310,6 +379,7 @@ If `issues` is non-empty: **stop, do not commit**, report to user.
 
 ## Change Log
 
+- **v1.1.0** (2026-07-24): Added same-version direction gates, scoped README category-count parsing, and Windows LF/CRLF semantic-diff verification. Detailed evidence: `references/v5.4.31-direction-and-line-ending-lessons.md`.
 - **v1.0.0** (2026-07-22): Initial capture from v5.4.30 cron run —
   5 distinct pitfalls + 1 subdir-coverage lesson + 1 verification-suite
   recipe. Created because umbrella `github-release-readme` is
