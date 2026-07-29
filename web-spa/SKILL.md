@@ -268,7 +268,17 @@ function fmtTime(s) {
 - 胶囊按钮 + `:active { transform: scale(0.96) }` 按压反馈
 - SF 风格字体：`letter-spacing: -0.022em`（大标题收紧）
 
-## 10. 调试技巧
+## 10. PPT 式横向翻页 Pager（单文件手册/课件）
+
+做「横向翻页单文件 HTML」（学员手册、课件 deck、landing 翻页页）时，直接套用 `references/pager-carousel.md` 的完整配方：
+
+- **物理**：damping-ratio/response 双参数弹簧（response 0.4s），释放速度直接作弹簧初速；`project()` 动量投射（d=0.998）定落页；甩动 |v|>600px/s 才用 damping 0.8，默认 1.0 无过冲；飞行中 pointerdown 即 `cancelAnimationFrame` 可中断。
+- **手势**：viewport `touch-action: pan-y`（纵滚交给原生），10px 阈值横向优先判定，判定后才 `setPointerCapture`；首末页橡皮筋（c=0.55）；拖拽 >10px 后 suppress 一次 click。
+- **UI**：进度条从弹簧实时 x 渲染（非 idx）；入场 `.rv` 元素 `--d` 错峰 + `page:not(.active)` 无过渡即隐 → 重进重播；目录从 `data-g`/`data-t` 属性两处生成（浮层 + 内嵌目录页）。
+- **reduced-motion**：track 交叉淡入 + 瞬时吸附，CSS 强制 `.rv` 全可见。
+- **验收**：`scripts/verify-pager.js`（playwright-core + 系统 Chrome）——页数/键盘/目录跳页/拖拽/reduced-motion/移动端 resize/控制台零报错，一条命令出 PASS/FAIL。托管 browser 工具拒绝 file:// 与 localhost 时走此路径。
+
+## 11. 调试技巧
 
 ```javascript
 // 全局错误捕获
@@ -284,4 +294,6 @@ console.log('q:', q[i], 'opts type:', typeof q[i].options, 'len:', q[i].options?
 
 - `references/css-flex-overflow-bug.md` — CSS flex 居中+overflow bug 详细复现与解决方案
 - `references/llm-import-guardrails.md` — LLM 批量生成题库的导入规范、System Prompt 模板、校验清单
+- `references/pager-carousel.md` — PPT 式横向翻页 Pager 完整配方：弹簧物理/手势状态机/橡皮筋/reduced-motion 交叉淡入/入场错峰
+- `scripts/verify-pager.js` — 翻页 deck 无头验收探针（playwright-core + 系统 Chrome），交付前跑 PASS/FAIL
 - `web-quiz-system` — 问答系统专用技能：Supabase题库+大屏展示+LLM导入+OSS部署（本项目实际应用）
