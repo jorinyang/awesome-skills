@@ -276,6 +276,9 @@ function fmtTime(s) {
 - **手势**：viewport `touch-action: pan-y`（纵滚交给原生），10px 阈值横向优先判定，判定后才 `setPointerCapture`；首末页橡皮筋（c=0.55）；拖拽 >10px 后 suppress 一次 click。
 - **UI**：进度条从弹簧实时 x 渲染（非 idx）；入场 `.rv` 元素 `--d` 错峰 + `page:not(.active)` 无过渡即隐 → 重进重播；目录从 `data-g`/`data-t` 属性两处生成（浮层 + 内嵌目录页）。
 - **reduced-motion**：track 交叉淡入 + 瞬时吸附，CSS 强制 `.rv` 全可见。
+- **演讲者备注（售前/授课 deck）**：每页 `<div class="notes">`（`display:none`，说明性文字只进 notes 不进可见区）；底部 `#drawer`（fixed + `translateY(105%)` 隐藏），**N 键**切换，打开时注入当前页 notes 的 innerHTML，翻页时同步刷新，Esc 关闭。备注每页 100-200 字口语提示（加粗关键词+过渡句独立成段）。
+- **F 键全屏**：`document.documentElement.requestFullscreen()` 切换——售前投影/授课场景必备，与 N 键备注配套。
+- **对客 deck 红线扫描**：内容派生自内部文档时，交付前 grep 内部专属词（成本线/内部机制/其他客户名/内部术语），**零命中才交付**（详见 multi-doc-consistency Workflow C）。
 - **验收**：`scripts/verify-pager.js`（playwright-core + 系统 Chrome）——页数/键盘/目录跳页/拖拽/reduced-motion/移动端 resize/控制台零报错，一条命令出 PASS/FAIL。托管 browser 工具拒绝 file:// 与 localhost 时走此路径。
 
 ## 11. 调试技巧
