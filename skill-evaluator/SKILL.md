@@ -359,70 +359,35 @@ graph TD
 
 该文件由脚本自动维护。手动修改可能导致时间戳错位，增量模式过滤出大量历史会话。
 
-### cron script 部署方式（2026-06-22 验证，2026-07-03 更新）
+### cron wrapper 脚本路径与执行环境（2026-06-22 验证）
 
-cron runner 解析相对 `script` 路径的基目录是 `~/.hermes-feishu/scripts/`，不是 `~/.hermes/scripts/`。
+cron runner 解析相对 `script` 路径的基目录是 `~/.hermes-feishu/scripts/`，不是 `~/.hermes/scripts/`。包装脚本 **必须直接放在** `~/.hermes-feishu/scripts/skill_auto_eval.sh`。
 
-**两种部署方式（任选其一）**：
-
-**方式 A：`.py` 直跑（推荐，更简单）**。将 `auto_eval_trigger.py` 复制一份到 `~/.hermes-feishu/scripts/skill_auto_eval.py`，cron 配置 `script: "skill_auto_eval.py"`。cron runner 自动用内置 Python 执行 `.py` 脚本，无需处理 venv 路径。
-
-**方式 B：`.sh` 包装脚本**（需要精确控制 Python 路径时使用）。包装脚本 **必须直接放在** `~/.hermes-feishu/scripts/skill_auto_eval.sh`。
-
-方式 B 的陷阱：
+**三个关键陷阱**：
 
 1. **不要用符号链接**：符号链接会导致 `$0`/`dirname` 解析到链接所在目录而非目标目录，相对路径推导出错。直接写入脚本文件。
 
-2. **cron 环境没有 venv python3**：cron 执行的 PATH 不包含 venv。裸 `python3` 会失败。必须用绝对路径（当前环境：`D:/.hermes/venv/Scripts/python`）。
+2. **cron 环境没有 venv python3**：cron 执行的 PATH 不包含 venv。裸 `python3` 会失败。必须用绝对路径 `/home/aorus/.hermes/hermes-agent/venv/bin/python3`。
 
-3. **Python 脚本也用绝对路径**：不依赖 `$0`/`dirname` 推导，直接写死路径。
+3. **Python 脚本也用绝对路径**：不依赖 `$0`/`dirname` 推导，直接写死 `/home/aorus/.hermes-feishu/skills/ai-engineering/skill-evaluator/scripts/auto_eval_trigger.py`。
 
-**方式 B 脚本内容**（`~/.hermes-feishu/scripts/skill_auto_eval.sh`）：
+**正确的包装脚本内容**（`~/.hermes-feishu/scripts/skill_auto_eval.sh`）：
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
+
+# Handle bare cron environment where HOME may be unset
 if [ -z "${HOME:-}" ]; then
-    export HOME="C:/Users/Aorus"
+    export HOME="/home/aorus"
 fi
-exec D:/.hermes/venv/Scripts/python \
-  C:/Users/Aorus/.hermes-feishu/skills/ai-engineering/skill-evaluator/scripts/auto_eval_trigger.py \
+
+exec /home/aorus/.hermes/hermes-agent/venv/bin/python3 \
+  /home/aorus/.hermes-feishu/skills/ai-engineering/skill-evaluator/scripts/auto_eval_trigger.py \
   --mode incremental
 ```
 
-### no_agent 脚本静默原则（无结果时不输出）
-
-`no_agent: true` 的 cron job 会将脚本 stdout **逐字投递**到目标渠道。因此脚本必须遵守：
-
-- **无结果时 stdout 为空**：返回空字符串，Hermes 不推送任何消息
-- **有结果时才输出**：只有检测到值得报告的内容时才 print 到 stdout
-
-错误做法：
-```python
-# ❌ 无结果时也输出——每10分钟骚扰用户一次
-print("近期会话中未检测到 Skill 使用。")
-```
-
-正确做法：
-```python
-# ✅ 无结果时静默
-if results:
-    print(format_report(results))
-# else: 什么都不输出
-```
-
-此原则适用于所有 `no_agent: true` 的 watchdog/checker 类 cron job。
-
-### "provider timeout" 对 no_agent 任务是红鲱鱼（2026-07-03）
-
-当 `no_agent: true` 的 cron job 报 `provider timeout` 错误时，**99% 不是脚本本身的问题**。`no_agent` 任务不调用 LLM，不应触发 provider。
-
-**诊断流程**：
-1. 先手动运行脚本验证（`bash script.sh` 或直接跑 Python），检查 exit code
-2. 若脚本正常 → 这是 Hermes cron runner 内部瞬时故障 → `cronjob resume` 即可
-3. 若脚本也失败 → 修脚本后再 resume
-
-**不要做的事**：看到 "provider timeout" 就去改 provider/model 配置。`no_agent: true` 的 job 不需要这些。
+cron job 配置使用相对路径 `script: "skill_auto_eval.sh"`（cron runner 自动解析到 `~/.hermes-feishu/scripts/`）。
 
 ## 参考文件
 
@@ -435,5 +400,4 @@ if results:
 - `scripts/static_check.sh` — L1 静态合规检查脚本
 - `scripts/auto_eval_trigger.py` — 自动触发评测（cron 增量模式）
 - `scripts/session_watcher.py` — B-2 文件监听器（备用）
-- `~/.hermes-feishu/scripts/skill_auto_eval.py` — cron no_agent 直跑脚本（auto_eval_trigger.py 的部署拷贝，每 10 分钟调用 --mode incremental）。⚠️ cron runner 解析相对 script 路径的基目录是 `~/.hermes-feishu/scripts/`，非 `~/.hermes/scripts/`。
-- `~/.hermes-feishu/scripts/skill_auto_eval.sh` — cron bash 包装脚本（备选方案，需绝对 venv 路径）。
+- `~/.hermes-feishu/scripts/skill_auto_eval.sh` — cron no_agent 包装脚本（每 10 分钟调用 auto_eval_trigger.py --mode incremental）。⚠️ cron runner 解析相对 script 路径的基目录是 `~/.hermes-feishu/scripts/`，非 `~/.hermes/scripts/`。

@@ -1,7 +1,7 @@
 ---
 name: supabase-backend
 description: Supabase 作为 SPA 后端数据层——项目初始化、建表、RLS 策略、前端 JS SDK 集成。适用于需要免费 PostgreSQL 后端的 Web 应用。
-version: 1.3.0
+version: 1.4.1
 triggers:
   - supabase
   - 后端方案
@@ -57,8 +57,12 @@ Supabase 有 **四层凭据**，初学者最容易混淆：
 如果用户已有 Supabase 项目，按优先级查找凭据：
 
 ```bash
-# 1. 显式 .env 文件
+# 1. 显式 .env 文件（Linux/Mac）
 cat ~/workspace/.env.supabase
+
+# Windows 主机实际路径（实测，本会话验证可用）
+cat /c/Users/<user>/.ClawShell/.env.supabase   # 主凭据库：URL/Key/PAT/DB_PASSWORD/Pooler 全套
+cat /c/Users/<user>/workspace/.env.supabase    # 备用副本
 
 # 2. Supabase CLI 配置
 cat ~/workspace/supabase/config.toml | grep project_id
@@ -75,6 +79,10 @@ SUPABASE_ACCESS_TOKEN=*** supabase projects list
 ```
 
 ## 建表：两条路径
+
+**多应用共享一个 Supabase 项目时**，表名必须加应用前缀（如 `pm_users`、`quiz_questions`），避免与已有应用的表冲突或语义混淆。前缀即命名空间，前端 REST 路径同步带前缀，RLS 策略名也加前缀。
+
+**凭据冲突处理**：用户口头提供的 DB password 可能与凭据文件不一致（用户记错）。两个都试一次，以能连通 Pooler 的为准——实测凭据文件中的密码优先级高于用户记忆。找到正确密码后不要追问，继续执行。
 
 ### 路径 A：直连 PostgreSQL（推荐）
 
@@ -214,6 +222,48 @@ async function login(phone, password) {
 - `encrypted_password` 必须用 `crypt()` + `gen_salt('bf', 6)` —— 实测 `gen_salt('bf', 10)` 的成本过高，Supabase Auth 验证时会报 `Invalid login credentials`。`bf,6` 兼容所有版本。`bf,10` 仅在使用 Admin API 创建的用户上可用
 - `ON CONFLICT DO NOTHING` 防止 Admin API 和 SQL 双重创建时的重复键冲突
 - 若 pgcrypto 扩展未安装：`CREATE EXTENSION IF NOT EXISTS pgcrypto`
+
+## 轻量级应用层认证（无 Supabase Auth）
+
+内部工具/小团队应用**不必走 auth.users**。直接在业务表存用户名+哈希密码，前端校验——省掉 Auth 配置、email 伪装、RLS 角色判断的整套复杂度。适用：项目管理、看板等低敏感度内部协作工具（实测于 pm_ 前缀项目管理系统，4 用户场景）。
+
+**建表 + 哈希函数**：
+
+```sql
+CREATE TABLE app_users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  role TEXT DEFAULT 'member'
+);
+
+CREATE OR REPLACE FUNCTION app_hash_password(pw TEXT)
+RETURNS TEXT AS $$
+BEGIN
+  RETURN encode(digest(pw || 'app_salt_constant', 'sha256'), 'hex');
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- 种子用户
+INSERT INTO app_users (username, password_hash, display_name)
+VALUES ('admin', app_hash_password('admin123'), '管理员');
+```
+
+**前端登录**（Web Crypto API 复算哈希，与 DB 比对，零 SDK 依赖）：
+
+```javascript
+const rows = await fetch(API + '/app_users?username=eq.' + encodeURIComponent(username),
+  { headers: { apikey: SB_KEY } }).then(r => r.json());
+const buf = await crypto.subtle.digest('SHA-256',
+  new TextEncoder().encode(password + 'app_salt_constant'));
+const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+if (rows.length && hex === rows[0].password_hash) {
+  // 登录成功：profile 存 localStorage，前端路由守卫控制权限
+}
+```
+
+**注意**：① anon key 下 `password_hash` 列可被读——内部低敏感工具可接受，敏感系统仍需 Supabase Auth；② 权限控制在应用层做（role 字段 + 前端守卫），RLS 用 `USING (true)` 即可；③ salt 常量在 SQL 函数和前端 JS 中必须完全一致；④ 密码 hash 验证可离线比对——先 `crypto.subtle.digest` 复算再与查询结果比对，无需调 Auth API。
 
 ## 前端集成
 
@@ -375,6 +425,13 @@ trip-landing（行程落地页）
 | 25 | **通知重复推送：三层重复** | 一次工单操作收到 3~N 条钉钉消息（N=管理员数） | ① **重复触发器**：`trg_wo_notify` + `trg_notify_wo_change` 调用同一函数（同理 `trg_mr_notify` + `trg_notify_mr_change`） ② **前端重复**：Detail.jsx/Report.jsx/MaterialRequests.jsx/CheckList.jsx 的 `createNotification()` 与 DB 触发器重复插入 ③ **N×扩展**：DB 触发器按用户循环 `INSERT INTO notifications`，`trg_push_webhook` 监听每行 → 每个管理员一条 webhook | ① 删重复触发器 → 每表保留 1 个 ② 前端移除所有工作流通知调用 → 只保留非业务事件（inventory_alert/inspection_repair/inspection_damage） ③ DB 触发器内先调 `send_webhook()` 一次，再插按用户通知行 ④ `push_to_webhook()` 跳过 already-handled 类型。详见 `references/notification-architecture.md` |
 | 26 | **localStorage 分类与页面未同步** | 管理员后台新增分类后，库存页面的分类标签/下拉仍是旧的硬编码列表 | Admin Config 页将分类写入 `localStorage`（如 key=`material_categories`），但功能页面（库存）有独立的硬编码常量数组，不读 localStorage | **单一数据源**：功能页每次渲染直接从 localStorage 读取同一 key（`loadMaterialCats()`），不声明模块级常量。方案：`const cats = loadMaterialCats()` 放在组件体内（非 `useMemo(()=>loadMaterialCats(),[])` 否则只会读取一次）。硬编码列表作为 fallback 即可 |
 | 27 | **pg_net queue 中 body 列为 memoryview** | `json.loads(body)` 报 `the JSON object must be str, bytes or bytearray, not memoryview` | `net.http_request_queue.body` 列类型为 `bytea`，psycopg2 返回 `memoryview` 对象 | `raw = bytes(body).decode('utf-8')` 先转为 bytes 再 decode。也可用 `body::text` 但 bytea→text 转义会破坏 JSON |
+| 28 | **Pooler 连接下单条 INSERT 极慢** | 448 条数据插入耗时 60s+ | 单条 INSERT 经 Pooler 延迟 ~100ms/条 | 用 `execute_values` 批量插入，448 条 → <2s |
+| 29 | **DELETE 后 INSERT 仍报 UNIQUE 冲突** | `UniqueViolation: duplicate key` 但确认已 DELETE | Pooler 连接下 `c.commit()` 可能静默不提交 DELETE | `c.autocommit = True`；DELETE 后立即 `SELECT count(*)` 验证 |
+| 30 | **CDN SDK 全局变量不可用** | 页面空白/登录失败，`window.supabase` 始终 undefined | jsDelivr CDN 在某些网络环境下加载失败，或 UMD build 没有正确暴露全局变量 | 完全绕过 SDK，用原生 `fetch()` 直接调 Supabase REST API（见下文「无 CDN SDK 的 fetch 模式」） |
+| 31 | **一行多段座位号 UNIQUE 冲突** | 同一排有 1-9 和 21-29 两段 → UNIQUE 约束报错 | row_configs 表 UNIQUE(zone_id, row_number) 不允许同一排号出现两次 | 移除该 UNIQUE 约束；用 `DELETE + INSERT` 替换 UPDATE（非 idempotent） |
+| 32 | **前端 COUNT 查询 limit 截断** | 统计数据不准（6272 行只读了 5000） | `select`+`limit` 取回行数不足 | 用 `Prefer: count=exact` 请求头 + `limit=0`，解析 `content-range` 头获取精确行数，不拉取任何数据行 |
+| 33 | **bookings 按演出日期过滤需做两次查询** | bookings → seats → shows 跨三层关系，REST API 不能直接在 bookings 上加 `seats.shows.date=eq.X` 过滤 | Supabase REST API 的嵌入式过滤不支持跨三层关系 | 先查 `shows.date=X` 获取 show_id → 查 seats 获取 seat_ids → 用 `seat_id=in.(...)` 过滤 bookings。对数据量小的场景可用 `select=*,seats(*,shows(*))` 取回后在 JS 端过滤 |
+| 34 | **FK 列传错 UUID 类型（如 bookings FK 传了 seat UUID）** | PATCH 操作无错误提示但数据未更新，页面假死/无响应 | `rescheduled_from UUID REFERENCES bookings(id)` 但代码传入的是 seat_id（另一个表的 UUID），外键校验静默拒绝 → API 返回错误但前端未 catch → 后续状态不一致 | ① 严格区分 FK 列引用的目标表；② PATCH 操作必须 try-catch 并显示错误；③ 如果 FK 列在当前业务中不必须，不要传该字段（而非传错误值）
 
 ## 通知触发器
 
@@ -390,12 +447,152 @@ trip-landing（行程落地页）
 
 批量修复多张表 `id` 列无 DEFAULT 的问题，使用 `references/batch-fix-id-defaults.md` 中的检测与一键修复脚本。
 
+## 前端：无 CDN SDK 的原生 fetch 模式
+
+当 CDN 加载的 Supabase JS SDK 无法正常工作（`window.supabase` 始终 undefined、网络环境限制）时，**完全绕过 SDK**，直接用原生 `fetch()` 调用 Supabase REST API。零外部依赖，可靠性最高。
+
+```javascript
+const SB_URL = 'https://{project_ref}.supabase.co'
+const SB_KEY = 'sb_publishable_...'
+const API = SB_URL + '/rest/v1'
+
+async function api(method, table, params = {}) {
+  let url = `${API}/${table}`
+  const opts = {
+    method: method.toUpperCase(),
+    headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }
+  }
+  if (params.select) url += `?select=${encodeURIComponent(params.select)}`
+  if (params.filters) url += (url.includes('?') ? '&' : '?') + params.filters
+  if (params.order) url += (url.includes('?') ? '&' : '?') + `order=${params.order}`
+  if (params.limit) url += (url.includes('?') ? '&' : '?') + `limit=${params.limit}`
+  if (params.body) opts.body = JSON.stringify(params.body)
+
+  const r = await fetch(url, opts)
+  if (!r.ok) { const e = await r.text(); throw new Error(e) }
+  const txt = await r.text()
+  return txt ? JSON.parse(txt) : null
+}
+```
+
+**COUNT 查询（不拉取数据）**：
+
+```javascript
+async function apiCount(table, filter) {
+  let url = `${API}/${table}?limit=0`
+  if (filter) url += `&${filter}`
+  const r = await fetch(url, { headers: { 'apikey': SB_KEY, 'Prefer': 'count=exact' } })
+  const range = r.headers.get('content-range')
+  if (range) { const m = range.match(/\d+$/); if (m) return parseInt(m[0]) }
+  return 0
+}
+```
+
+> ⚠️ PATCH 和 DELETE 必须在 URL filter 中指定条件（如 `?id=eq.xxx`），否则操作全表。
+
+## 动态座位生成模式
+
+适用于票务/选座等需要从行配置批量生成座位的场景。
+
+**表结构**：`zones`(区域) → `row_configs`(排号段) → `seats`(具体座位 × 每场次)
+
+**关键规则**：
+- 一行可能有**多个不连续号段**（如 1-9号 + 21-29号）→ 不要对 `(zone_id, row_number)` 加 UNIQUE，同一排允许多条 row_configs 记录
+- 前端渲染座位图时，对同一排的多段号段要合并展示在同一行（按 seat_number 排序后渲染）
+- 用 `CROSS JOIN LATERAL generate_series(seat_start, seat_end)` 批量生成
+- admin 后台提供「重新生成座位」按钮，修改区域排配置后一键重建
+
+```sql
+INSERT INTO seats(show_id, zone_id, zone_name, floor, row_number, seat_number)
+SELECT $1, z.id, z.name, z.floor, rc.row_number, s.seat_num
+FROM row_configs rc
+JOIN zones z ON z.id = rc.zone_id
+CROSS JOIN LATERAL generate_series(rc.seat_start, rc.seat_end) AS s(seat_num)
+```
+
+### 座位模板复用模式
+
+当不同演出日期使用不同的座位布局时，**不要直接修改 seats 表**。引入 `seat_templates` + `template_rows` 两层：
+
+- `seat_templates`(id, name) — 模板名称（如 "默认448座"、"VIP专场"）
+- `template_rows`(template_id, zone_id, zone_name, floor, row_number, seat_start, seat_end) — 模板内的排配置
+- `shows.template_id` — 每个场次关联一个模板
+
+**流程**：
+1. 在 `row_configs` 中编辑当前布局 → 确认后「保存为模板」→ 复制到 `template_rows`
+2. 新建演出日期 → 选择模板 → 从模板批量生成该日期的 seats
+3. 「重生成」按钮只操作单日：清除该日 seats + bookings → 从模板重新生成
+4. 不同日期可关联不同模板，各自独立，互不影响
+
+**前端并行加载模式**：日期和区域数据独立，登录后并行加载再自动渲染第一个区域：
+
+```javascript
+Promise.all([loadDates(), loadZones()]).then(() => {
+  loadSeats()  // 此时 curShow + curZone 均已设置
+  loadStats()
+  loadBookings()
+})
+```
+
+## 批量操作与 Pooler 连接
+
+通过 Pooler 连接时两个核心坑和最佳实践：
+
+- **批量插入**：逐条 INSERT 经 Pooler 延迟 ~100ms/条，448 条 → 60s+。用 `execute_values` 后 448 条 → <2s（性能 100×）
+- **autocommit**：`c.commit()` 对 DELETE 可能静默不提交 → 设置 `c.autocommit = True`
+- **验证**：DELETE/TRUNCATE 后立即 `SELECT count(*)` 确认行数为 0 再继续 INSERT
+
 ## 环境依赖
 
-- `psycopg2-binary` — 直连 PostgreSQL
+- `psycopg2-binary` + `psycopg2.extras.execute_values` — 直连 PostgreSQL + 批量插入
 - `supabase` CLI — 项目管理（可选）
-- Supabase JS SDK — 前端（CDN 引入，无需安装）
+- 前端：Supabase JS SDK（CDN）或 **原生 fetch()（推荐，零依赖）**
 
 ## 凭据文件
 
 项目凭据（URL、Key、PAT、OSS 等）集中在 `references/credentials.md`。新项目启动时先从该文件获取凭据。
+
+| 44 | **`select('*')` 不指定 `.limit()` 导致数据截断** | 题库 187 条记录但页面显示不全，选项字段缺失 | Supabase JS SDK 默认不分页但 PostgREST 的 `max-rows` 配置可能被调低；部分行因超出限制未被返回 | **所有 `select('*')` 必须显式加 `.limit(1000)`**。即使数据量在默认限制内，这是防御性实践 |
+| 45 | **JSONB `options` 字段在 Supabase JS Client 中类型不稳定** | 单选题无选项显示（空白区域），但数据库内 options 为正常 JSON 数组 | SDK v2 对 JSONB 列的解析可能因网络/缓存返回 JSON 字符串而非已解析数组 | **前端必须用 `ensureOptionsArray()` 包装函数**：检查 `Array.isArray()` → 尝试 `JSON.parse()` → 降级处理。不能假设 `q.options` 总是数组 |
+| 46 | **Dedup 用前缀截取而非完整文本 hash** | 去重逻辑用 `question_text[:60]` 作为 key，导致 110+252 道合法题目被误删 | 后缀不同的题目（"根据《民法典》规定，下列哪项..."）前缀相同被当作重复 | **去重必须用完整内容 hash**：`hashlib.md5(question_text + '|'.join(options)).hexdigest()`，而非前缀截取 |
+| 47 | **LLM 生成选项后答案字母错位** | 38 道题显示错误答案——正确选项被 LLM 移到了其他字母位置 | LLM 补全缺失选项（如补 D）时重排了选项顺序，但 `correct_answer` 字母未更新。例如原答案为 B，但选项重排后正确内容移到了 A | **必须交叉验证答案内容而非字母**：用原始 docx 中正确选项的**文本内容**去匹配当前 DB 选项文本，重新映射答案字母。不能假设字母不变 |
+| 48 | **多选题被误标为单选题** | 题型列显示"单选题"但正确答案为 "ABC" | docx 解析器未识别多选题标记，或 LLM 补全选项后未回头修正 `question_type` | **入库后做 constraint 校验**：`LENGTH(correct_answer) > 1` → `question_type` 必须为 '多选题'，自动批量修正 |
+| 49 | **选项渲染正则不稳定 + 分隔符不统一** | 部分单选题选项不显示，或个别字母（A/B/C/D）消失 | 选项分隔符有 `. 、 ， ) ） ． : ：` 等 8+ 种格式，正则疲于兼容 | **① 入库前标准化所有选项为 `A.xxx` 格式**（数据库迁移脚本）；② 前端只用 `replace(/^[A-D]\.\s*/, '')`；③ 字母用 `String.fromCharCode(65+i)` 硬编码，不依赖正则匹配 |
+| 50 | **fetch() 直调 Supabase REST API 比 CDN SDK 更可靠** | `select('*')` 缺数据、JSONB 解析异常、CDN 加载失败 | supabase-js v2 CDN 在全球不同网络下表现不一致；JSONB 字段类型可能因版本返回 string 而非 array | **前端完全绕过 SDK，用原生 `fetch()` + `limit=1000` + 类型安全包装函数**。参考 `references/quiz-display-fetch.md` |
+
+| 35 | **apiCount 加 `_t` 时间戳参数导致 COUNT 全返回 0** | 统计四栏全是 0，但数据存在 | 给 REST API URL 追加 `&_t=${Date.now()}` 意图破缓存，但 Supabase REST API 将其视为有效查询参数，干扰 `count=exact` 的 `content-range` 响应头解析 | apiCount 的 URL 只保留 `limit=0` + 业务 filter，不追加任何额外参数。REST API 默认无缓存，无需手动破缓存 |
+| 36 | **apiCount 加 Cache-Control 头导致 COUNT 返回 0** | 同 #35，统计全显示 0 | `fetch(...,{headers:{'Cache-Control':'no-cache'}})` 在 Supabase REST API 中干扰 count=exact 响应 | apiCount 的 fetch headers 只保留 `apikey` + `Prefer: count=exact`，不额外加任何缓存控制头 |
+| 37 | **PostgreSQL `NOT IN (NULL, ...)` 不匹配任何行** | `WHERE col NOT IN (SELECT col FROM t)` 预期删除孤儿行但 0 row affected，而子查询返回了 NULL | SQL 标准：`NOT IN` 子查询含 NULL 时，对所有外行返回 UNKNOWN，WHERE 当作 FALSE 执行 | 避免 `NOT IN (subquery)` 当子查询可能返回 NULL。改用 `NOT EXISTS (SELECT 1 FROM t WHERE t.col = outer.col)` 或在子查询中加 `WHERE col IS NOT NULL` |
+| 38 | **PostgREST 嵌入资源别名不作用于 FK 列** | `shows(date,template:seat_templates(name))` 返回的 `shows.template` 为 null | PostgREST 中 `alias:table(cols)` 别名仅适用于自定义 join，FK 列的嵌入资源键名是**引用表名**而非别名 | FK 嵌入用实际表名：`shows(date,seat_templates(name))` → 前端取 `b.seats?.shows?.seat_templates?.name` |
+| 39 | **座位排号段合并覆盖问题** | 同一排添加第二段时第一段被覆盖 | 前端 `DELETE FROM row_configs WHERE zone_id=X AND row_number=Y` 清空同排旧记录再 INSERT 新记录 | 合并算法：收集同排所有现有段 + 新段 → 按 start 排序 → 相邻/重叠段合并（`end+1>=next.start`）→ DELETE 旧记录 → INSERT 合并后的段。详见 `references/seat-range-merge.md` |
+| 40 | **区域名不统一导致三端不一致** | 订座页/后台/票根页显示不同区域名 | 数据库 zone.name 被多轮操作覆盖，但 seats.zone_name 是生成时快照的旧值 | 修改 zone.name 后**必须同步更新** `seats.zone_name` 和 `template_rows.zone_name`（三条 UPDATE）。后台「重新生成座位」会重建 seats，但 template_rows 和已有 bookings 不会自动刷新。zone_name 改为数字标识（如 168/128/108）后确认三端显示统一再继续 |
+| 41 | **ES6 模板字符串在微信浏览器中不解析** | 页面按钮点击无响应，JS 完全不执行 | 微信内置浏览器（特别是 Android 端）的 WebView 内核可能不支持 ES6 模板字面量 `` `${}` ``，导致脚本解析失败，整个页面的 JS 停摆 | **全部改用普通字符串拼接 `'text ' + var + ' more'`**，不使用模板字面量。同时检查箭头函数兼容性，必要时降级为 `function(){}`。验证时在微信中实际扫码测试，不能仅依赖 Chrome DevTools |
+| 42 | **html2canvas CDN 脚本阻塞页面加载** | 页面空白或长时间 loading，特别是微信扫码环境下 | html2canvas CDN（jsDelivr）在部分网络环境下加载极慢或被墙，`<script src>` 在 `<head>` 或页面顶部时会**阻塞 DOM 解析**，导致整个页面白屏 | **改为按需动态加载**：在 `saveStub()` 函数内部先检查 `typeof html2canvas === 'undefined'`，不存在时用 `document.createElement('script')` 动态插入 `<head>` 并 `await onload`。页面首屏不再依赖 html2canvas CDN |
+| 43 | **按钮在操作中 disabled 导致用户困惑** | 用户反馈「按钮点不了」「没有反馈」 | 按钮 `disabled=true` 后变灰且不可再点击，用户不知道操作是否在进行中，也无法取消或重试 | **按钮永远不禁用**。操作中仅修改 `btn.textContent`（如「查询中...」「生成中...」），完成后恢复原文。按钮始终可点击让用户有主动控制感。这是用户的明确偏好——不得违反 |
+
+## 多渠道用户模式（多对多）
+
+当账号需要绑定多个渠道时，用 junction table 而非单列外键：
+
+```sql
+CREATE TABLE user_channels (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES admin_users(id) ON DELETE CASCADE,
+  channel_id UUID REFERENCES channels(id) ON DELETE CASCADE,
+  UNIQUE(user_id, channel_id)
+);
+```
+
+**查询**：`admin_users?select=*,channel:channels(name),user_channels:user_channels(channel_id,channel:channels(name))`
+
+| 50 | **fetch() 直调 Supabase REST API 比 CDN SDK 更可靠** | `select('*')` 缺数据、JSONB 解析异常、CDN 加载失败 | supabase-js v2 CDN 在全球不同网络下表现不一致；JSONB 字段类型可能因版本返回 string 而非 array | **前端完全绕过 SDK，用原生 `fetch()` + `limit=1000` + 类型安全包装函数**。参考 `references/quiz-display-fetch.md` |
+| 51 | **DDL: `CREATE POLICY IF NOT EXISTS` 语法错误** | 整批 DDL 执行中断报 `syntax error at or near "NOT"`，后续建表语句全部未执行 | PostgreSQL 的 `CREATE POLICY` 不支持 `IF NOT EXISTS`（截至 PG17） | 先 `DROP POLICY IF EXISTS xxx ON tbl;` 再 `CREATE POLICY xxx ...`。幂等且可重复执行 |
+| 52 | **多应用共享项目时表名冲突** | 新建 `users`/`projects` 等通用表名与已有应用表冲突或语义混淆 | 同一 Supabase 项目承载多个应用，通用表名互相覆盖 | 表名加应用前缀（`pm_users`、`quiz_questions`），RLS 策略名同步加前缀 |
+
+## 关联工具
+
+- **Playwright HTML-to-PDF**：当文档需导出为排版精良的 PDF 时，参考 `references/playwright-pdf.md`
+- **票务验证 SPA**：扫码→查询→多票选择→票根→截图保存，参考 `references/ticket-verify-spa.md`
+- **座位排号段合并算法**：参考 `references/seat-range-merge.md`
+- **Docx 题库解析**：从多套 docx 提取结构化数据，参考 `references/quiz-docx-parsing.md`
+- **竞赛答题展示页**：fetch() + options 渲染 + 白底大屏投影，参考 `references/quiz-display-fetch.md`

@@ -67,6 +67,31 @@ The user has articulated specific quality standards for this class of work. Thes
 
 6. **能拿到结果 (Results-Oriented)**: Every chapter should have measurable outcomes. Include KPI dashboards, milestone checkpoints, and success/failure criteria.
 
+## Two-Tier Delivery Pattern (Cold-Start / Complex Launches)
+
+When the user asks for both strategy AND execution in one request (typical for cold-start / new product launch / online matrix planning), split into TWO documents, not one:
+
+**v1 — Strategy Plan (策略层):**
+- Market anchors & industry data
+- First-principles analysis
+- Core decisions (account strategy, platform selection, team, budget)
+- 90-day roadmap at the milestone level
+- KPI dashboard
+
+**v2 — Execution Plan (执行层):**
+- Per-platform account setup specs (names, bios, menu structures, POI)
+- Content type breakdown with script templates
+- 30-day editorial calendar (day-by-day)
+- Publishing SOPs and best-time schedules
+- Paid promotion strategy (DOU+, 薯条) with phased budgets
+- Comment/interaction scripts and conversion funnels
+- Cross-platform coordination workflow (一鱼多吃)
+- Day 1-7 launch checklist
+
+**Why split:** A single document that covers both strategy and per-platform execution detail becomes unreadable (>20K words) and neither layer gets done well. The strategy document is for decision-makers; the execution document is for operators. Two audiences, two docs.
+
+**Naming convention:** `{主题}_策划案_v1.md` + `{主题}_各平台执行方案_v1.md`
+
 ## Document Structure Pattern
 
 For multi-dimensional business analysis, use this proven structure:
@@ -98,15 +123,16 @@ When the user provides source materials (meeting notes, transcripts):
 
 ## Deliverable Format
 
-- Write as a single comprehensive markdown file
+- **Simple requests:** single comprehensive markdown file
+- **Cold-start / complex launches:** two-tier (strategy v1 + execution v2), see Two-Tier Delivery Pattern
 - Use tables for data-heavy sections (market data, pricing models, team configs, KPI dashboards)
-- Use ASCII diagrams for flowcharts and architecture
 - Include an executive-level table of contents
-- Save to the workspace directory with a clear naming convention: `{主题}_策划案_v{版本号}.md`
+- Save to the workspace directory with clear naming: `{主题}_策划案_v{版本号}.md`
 
 ## Linked Resources
 
 - `references/china-research-pitfalls.md` — WSL search workarounds for China-market business research
+- `references/execution-plan-template.md` — Per-platform execution plan structure template (v2 tier)
 - `templates/strategy-plan-template.md` — Starter template for strategy/operations plan documents
 
 ## Common Pitfalls
@@ -120,3 +146,5 @@ When the user provides source materials (meeting notes, transcripts):
 4. **Forgetting the "first principles" test** — After writing each section, ask: "Would this still be true if all the industry jargon were stripped away?"
 
 5. **Over-structuring** — Not every section needs sub-sections. If a dimension only needs 2 paragraphs and a table, that's fine. Don't inflate to fill space.
+
+6. **Over-cramming strategy + execution into one document** — When the user needs both strategic decisions (账号策略, platform selection, budget) AND per-platform execution detail (script templates, 30-day calendars, SOPs), a single doc becomes bloated and unreadable (>20K words). Split into v1 (strategy, for decision-makers) and v2 (execution, for operators).

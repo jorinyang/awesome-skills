@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-112-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-113-blue)](.)
 
 ---
 
@@ -32,7 +32,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 
 ## 📚 技能索引
 
-### 🧠 方法论 (24)
+### 🧠 方法论 (25)
 
 | 技能 | 触发词 | 核心能力 |
 |------|------|----------|
@@ -60,6 +60,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [verification-before-completion](verification-before-completion/SKILL.md) 🆕 | 完成了/修好了/通过了/发布/deploy/验证 | Iron Law门禁——证据先于声明，未验证不声称完成 |
 | [darwin-skill-cron](darwin-skill-cron/SKILL.md) 🆕 | darwin cron/技能自动巡检/skill nightly optimize | Darwin Skill Cron自动化模式——9维评分+棘轮机制+并行子agent+自包含prompt模板
 | [double-evolution](double-evolution/SKILL.md) 🆕 | 技能进化/双速进化/MOMO CODE/Pioneer | 双速技能进化引擎——吸收MOMO CODE/Pioneer Agent方法论，技能自优化 |
+| [repo-source-deepread](repo-source-deepread/SKILL.md) 🆕 | 精读源码/深入分析这个仓库的实现/看看XX怎么做的/这个项目的XX机制怎么实现的/从源码里学设计 | 大型远程源码仓库深读法——git trees API 定位子系统 + AST 骨架提取（docstring/签名/常量），批量 execute_code 防上下文爆炸 |
 ### 🏗️ 构建与设计 (25)
 
 | 技能 | 触发词 | 核心能力 |
@@ -271,6 +272,33 @@ relationship-analysis → deep-think
 ---
 
 ### 🏗️ 构建与设计
+
+#### repo-source-deepread — 大型远程源码仓库深读法 🆕
+
+> **触发**：精读源码 / 深入分析这个仓库的实现 / 看看XX怎么做的 / 竞品源码分析 / 这个项目的XX机制怎么实现的 / 从源码里学设计
+
+介于"读 README 评估"（github-absorb）与"克隆后全量静态分析"（codebase-inspection）之间的**源码设计模式精读**。用 git trees API 递归定位子系统，raw 拉取 + AST 骨架提取（docstring/签名/常量），单文件压到 30~70 行，20 文件一轮精读控制在 ~15KB 输出。
+
+**四阶段工作流**：
+1. **子系统定位** — `GET /repos/{owner}/{repo}/git/trees/main?recursive=1` 一次拿全仓文件路径，正则筛子系统
+2. **批量骨架提取** — `scripts/gh_ast_skeleton.py`，每文件只取：模块 docstring（截 350 字符）+ 类/方法签名 + 顶层函数签名 + 顶层常量（≥3 个时）
+3. **选择性整读** — 只对 <8KB 的关键小文件（适配器入口、会话管理器、契约定义）整读全文；>50KB 的永不整读
+4. **吸收笔记落盘** — 产出"源码精读笔记"文档：精读范围 → 按子系统提炼设计模式 → 对本项目的吸收清单（立即/中期/深水区/明确不抄四档）→ 遗留待读清单
+
+**核心纪律**：
+- 一次 `execute_code` 拉 4~6 个文件，不要一个文件一次调用（每轮重发整个会话）
+- 50KB+ 单文件不整读——骨架先行 + 按需深钻
+- 测试文件名即设计规格（`test_proactive_unanswered_repeat.py` → 有未应答重复策略），先读测试名再读源码
+- 配置文件的常量是黄金：半衰期/冷却秒数/触发概率/阈值（产品打磨过的数值全在这里）
+- 429 限流 fallback：`git clone --depth 1` + 本地跑同一 AST 脚本
+
+**联动**：上游 `github-absorb`（先做文档层评估）→ 本技能（机制深读）→ 互补 `codebase-inspection`（结构盘点）/ `external-skill-evaluation`（评估决策）
+
+**工具集**：`scripts/gh_ast_skeleton.py`（AST 骨架 CLI，支持指定文件/`--prefix`+`--regex` 子树选文件/`--full` 整读）+ `references/skeleton-signals.md`（架构模式信号速查）
+
+> 沉淀自 2026-07-31 N.E.K.O（Project-N-E-K-O/N.E.K-O，5014 文件）精读：20 文件 4 批次，产出竞品机制笔记 9.5KB，零上下文溢出。
+
+---
 
 #### answer — AI Native's Workflow(er)
 
@@ -560,7 +588,7 @@ for dir in */; do
   name=$(basename "$dir")
   case "$name" in
     # 🧠 方法论 (24)
-    advanced-elicitation|author-methodology-analysis|blue-team|book-deconstruct|darwin-skill|darwin-skill-cron|deep-think|domain-decompose|double-evolution|edge-case-hunter|editorial-review-prose|editorial-review-structure|external-skill-evaluation|github-absorb|ljg-elicitation-modes|ljg-infographic-design|ljg-writing-voice|opportunity-solution-tree|pm-prioritization-frameworks|qa-extract|relationship-analysis|stakeholder-mapping|verification-before-completion|writing-skills) category="methodology" ;;
+    advanced-elicitation|author-methodology-analysis|blue-team|book-deconstruct|darwin-skill|darwin-skill-cron|deep-think|domain-decompose|double-evolution|edge-case-hunter|editorial-review-prose|editorial-review-structure|external-skill-evaluation|github-absorb|ljg-elicitation-modes|ljg-infographic-design|ljg-writing-voice|opportunity-solution-tree|pm-prioritization-frameworks|qa-extract|relationship-analysis|stakeholder-mapping|repo-source-deepread|verification-before-completion|writing-skills) category="methodology" ;;
     # 🏗️ 构建与设计 (25)
     answer|answer-standalone|architecture-diagram|brandkit|claude-design|dashiai-ppt-hermes|design-md|diagram-cjk-rendering|drawio-generation|dynamic-workflow|feishu-html|fireworks-tech-graph|hallmark|html-ppt|huashu-design|humanizer|pretext|redesign-skill|requesting-code-review|requirement-alignment-analysis|sketch|strategy-plan-writing|taste-skill|web-spa|writing-plans) category="build-design" ;;
     # 🔧 开发工程 (22)
@@ -607,6 +635,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.35 | 2026-08-02 | 113技能（+1 新增 repo-source-deepread：大型远程源码仓库深读法——git trees API 递归定位 + AST 骨架提取 + 批量 execute_code 防上下文爆炸，方法论 24→25；+7 内容更新 html-ppt 加 references 目录 + humanizer v2.5.1 真实新增 + pretext v1.0.0 references + requirement-alignment-analysis v1 + ref file + sketch v1.0.0→v1.0.1 移除永久排除 spike 引用 + skill-evaluator v1.2.0 真实新增 + strategy-plan-writing v + references + supabase-backend v1.3.0→v1.4.1 + 7 references）；16 SKIP（24 content_diff - 8 SYNC = 16 SKIP：6 PERMANENTLY_EXCLUDED feishu-doc/feishu-html/feishu-wiki/hermes-instance-sync/project-kanban/zhike-task-hub + 5 cron 精简版 darwin-skill 0.116/design-md 0.615/external-skill-evaluation 本地 v1.3.0 < GH v1.4.0 + travel-intel/travel-itinerary/travel-workflow 永久排除 + supply-check/vendor-brief/trip-archive 永久排除 + github-release-readme 自身排除）；HEAD = v5.4.34 = origin/main 无 race condition。|
 | v5.4.34 | 2026-07-31 | 112技能 — web-spa v1.2.0 内容更新 (3 行新增：演讲者备注 div.notes + F 键全屏 + 对客红线扫描 multi-doc-consistency Workflow C)；skill-evaluator v1.2.0 跳过（GH 含方式A/B双部署 36行更完整，本地是方式B only 简化版，按 v5.4.21 方向验证规则 SKIP 勿降级）；4 unclassified REPORT (claude-design/external-skill-evaluation/html-ppt/requirement-alignment-analysis/strategy-plan-writing) 按 cron policy 跳过，等待补 author 触发自动归类。 |
 | v5.4.33 | 2026-07-30 | 112技能 — web-spa v1.2.0 内容更新：新增 PPT 式横向翻页 Pager 配方与无头验收脚本（弹簧物理/手势状态机/橡皮筋/reduced-motion/错峰入场）；4 个 unclassified REPORT（external-skill-evaluation/html-ppt/strategy-plan-writing/supabase-backend）按 cron policy 跳过，等待补 author 或人工决策。|
 | v5.4.31 | 2026-07-24 | 2技能内容更新：web-spa v1.2.0 完整版；sketch 清理永久排除 spike 引用。5个共享技能保持 unclassified，仅报告不推送。 |
