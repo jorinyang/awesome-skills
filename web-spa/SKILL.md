@@ -1,7 +1,7 @@
 ---
 name: web-spa
 description: Web SPA 开发模式与陷阱——全屏演示/答题类单页应用的最佳实践。覆盖 CSS 居中+溢出的经典坑、数据加载方案选择、JS 作用域陷阱、选项格式化管道、倒计时音效、自动隐藏导航、流体排版、Apple 风格 UI。
-version: 1.2.0
+version: 1.3.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -13,6 +13,9 @@ triggers:
   - "全屏答题"
   - "前端页面开发"
   - "做问答系统"
+  - "单文件练习系统"
+  - "在线练习系统"
+  - "题库内联"
   - "选项不显示"
   - "CSS 居中问题"
   - "flex overflow bug"
@@ -280,6 +283,8 @@ function fmtTime(s) {
 - **F 键全屏**：`document.documentElement.requestFullscreen()` 切换——售前投影/授课场景必备，与 N 键备注配套。
 - **对客 deck 红线扫描**：内容派生自内部文档时，交付前 grep 内部专属词（成本线/内部机制/其他客户名/内部术语），**零命中才交付**（详见 multi-doc-consistency Workflow C）。
 - **验收**：`scripts/verify-pager.js`（playwright-core + 系统 Chrome）——页数/键盘/目录跳页/拖拽/reduced-motion/移动端 resize/控制台零报错，一条命令出 PASS/FAIL。托管 browser 工具拒绝 file:// 与 localhost 时走此路径。
+- **Playwright 两大陷阱**（60 页 deck 实测踩出）：① `page.goto()` 仅 hash 变化是同文档导航**不重载**——hash 深链测试/截图前必须先 `goto("about:blank")` 强制真实加载，否则静默拍错页；② `page.evaluate()` 返回序列化值不是元素句柄，`.click()` 会报 AttributeError——点击用 `page.locator(sel).nth(i).click()`。
+- **DOM 对比度审计**：浅色强调底（#5ac8fa 类，亮度≈0.5）+白字对比度仅 1.9 不可读——白字彩块背景亮度需 ≤0.28（#3d8fd1≈3.47 过线）。交付前在页面上下文跑有效背景色+亮度比全量扫描（<3.2 报警），比抽页目视可靠。
 
 ## 11. 调试技巧
 
@@ -293,10 +298,24 @@ console.log('q:', q[i], 'opts type:', typeof q[i].options, 'len:', q[i].options?
 
 在页面底部放红色调试面板，按 `D` 键切换显示。加载完成后自动隐藏。
 
+## 12. 单文件练习/考试 SPA（零依赖 + 内联题库）
+
+无后端、无 OSS、双击即开的练习系统形态（练习/测验/错题本四视图）：维护 `_build_template.html`（脚本内 `const BANK = /*__BANK_JSON__*/;` 占位）+ `_build.js`（读题库 JSON → 剥选项字母前缀 → 内联）。完整配方见 `references/single-file-quiz-spa.md`，要点：
+
+- **JSON 内联防闭合**：`JSON.stringify()` 后必须 `.replace(/</g,'\\u003c')`，防题目文本里的 `</` 提前闭合 `<script>`。
+- **选项乱序 = 对象级重映射**：选项做成 `{text,isCorrect}` 整体 shuffle，渲染标签按新下标重分配 A/B/C/D，判分只查 `isCorrect` 标志——绝不拿用户选的新字母和原答案字母比（与 §4 的 LLM 重排坑同源，一个在数据期一个在运行期）。多选判分=集合相等。
+- **localStorage 在 file:// 下抛异常**（opaque origin）：try/catch 探测 + 内存降级 + 页面可见提示条，否则整个 SPA 白屏。
+- **错题闭环**：答错自动入册（练习和测验都入），重练连对 2 次自动移出；错题条目存 `{streak,ts}`。
+- **测验抽题**：按题型分组→各组 shuffle→slice 配额→合并再 shuffle；选项在抽题时一次 prepare 存 session，翻题导航回去不重洗。
+- **验收**：逻辑态用 jsdom 无头测（判分/localStorage/抽题配比/倒计时/降级），配方见 `references/jsdom-headless-testing.md`；视觉/手势仍走 `scripts/verify-pager.js` 的 playwright 路径。
+
 ## 参考文件
 
 - `references/css-flex-overflow-bug.md` — CSS flex 居中+overflow bug 详细复现与解决方案
 - `references/llm-import-guardrails.md` — LLM 批量生成题库的导入规范、System Prompt 模板、校验清单
 - `references/pager-carousel.md` — PPT 式横向翻页 Pager 完整配方：弹簧物理/手势状态机/橡皮筋/reduced-motion 交叉淡入/入场错峰
+- `references/single-file-quiz-spa.md` — 单文件零依赖练习/考试 SPA 配方：题库内联构建管线、选项乱序对象级重映射、file:// localStorage 降级、错题本 streak 闭环、测验抽题/倒计时/题号网格
+- `references/jsdom-headless-testing.md` — jsdom 无头验收单文件 SPA：JSDOM 配置骨架、七个坑（opaque origin/词法绑定 eval/confirm 覆盖/缺失 API 防御/真定时器/计数断言枚举写入路径）
+- `references/playwright-headless-verification.md` — Playwright 无头验证全屏 HTML 交付物：hash 同文档不重载陷阱（about:blank 插页）、evaluate 非句柄、DOM 对比度全量审计、溢出审计、无 VLM 像素健全性、浅色不做白字底、超大 deck 分块构建（<!--APPEND--> 标记法）
 - `scripts/verify-pager.js` — 翻页 deck 无头验收探针（playwright-core + 系统 Chrome），交付前跑 PASS/FAIL
 - `web-quiz-system` — 问答系统专用技能：Supabase题库+大屏展示+LLM导入+OSS部署（本项目实际应用）
