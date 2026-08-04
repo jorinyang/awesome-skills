@@ -8,6 +8,8 @@ metadata:
     tags: [development, quiz, supabase, spa]
 triggers:
   - "题库"
+  - "题库维护"
+  - "题库改版/升级"
   - "quiz system"
   - "question bank"
   - "知识竞答"
@@ -319,7 +321,8 @@ bucket.put_object('exam/index.html', open('index.html','rb'), headers={
 | supabase-credentials.md | `references/supabase-credentials.md` | Supabase 凭证文件格式、DB直连模板、JSON导出验证模板 |
 | white-theme-css.md | `references/white-theme-css.md` | 白底配色方案CSS变量、字号规范、题型颜色映射 |
 | llm-import-prompt.md | `references/llm-import-prompt.md` | LLM 导入 System Prompt 模板、常见错误、校验清单 |
-| css-display-patterns.md | `references/css-display-patterns.md` | 大屏展示 CSS 布局模式：伪元素居中、clamp()响应式、白底配色 |\n\n1. **docx 选项内联**：同一行 `A.xx B.xx C.xx D.xx` 格式，正则需处理空格分隔\n2. **去重用前缀截取**：题目开头高度相似，必须用全文+选项哈希\n3. **多选题被标记为单选**：`LENGTH(correct_answer) > 1` 的应批量修正为多选题\n4. **LLM JSON 损坏**：题目中的引号/特殊字符导致 JSON 解析失败 → 分块+重试+正则提取\n5. **匿名 key 无 DDL 权限**：建表需用 service_role key 或直接连 PostgreSQL\n6. **前端 JSONB 字段**：永远做类型检查，不要假设返回类型\n7. **Supabase `select('*')` 默认分页**：不加 `.limit(1000)` 可能只返回部分数据 → 展示页可选静态 JSON 兜底\n8. **选项前缀正则**：使用 `[.\\u3001\\uFF0C\\s\\)）]+` 覆盖 A. / A、/ A) / A ）等多种分隔符，而非仅 `[\\.\\、]`\n9. **Supabase 凭证位置**：完整凭证（含 service_key/DB密码/PAT）在 `.ClawShell/.env.supabase`，建表/批量导入用 DB 直连 psycopg2\n10. **白底配色方案**：投影展示用 `--bg:#fff; --surface:#f8fafc; --text:#1e293b; --text2:#64748b`，题型用靛蓝/琥珀/玫红区分
+| css-display-patterns.md | `references/css-display-patterns.md` | 大屏展示 CSS 布局模式：伪元素居中、clamp()响应式、白底配色 |
+| md-json-bank-maintenance.md | `references/md-json-bank-maintenance.md` | 题库 MD↔JSON 双工件维护/升级：schema 约定、JSON 单一事实源生成 MD、独立五项校验、黑名单豁免、原地覆盖恢复、中文路径读文件坑 |\n\n1. **docx 选项内联**：同一行 `A.xx B.xx C.xx D.xx` 格式，正则需处理空格分隔\n2. **去重用前缀截取**：题目开头高度相似，必须用全文+选项哈希\n3. **多选题被标记为单选**：`LENGTH(correct_answer) > 1` 的应批量修正为多选题\n4. **LLM JSON 损坏**：题目中的引号/特殊字符导致 JSON 解析失败 → 分块+重试+正则提取\n5. **匿名 key 无 DDL 权限**：建表需用 service_role key 或直接连 PostgreSQL\n6. **前端 JSONB 字段**：永远做类型检查，不要假设返回类型\n7. **Supabase `select('*')` 默认分页**：不加 `.limit(1000)` 可能只返回部分数据 → 展示页可选静态 JSON 兜底\n8. **选项前缀正则**：使用 `[.\\u3001\\uFF0C\\s\\)）]+` 覆盖 A. / A、/ A) / A ）等多种分隔符，而非仅 `[\\.\\、]`\n9. **Supabase 凭证位置**：完整凭证（含 service_key/DB密码/PAT）在 `.ClawShell/.env.supabase`，建表/批量导入用 DB 直连 psycopg2\n10. **白底配色方案**：投影展示用 `--bg:#fff; --surface:#f8fafc; --text:#1e293b; --text2:#64748b`，题型用靛蓝/琥珀/玫红区分
 
 ## 📚 引用文件索引
 
@@ -329,3 +332,4 @@ bucket.put_object('exam/index.html', open('index.html','rb'), headers={
 | white-theme-css.md | `references/white-theme-css.md` | 白底配色方案CSS变量、字号规范、题型颜色映射 |
 | llm-import-prompt.md | `references/llm-import-prompt.md` | LLM 导入 System Prompt 模板、常见错误、校验清单 |
 | css-display-patterns.md | `references/css-display-patterns.md` | 大屏展示 CSS 布局模式：伪元素居中、clamp()响应式、白底配色 |
+| md-json-bank-maintenance.md | `references/md-json-bank-maintenance.md` | 题库 MD↔JSON 双工件维护/升级：schema 约定、JSON 单一事实源生成 MD、独立五项校验、黑名单豁免、原地覆盖恢复、中文路径读文件坑 |
