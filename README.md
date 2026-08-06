@@ -3,7 +3,7 @@
 > 精选 Agent Skill 集合 — 自建核心 + 三方吸收 + 方法论开发。为 Hermes Agent 设计，兼容任何支持 SKILL.md 格式的 Agent 框架。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-113-blue)](.)
+[![Skills](https://img.shields.io/badge/Skills-115-blue)](.)
 
 ---
 
@@ -90,7 +90,7 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [requirement-alignment-analysis](requirement-alignment-analysis/SKILL.md) 🆕 | 需求对齐差异分析/PRD对比/需求变更分析 | 多轮需求对齐后逐项对比——原有/差异/新增/待确定状态 |
 | [dashiai-ppt-hermes](dashiai-ppt-hermes/SKILL.md) 🆕 | 做PPT/生成PPT/DashiAI PPT/大师PPT/网页PPT/汇报材料 | DashiAI PPT生成器——12套视觉主题+1020个版式，浏览器编辑+导出PPTX/PDF
 | [diagram-cjk-rendering](diagram-cjk-rendering/SKILL.md) 🆕 | CJK图表/中文SVG/口字/兜底字体 | cairosvg CJK字体渲染兜底——「口」字检测→修复→验证流程 |
-### 🔧 开发工程 (23)
+### 🔧 开发工程 (24)
 
 | 技能 | 触发词 | 核心能力 |
 |------|--------|---------|
@@ -116,7 +116,8 @@ Agent Skill 是一种自包含的知识模块——一个 `SKILL.md` 文件定�
 | [hermes-windows-native](hermes-windows-native/SKILL.md) 🆕 | Windows原生/Hermes Windows配置 | Hermes Agent Windows原生配置+故障排查（post-WSL迁移）
 | [question-bank-pipeline](question-bank-pipeline/SKILL.md) 🆕 | 题库/quiz system/知识竞答/试卷/题目导入/大比武 | 题库全栈开发管线——docx/xlsx/md解析→Supabase JSONB→Web SPA大屏→OSS部署
 | [wukong-skill-center](wukong-skill-center/SKILL.md) 🆕 | 悟空技能中心/企业技能中心/Wukong Skill Hub/技能路由/ExclusiveSkillHub | 钉钉悟空企业技能中心集成——SkillBridge iframe+FC路由服务两种模式 |
-| [github-sync-cron-pitfalls](github-sync-cron-pitfalls/SKILL.md) 🆕 | GitHub skill-repo sync cron troubleshooting/class-level pitfalls | 日常 sync cron 踩过的类级坑——codeload 429 fallback、reset --soft race、CRLF 归一化、unclassified 三子桶、bytes ratio 截获精简版 |
+| [github-sync-cron-pitfalls](github-sync-cron-pitfalls/SKILL.md) 🆕 | GitHub skill-repo sync cron troubleshooting/class-level pitfalls | 日常 sync cron 踩过的类级坑——codeload 429 fallback、reset --soft race、CRLF 归一化、unclassified 三子桶、bytes ratio 截获精简版 |
+| [github-skill-repo-cron](github-skill-repo-cron/SKILL.md) | 类级 cron 规范/github仓库自动同步/sync cron/七阶段闭环 | 七阶段抽象——双源扫描+symlink穿透+CRLF归一+方向验证+bytes ratio+unclassified三子桶；会话级细节留给 github-release-readme |
 ### 🤖 AI 工程 (4) 🆕
 
 | 技能 | 触发词 | 核心能力 |
@@ -635,6 +636,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v5.4.38 | 2026-08-08 | 114→115技能 — github-sync-cron-pitfalls v1.2.0 内容同步（local v1.2.0 > gh v1.1.0，bytes ratio 0.71，+110 行实战：v5.4.36 tag collision + gh L1 TTL 缓存 + v-number 派生；新增 references/v5.4.36-tag-collision-and-gh-l1.md）；github-skill-repo-cron 顺手补录（orphan cleanup，🔧 开发工程 23→24）；badge 113→115。 |
 | v5.4.37 | 2026-08-05 | 113技能 — question-bank-pipeline v1.2.0 内容同步（本地 17972b/335行 vs GH 17419b/331行，本地新增 4 行 md-json-bank-maintenance 表行+对应 references/md-json-bank-maintenance.md 文件，按 v5.4.23 行级 diff 方向验证判定为本地新版本）；其余 18 content_diff 全部归类：14 OFFICIAL 跳过（feishu-doc/feishu-html/feishu-wiki/hermes-instance-sync/project-kanban/travel-intel/travel-itinerary/travel-workflow/zhike-task-hub/trip-archive/supply-check/vendor-brief/design-md）+ 1 CRON-SLIM ratio=0.116 跳过（darwin-skill 本地 v2.1.2 2271b < GH v2.1.1 19626b） + 3 unclassified REPORT（external-skill-evaluation 本地 v1.3.0 < GH v1.4.0 + claude-design 本地 v1.1.0 > GH v1.0.0 + dashiai-ppt-hermes 本地 0b vs GH v1.0.0 10645b）按 cron policy 仅报告不推送，等待用户补 author; local_only 250 个全部归类为 official 或 unclassified/bak/cycle-addendum，无 self-built/third-party 待同步。 |
 | v5.4.36 | 2026-08-04 | web-spa v1.2.0 内容更新（HEAD = v5.4.36 提交于 2026-08-04）。 |
 | v5.4.35 | 2026-08-02 | 113技能（+1 新增 repo-source-deepread：大型远程源码仓库深读法——git trees API 递归定位 + AST 骨架提取 + 批量 execute_code 防上下文爆炸，方法论 24→25；+7 内容更新 html-ppt 加 references 目录 + humanizer v2.5.1 真实新增 + pretext v1.0.0 references + requirement-alignment-analysis v1 + ref file + sketch v1.0.0→v1.0.1 移除永久排除 spike 引用 + skill-evaluator v1.2.0 真实新增 + strategy-plan-writing v + references + supabase-backend v1.3.0→v1.4.1 + 7 references）；16 SKIP（24 content_diff - 8 SYNC = 16 SKIP：6 PERMANENTLY_EXCLUDED feishu-doc/feishu-html/feishu-wiki/hermes-instance-sync/project-kanban/zhike-task-hub + 5 cron 精简版 darwin-skill 0.116/design-md 0.615/external-skill-evaluation 本地 v1.3.0 < GH v1.4.0 + travel-intel/travel-itinerary/travel-workflow 永久排除 + supply-check/vendor-brief/trip-archive 永久排除 + github-release-readme 自身排除）；HEAD = v5.4.34 = origin/main 无 race condition。|

@@ -7,7 +7,7 @@ description: >-
   the sync shows unexpected sync candidates, deletes tracked files,
   double-counts or under-counts skills, or fails to rebase correctly.
   Each pitfall has a tested recipe.
-version: 1.1.0
+version: 1.2.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -367,6 +367,142 @@ If `issues` is non-empty: **stop, do not commit**, report to user.
 
 ---
 
+## Pitfall 12: Tag collision — same v-number already on origin (v5.4.36 lesson)
+
+**Symptom**: After `git commit` + `git push origin main` succeed,
+`git tag -a "v5.4.36" -m "..."` fails with `fatal: tag 'v5.4.36' already exists`.
+`gh release create v5.4.36` may then fail with "tag already exists"
+or create a release pointing at the **wrong** commit (the older one).
+
+**Root cause**: A previous cron (or GitHub Actions, or a contributor)
+already created the same semantic-version tag and pushed it, but the
+prior commit was on a different SHA than today's cron produces. The
+v-number is determined by bumping PATCH from the local tracked value
+(`v5.4.35` → `v5.4.36`), but the remote may already have that tag
+pointing at an earlier commit.
+
+**v5.4.36 实测**: Local cron computed `v5.4.36` as the next PATCH.
+Push of commit `c68229d` succeeded. But `git ls-remote origin` showed
+`refs/tags/v5.4.36` already existed, pointing at commit `e69376b`
+(a different prior cron). The first `git tag -a v5.4.36` attempt
+failed with `tag already exists`.
+
+**Recipe — force-update the tag to the current HEAD**:
+
+```bash
+# 1. Diagnose first (never skip this)
+git ls-remote origin | grep v5.4.36
+# If the tag exists but the commit SHA is different from your HEAD,
+# you have a tag collision. Verify your HEAD is the one you want:
+LOCAL_SHA=$(git rev-parse HEAD)
+REMOTE_SHA=$(git ls-remote origin refs/tags/v5.4.36^{} | awk '{print $1}')
+[ "$LOCAL_SHA" != "$REMOTE_SHA" ] && echo "TAG COLLISION — proceed with force-update"
+
+# 2. Force-update the tag to point at the current commit
+git push origin :refs/tags/v5.4.36  # delete remote tag
+git tag -d v5.4.36                    # delete local tag
+git tag -a "v5.4.36" -m "v5.4.36 — current commit's message"
+git push origin v5.4.36               # push new tag
+
+# 3. Create release as usual
+gh release create v5.4.36 --title "..." --notes-file ...
+```
+
+**Alternative (when commit content is already in origin and you just
+want the release to point at the existing tag)**: If `git push origin
+main` already pushed the commit and the remote tag is on the same
+SHA you want, you can skip force-update and just call
+`gh release create v5.4.36 --notes-file ...`. gh will reuse the
+existing tag rather than error.
+
+**Diagnostic checklist (run before `git tag -a`)**:
+1. `git ls-remote origin refs/tags/v{VERSION}*` — does the tag exist?
+2. If yes, compare against `git rev-parse HEAD` — same SHA? then
+   release will work fine. Different SHA? then force-update required.
+3. `git log origin/main --oneline -5` — is the latest commit your
+   cron, or someone else's? Look for timestamp alignment.
+
+**v5.4.36 mitigation for future crons**: When bumping PATCH, **always
+bump from `origin/main` HEAD's tagged version**, not from a local
+`CURRENT_VERSION` constant. The local constant can drift from remote
+reality if intervening commits land:
+
+```python
+# BAD: local constant
+CURRENT_VERSION = '5.4.35'  # ← may be stale
+next_patch = '.'.join(CURRENT_VERSION.split('.')[:2] + [str(int(CURRENT_VERSION.split('.')[2])+1)])
+
+# GOOD: derive from origin's latest tag
+import subprocess
+latest_tag = subprocess.run(['git', '-C', work_dir, 'ls-remote',
+                              '--tags', '--sort=-v:refname', 'origin'],
+                             capture_output=True, text=True).stdout
+# parse first line like "abc123\trefs/tags/v5.4.36"
+# extract version, bump PATCH
+```
+
+**Why this matters**: Force-updating a tag is destructive but
+**safe here** because the cron is the sole committer to the repo.
+Never force-update a tag in a multi-contributor project without
+explicit user approval.
+
+---
+
+## Pitfall 13: gh auth L1 is a stable cron asset, not a per-session check (v5.4.36 lesson)
+
+**Symptom**: Cron scripts that pre-emptively fall through to L2/L3
+because `gh auth status` was checked at the wrong moment may miss
+the L1 path that would have worked.
+
+**Root cause**: On Windows hosts, `gh` uses the OS keyring (Windows
+Credential Manager) to persist its OAuth token. The token survives
+session reboots, profile switches, and most `hermes` re-auths. Once
+`gh auth login` succeeds, the L1 path remains valid for weeks to
+months without re-authentication.
+
+**v5.4.36 实测**: `gh auth status` returned
+`✓ Logged in to github.com account jorinyang (keyring)` on a fresh
+cron invocation. The L1 path (single `gh release create` call)
+succeeded immediately — no L2 (token) or L3 (manual URL) fallback
+was needed.
+
+**v5.4.26 实测**: Same pattern. The first cron after `gh auth login`
+already had L1 working.
+
+**Recipe — check L1 BEFORE falling back**:
+
+```python
+# BAD: skip L1, always go to L2/L3
+if os.environ.get('GITHUB_TOKEN'):
+    use_token_api()
+else:
+    print_manual_url()
+
+# GOOD: try L1 first, only fall back on hard failure
+rc, out, _ = run(['gh', 'auth', 'status'])
+if rc == 0:
+    # L1 works — use it
+    rc2, _, err = run(['gh', 'release', 'create', ...])
+    if rc2 == 0:
+        return  # success
+# L1 failed — try L2 (token) or L3 (manual)
+```
+
+**Verification signal**:
+- `gh auth status` exit code 0 → L1 works
+- `gh auth status` exit code non-zero → fall through
+- After first successful L1, you can cache a flag in your
+  work_dir's local config to skip the check on subsequent runs
+  (e.g., `~/.cache/gh_l1_verified` with TTL of 7 days)
+
+**Implication for cron policy**: L1 should be the **default**, not
+the exception. The umbrella's Phase 6 should call `gh release create`
+unconditionally and only fall back when gh itself returns a non-zero
+exit. Pre-checking `gh auth status` adds latency and may fail
+transiently during keyring refreshes.
+
+---
+
 ## Cross-references
 
 - `github-release-readme` — protected umbrella; lesson capture target
@@ -379,6 +515,13 @@ If `issues` is non-empty: **stop, do not commit**, report to user.
 
 ## Change Log
 
+- **v1.2.0** (2026-08-06): Added Pitfall 12 (tag collision force-update
+  recipe) and Pitfall 13 (gh auth L1 as stable cron asset, not
+  per-session check). Both codified from v5.4.36 cron run where local
+  and remote had diverged v-numbers, and gh auth unexpectedly worked
+  first try. Critical: future crons should derive PATCH from
+  `origin/main`'s latest tag, not from a local `CURRENT_VERSION`
+  constant.
 - **v1.1.0** (2026-07-24): Added same-version direction gates, scoped README category-count parsing, and Windows LF/CRLF semantic-diff verification. Detailed evidence: `references/v5.4.31-direction-and-line-ending-lessons.md`.
 - **v1.0.0** (2026-07-22): Initial capture from v5.4.30 cron run —
   5 distinct pitfalls + 1 subdir-coverage lesson + 1 verification-suite
