@@ -6,8 +6,9 @@ description: >-
   against jorinyang/awesome-skills from a Windows cron host. Use when
   the sync shows unexpected sync candidates, deletes tracked files,
   double-counts or under-counts skills, or fails to rebase correctly.
-  Each pitfall has a tested recipe.
-version: 1.2.0
+  Each pitfall has a tested recipe. Captures class-level patterns;
+  session-specific incidents belong in `references/execution-log-YYYY-MM-DD.md`.
+version: 1.3.0
 author: 杨瑒 (月夜)
 metadata:
   hermes:
@@ -503,6 +504,170 @@ transiently during keyring refreshes.
 
 ---
 
+## Pitfall 14: Mixed CRLF/LF repos require per-file format matching (v5.4.38 lesson)
+
+**Symptom**: After `cp -rL <local_skill> <GH_DIR>/<skill>/`, `git diff
+github-sync-cron-pitfalls/SKILL.md` shows `1 file changed, 528
+insertions(+), 385 deletions(-)` — a huge phantom diff. The "real"
+change is 110 added lines. The rest is line-ending churn.
+
+**Root cause**: `jorinyang/awesome-skills` is a **mixed-format repo**:
+- `SKILL.md` files committed with LF (GitHub web editor / POSIX tooling)
+- `references/*.md` files committed with CRLF (Windows toolchain output)
+
+When `cp -rL` writes to the Windows filesystem, the new files all
+arrive as CRLF (Windows default). A naive "convert everything to LF"
+or "convert everything to CRLF" then creates churn on whichever side
+the conversion targets. v5.4.38 first tried uniform LF and got churn
+on every `references/*.md`; then tried uniform CRLF and got churn on
+the SKILL.md. Both look catastrophic in `git diff --shortstat`.
+
+**Recipe — per-file format detection against `origin/main`**:
+
+```python
+import subprocess
+
+def origin_format(rel_path):
+    """Returns 'CRLF' if origin/main's blob is mostly CRLF, 'LF' if LF-only."""
+    blob = subprocess.run(
+        ['git', '-C', GH_DIR, 'show', f'origin/main:{rel_path}'],
+        capture_output=True
+    ).stdout
+    if not blob:
+        return 'LF'  # new file → default LF
+    crlf = blob.count(b'\r\n')
+    return 'CRLF' if crlf > 0 else 'LF'
+
+def normalize_to_format(file_path, target_format):
+    with open(file_path, 'rb') as f:
+        data = f.read()
+    if target_format == 'CRLF':
+        if b'\r\n' not in data and b'\n' in data:
+            data = data.replace(b'\n', b'\r\n')
+    else:  # LF
+        if b'\r\n' in data:
+            data = data.replace(b'\r\n', b'\n')
+    with open(file_path, 'wb') as f:
+        f.write(data)
+
+# In copy phase, after cp -rL:
+for root, _, files in os.walk(skill_dst_dir):
+    for f in files:
+        full = os.path.join(root, f)
+        rel = os.path.relpath(full, GH_DIR).replace('\\', '/')
+        normalize_to_format(full, origin_format(rel))
+```
+
+**Why this matters beyond a single sync**: every subsequent cron that
+touches the same directory will see the same per-file format stable.
+Once normalized on the first run, future copies (which always arrive
+as CRLF from Windows) only need to re-apply the same target. The
+canonical format per file is determined by what's already in
+`origin/main`, not by your local convention.
+
+**Verification gate (mandatory before commit)**:
+
+```python
+# After normalize, run real-diff to confirm only semantic changes remain
+result = subprocess.run(
+    ['git', '-C', GH_DIR, 'diff', '--shortstat'],
+    capture_output=True, text=True
+)
+diff = result.stdout
+# 'X insertions, Y deletions' with X >> Y is a real change.
+# 'X insertions, X deletions' (perfectly symmetric, large values) is CRLF churn.
+if 'deletions(-)' in diff:
+    ins = int(re.search(r'(\d+) insertions', diff).group(1))
+    dels = int(re.search(r'(\d+) deletions', diff).group(1))
+    if abs(ins - dels) < 50 and (ins + dels) > 200:
+        # Suspicious — likely CRLF phantom
+        sys.exit('CRLF phantom detected — re-run normalize_to_format per file')
+```
+
+**v5.4.38 实测**:
+- Step 1: `cp -rL` + uniform LF → `528 insertions(+), 385 deletions(-)` (假 churn)
+- Step 2: `cp -rL` + uniform CRLF → churn flips (510→360, etc.)
+- Step 3: per-file format match → `149 insertions(+), 4 deletions(-)` ✅
+
+The single commit diff dropped from ~900 churn lines to 4 — purely
+semantic change, no formatting noise.
+
+**Why "just set core.autocrlf=false everywhere" doesn't fix it**:
+Git's autocrlf setting only normalizes on **checkout** (read-side) and
+**commit** (write-side via smudge/clean filters), not on file system
+writes from arbitrary tooling. A `cp -rL` bypasses both, and the
+windows file system writes the file using whatever end-of-line bytes
+the source had — for Windows-local sources, that's CRLF.
+
+---
+
+## Pitfall 15: README bulk-rewrite scripts need idempotent guards (v5.4.38 lesson)
+
+**Symptom**: A README editor script runs once successfully, then on
+the **second invocation** (after the first script crashed mid-way or
+was interrupted) throws `AssertionError: badge not found` and aborts.
+Operator must either rebuild from clean ZIP or manually inspect
+whatever state the script left.
+
+**Root cause**: The v5.4.24-era pattern uses bare `assert`:
+
+```python
+# BAD — fails on retry after partial success
+assert old_badge in text, "badge not found"
+text = text.replace(old_badge, new_badge, 1)
+```
+
+After the first invocation, `old_badge` is already gone from
+`text`; the assert fails; the next required change (e.g., adding a
+new category line) doesn't happen. Operator gets stuck in half-state.
+
+**Recipe — idempotent README replacement**:
+
+```python
+def safe_replace(text, old, new, label):
+    """Replace if old present; if new already present, no-op; else
+    raise with a useful diagnostic showing current state."""
+    if old in text:
+        return text.replace(old, new, 1)
+    if new in text:
+        return text  # already done
+    # Neither old nor new is present — state is unexpected
+    snippet = text[:500].replace('\n', '\\n')
+    raise RuntimeError(f'{label}: neither "{old[:60]}..." nor "{new[:60]}..." found. '
+                       f'First 500 chars: {snippet}')
+
+# Use everywhere instead of assert + replace
+text = safe_replace(text, old_badge, new_badge, 'badge')
+text = safe_replace(text, '### 🔧 开发工程 (23)', '### 🔧 开发工程 (24)', 'dev_count')
+```
+
+**Alternative — derive from current state**:
+
+```python
+def bump_badge(text, n):
+    """Find current badge value and replace unconditionally."""
+    m = re.search(r'badge/Skills-(\d+)-', text)
+    if not m:
+        raise RuntimeError('no badge in text')
+    current = int(m.group(1))
+    return re.sub(r'badge/Skills-\d+-', f'badge/Skills-{current + n}-', text, count=1)
+```
+
+**Why this is part of "cron pitfall" rather than "general Python
+discipline"**: cron scripts by definition run **idempotently** —
+the same script may execute twice in one day if interrupted. The
+README is the single most-edited file per cron run, so its
+idempotency matters more than other artifacts.
+
+**Companion principle (from v5.4.24 + v5.4.38 combined)**: when the
+README reaches a half-edited state and the script can't recover
+idempotently, **delete the working tree and rebuild from a fresh
+codeload ZIP**. Idempotent guards help for predictable failure
+modes; unrecoverable corruption (e.g., 5 sequential bad edits) is
+always solved by rebuild-from-clean.
+
+---
+
 ## Cross-references
 
 - `github-release-readme` — protected umbrella; lesson capture target
@@ -515,6 +680,13 @@ transiently during keyring refreshes.
 
 ## Change Log
 
+- **v1.3.0** (2026-08-07): Added Pitfall 14 (mixed CRLF/LF per-file
+  format matching against `origin/main`) and Pitfall 15 (idempotent
+  README bulk-rewrite via `safe_replace()`). Codified from v5.4.38
+  cron where uniform-LF conversion produced 528 false insertions and
+  uniform-CRLF flipped them; only per-file `git show HEAD:path`
+  detection produced a clean 149/4 diff. Also added
+  `references/execution-log-2026-08-07.md` with full timeline.
 - **v1.2.0** (2026-08-06): Added Pitfall 12 (tag collision force-update
   recipe) and Pitfall 13 (gh auth L1 as stable cron asset, not
   per-session check). Both codified from v5.4.36 cron run where local
