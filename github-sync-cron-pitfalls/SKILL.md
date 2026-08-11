@@ -687,13 +687,14 @@ always solved by rebuild-from-clean.
   uniform-CRLF flipped them; only per-file `git show HEAD:path`
   detection produced a clean 149/4 diff. Also added
   `references/execution-log-2026-08-07.md` with full timeline.
-- **v1.2.0** (2026-08-06): Added Pitfall 12 (tag collision force-update
-  recipe) and Pitfall 13 (gh auth L1 as stable cron asset, not
-  per-session check). Both codified from v5.4.36 cron run where local
-  and remote had diverged v-numbers, and gh auth unexpectedly worked
-  first try. Critical: future crons should derive PATCH from
-  `origin/main`'s latest tag, not from a local `CURRENT_VERSION`
-  constant.
+- **v1.4.0** (2026-08-08): Added `references/execution-log-2026-08-08.md`.
+  Codified that release versions must be derived from remote tags, not a
+  stale local constant: pre-check existing tag/release names and do not
+  overwrite an existing historical release by default. Also recorded the
+  validated sequence for codeload worktrees (`git init` → SSH fetch →
+  `reset --soft origin/main` → `reset HEAD`), CRLF-safe staging, and the
+  distinction between an invalid inactive gh account and a usable active
+  account.
 - **v1.1.0** (2026-07-24): Added same-version direction gates, scoped README category-count parsing, and Windows LF/CRLF semantic-diff verification. Detailed evidence: `references/v5.4.31-direction-and-line-ending-lessons.md`.
 - **v1.0.0** (2026-07-22): Initial capture from v5.4.30 cron run —
   5 distinct pitfalls + 1 subdir-coverage lesson + 1 verification-suite
