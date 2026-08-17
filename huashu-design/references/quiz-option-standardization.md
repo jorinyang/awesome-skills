@@ -74,6 +74,39 @@ for q in questions:
 | 题号污染 | D 选项含 `Q17-11（判断题）...` | docx 两个段落拼接在同一行 |
 | JSONB 字符串 | `options` 字段为字符串 `"[\"A\",...]"` | Supabase JS 客户端序列化异常 |
 | 重复题型 | 同题在 4 套中出现 | 原始题库跨套复用，去重保留 |
+| 答案不一致 | LLM 生成的选项改变了正确选项的字母位置 | LLM 重新排列选项顺序后，原 docx 的答案字母失效 |
+| 近似重复 | `"一个月内"` vs `"1个月内"` 共存 | 中文数字/阿拉伯数字混用，Levenshtein ≤ 2 但内容相同 |
+
+## 6. 答案一致性验证
+
+**答案对比不能只看字母——LLM 生成选项后会重排顺序，导致原始 docx 的答案字母失效。**
+
+正确做法：
+1. 从原始 docx 提取 (题目文本 → 正确答案字母) 映射
+2. 与数据库按「完整题目文本」精确匹配（非前 N 字模糊匹配）
+3. 多行题目需收集完整 block 再提取答案（答案可能在后续行）
+4. 修复时直接覆写 `correct_answer` 字段
+
+```python
+# 正确：完整文本精确匹配
+key = qtext  # 用完整题目文本
+if key in docx_answers:
+    fix_answer(db_id, docx_answers[key])
+
+# 错误：前 N 字模糊匹配（会错配相似题）
+key = qtext[:60]  # ❌ 可能匹配到另一个问题
+```
+
+## 7. 配置实时同步
+
+display 页从预生成 JSON 加载题库，但 **exam_config（各题型数量）必须从 Supabase 实时读取**：
+
+```
+题库数据 (354题) → quiz_data.json (OSS, 定时同步)
+配置数据 (4字段) → Supabase REST API (实时, fetch 即取)
+```
+
+原因：admin 改配置后如果不能立即反映到 display，用户体验断裂。JSON 同步有延迟（cron/手动），但配置变更必须实时。
 
 ## 6. 前端渲染 — 剥离前缀
 
@@ -81,5 +114,36 @@ for q in questions:
 
 ```javascript
 // 所有选项已统一为 A.xxx 格式，简化剥离
-var text = String(opt).replace(/^[A-D]\.\s*/, '');
+var text = String(opt).replace(/^[A-D]\\.\\s*/, '');
 ```
+
+## 7. 答案一致性验证
+
+**答案对比不能只看字母——LLM 生成选项后会重排顺序，导致原始 docx 的答案字母失效。**
+
+正确做法：
+1. 从原始 docx 提取 (题目文本 → 正确答案字母) 映射 — 用完整文本作 key
+2. 多行题目需收集完整 block 再提取答案（答案可能在后续行，不在题目行）
+3. 与数据库按「完整题目文本」精确匹配后覆写 `correct_answer`
+
+```python
+# 正确：完整文本精确匹配 + 多行 block 收集
+if full_qtext in docx_answers:
+    cur.execute('UPDATE questions SET correct_answer = %s WHERE id = %s',
+               (docx_answers[full_qtext], qid))
+
+# 错误1：前 N 字模糊匹配 → 错配相似题
+# 错误2：单行提取答案 → 多行题目漏答案
+```
+
+## 8. 近似重复去重
+
+同表内题目文本 Levenshtein 距离 ≤ 2 且答案相同 → 去重保留其一。
+
+```
+"人民调解委员会调解纠纷，一般应当在一个月内调解终结。"  (一)
+"人民调解委员会调解纠纷，一般应当在1个月内调解终结。"  (1)
+→ 删除后者，保留前者
+```
+
+**注意**：`","属于"` vs `"不属于"` 距离也是1，但答案相反 → 不能去重，这类是合法不同题。

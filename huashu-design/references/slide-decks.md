@@ -2,6 +2,8 @@
 
 做幻灯片是设计工作的高频场景。这份文档说明怎么做好HTML幻灯片——从架构选型、单页设计，到 PDF/PPTX 导出的完整路径。
 
+> **第三种模式**：除了下面的多文件架构和 deck_stage.js 单文件架构，还有 **SPA Pattern**（零依赖单文件，内置键盘/触控/总览/点击翻页），适合培训课件和企业内部演示（48页实测通过）。详见 `references/html-spa-presentation.md`。
+
 **本 skill 的能力覆盖**：
 - **HTML 演示版（基础产物，永远默认必做）** → 每页独立 HTML + `assets/deck_index.html` 聚合，浏览器里键盘翻页、全屏演讲
 - HTML → PDF 导出 → `scripts/export_deck_pdf.mjs` / `scripts/export_deck_stage_pdf.mjs`

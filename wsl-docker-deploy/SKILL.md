@@ -79,6 +79,24 @@ PROXY_SERVER=http://host.docker.internal:7890
 | Docker daemon 跑在 Windows 上 | WSL 的环境变量不影响 daemon |
 | crane 走 WSL 的网络栈 | 不受 Docker daemon 网络限制 |
 
+## Docker Desktop × SYSTEM 账户限制
+
+**当 Hermes Agent 以 Windows Service（SYSTEM 账户）运行时，Docker Desktop 无法通过 Agent 自动启动。**
+
+| 症状 | 根因 | Agent 行为 |
+|------|------|------------|
+| `docker ps` → `npipe not found` | Docker Desktop 未运行 | 通知用户手动启动（见下方脚本） |
+| Docker Desktop 进程存在但 `docker` 管道不存在 | WSL2 Linux VM 未启动，WSL2 报 `LOCAL_SYSTEM_NOT_SUPPORTED` | **不要反复重试启动**，直接降级 |
+| `sc start com.docker.service` 后 `docker` 仍不可用 | Docker Desktop 的 Linux 引擎管道 (`dockerDesktopLinuxEngine`) 只在交互式用户会话中创建 | 同上——只能由用户手动启动 |
+
+**Agent 检查清单**：
+1. `tasklist | grep -i docker` → 进程存在？是：等 30s 重试 docker ps；否：通知用户
+2. `docker ps` 30s 后仍失败 → Docker Desktop 在 SYSTEM 下不可恢复
+3. 立即通知用户 + 对依赖 Docker 的服务执行降级方案
+4. **不要**在 SYSTEM 下反复重试 `sc start` 或 `docker` 命令
+
+**Firecrawl 专用恢复**：`C:\Users\Aorus\tmp\firecrawl-selfhost\start-firecrawl.bat` — 用户在桌面双击即可自动完成：Docker Desktop 启动 → 等待 VM 就绪 → `docker compose up -d` → 验证 :3002。
+
 ## Docker Desktop 可用性检测
 
 在 WSL 中执行任何 `docker` 命令前，务必先验证 Docker Desktop 是否在 Windows 端运行：
@@ -105,7 +123,6 @@ docker ps 2>/dev/null || echo "Docker Desktop 未运行或 WSL 集成未启用"
 | `curl --proxy` 返回非 200 | HTTP_CODE ≠ 200 | 确认 Windows 端代理软件（Clash/V2Ray）正在运行，端口 7890 监听 | 检查 Windows 防火墙是否拦截入站连接；尝试 `ping $WINDOWS_HOST` 验证 WSL→Windows 网络通 |
 | `docker load` 失败 | `no space left on device` / `invalid tar` | `df -h /tmp` 检查空间；重下 crane 最新版 | 换路径（如 `/var/tmp`）存储 tar 文件 |
 | `docker build` 第一步就 EOF/超时 | `EOF` / `context deadline exceeded` | 先 `docker pull <base-image>` 绕过 build metadata 测试 mirror | pull 也失败 → registry mirror 不可用，切 crane 路径预拉所有 base image 再 docker load 后 build |
-| `docker pull` 在配置了多个 mirror 后仍报 EOF（非超时） | `Head ... EOF`（非 `i/o timeout`），`docker info` 显示多个 mirror | **移除 `daemon.json` 中的 `registry-mirrors` 字段**，仅靠 proxy 直连 Docker Hub。重启 Docker Desktop 后重试 | mirror 全失效是常见现象（USTC/163/百度同时挂），此时 proxy 直连反而可用。`daemon.json` 位置：WSL 下 `~/.docker/daemon.json`，Windows 原生 Docker Desktop 下 `C:\Users\<user>\.docker\daemon.json` |
 | Docker Desktop 关闭后容器消失 | `docker ps` 无容器 | 启动 Docker Desktop → `docker start <容器名>` | 容器 exit code 255 表示被 Docker Desktop 关闭信号终止，`docker start` 即可恢复（数据在 volume 中不丢失） |
 
 ## ⛔ 反例与禁止

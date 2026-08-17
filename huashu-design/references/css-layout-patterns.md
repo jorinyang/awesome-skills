@@ -1,6 +1,17 @@
 # CSS Flexbox 垂直居中 + Overflow 滚动
 
-## 问题
+## 致命问题：overflow:hidden 裁切内容
+
+`overflow: hidden` 是选项消失的 #1 根因。当题目文字长、选项多、加上答案区，整个卡片高度超出 `.main-area` 可视范围时，**底部选项（尤其是 D）和答案区直接被裁掉**。
+
+```
+❌ overflow: hidden  → 长题目底部裁切
+✅ overflow-y: auto  → 长题目可通过滚动查看全部内容
+```
+
+**诊断方法**：如果用户报告"有些题选项正常，有些题缺选项"，几乎100%是 overflow 问题——短题目刚好能显示完整，长题目被裁。
+
+## 问题：flex centering + overflow 的经典 bug
 
 `display: flex; align-items: center; justify-content: center; overflow-y: auto` 组合会导致内容顶部和底部被裁剪——这是 CSS flexbox 的经典 bug。
 
