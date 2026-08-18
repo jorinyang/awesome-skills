@@ -122,13 +122,23 @@ output/<safe-author-name>/
 
 ### 1. 解析入口并锁定身份
 
-🔴 CHECKPOINT — 入口解析前确认：提供的文章链接是否为公开的 `mp.weixin.qq.com` URL？是否可公开访问（无需登录/付费）？
+🔴 CHECKPOINT → 🛑 STOP — 入口解析前确认：提供的文章链接是否为公开的 `mp.weixin.qq.com` URL？是否可公开访问（无需登录/付费）？
+
+🛑 **STOP 验证项**：
+- [ ] URL 域名为 `mp.weixin.qq.com`
+- [ ] 浏览器无痕模式可访问（无登录/付费墙）
+- [ ] 已识别 `biz`、`mid`、`idx`、`sn` 四元组
 
 从入口文章提取：标题（`#activity-name` / `msg_title`）、公众号名（`#js_name` / `nickname`）、`__biz` / `biz`、`mid` / `appmsgid`、`idx`、`sn`、发布时间、合集信息。
 
 ### 2. 锁定候选列表
 
-🔴 CHECKPOINT — 候选列表生成前确认：是否需要扫码登录微信公众平台？扫码人是否就位（手机在身边）？采集篇数是否已指定（默认 50）？
+🔴 CHECKPOINT → 🛑 STOP — 候选列表生成前确认：是否需要扫码登录微信公众平台？扫码人是否就位（手机在身边）？采集篇数是否已指定（默认 50）？
+
+🛑 **STOP 验证项**：
+- [ ] 扫码人就位（手机在身边）或已确认走公开历史入口
+- [ ] 采集篇数 N 已明确（默认 50）
+- [ ] 输出目录 `author_root` 已确定且无 `biz` 冲突
 
 候选字段至少包括：`title, url, publish_time, source_type, accessible, biz, mid, idx, sn`
 
@@ -155,7 +165,13 @@ python3 scripts/discover_account_articles.py \
 
 ### 3. 抓取正文与图片
 
-🔴 CHECKPOINT — 抓取启动前确认：候选列表是否已去重？是否只包含 `mp.weixin.qq.com` 公开 URL？`author_root` 目录是否已创建且不与已有公众号冲突？采集延迟和并发设置是否合理（串行 + 2s 延迟）？
+🔴 CHECKPOINT → 🛑 STOP — 抓取启动前确认：候选列表是否已去重？是否只包含 `mp.weixin.qq.com` 公开 URL？`author_root` 目录是否已创建且不与已有公众号冲突？采集延迟和并发设置是否合理（串行 + 2s 延迟）？
+
+🛑 **STOP 验证项**：
+- [ ] 候选列表已去重（`biz + mid + idx + sn` + 规范化 URL）
+- [ ] 所有候选 URL 都是 `mp.weixin.qq.com` 公开链接
+- [ ] `author_root` 目录已创建、无 `biz` 冲突
+- [ ] 延迟=2s、并发=串行（不可调高）
 
 ```bash
 python3 scripts/collect_articles.py \
@@ -193,7 +209,13 @@ Markdown 顶部元数据：
 
 ### 5. 分析编排（可选）
 
-🔴 CHECKPOINT — 方法论分析启动前确认：用户是否明确要求分析作者方法论？是否已归档 ≥3 篇文章（不足则跳过分析）？HTML 看板和飞书同步是否需关闭（默认开启）？
+🔴 CHECKPOINT → 🛑 STOP — 方法论分析启动前确认：用户是否明确要求分析作者方法论？是否已归档 ≥3 篇文章（不足则跳过分析）？HTML 看板和飞书同步是否需关闭（默认开启）？
+
+🛑 **STOP 验证项**：
+- [ ] 用户明确要求分析方法论
+- [ ] 已归档文章数 ≥3 篇（<3 跳过分析）
+- [ ] 用户未明确要求"不生成 HTML"
+- [ ] 用户未明确要求"不同步飞书"
 
 用户要求方法论分析时，调用 `author-methodology-analysis`，传入：
 - `input_dir = <author_root>/articles`
@@ -205,7 +227,13 @@ Markdown 顶部元数据：
 
 ### 6. 校验与打包
 
-🔴 CHECKPOINT — 打包前确认：所有文章正文是否已抓取完成？图片是否已本地化且引用正确？CSV 是否 UTF-8 BOM 格式？是否已排除不可访问的候选？
+🔴 CHECKPOINT → 🛑 STOP — 打包前确认：所有文章正文是否已抓取完成？图片是否已本地化且引用正确？CSV 是否 UTF-8 BOM 格式？是否已排除不可访问的候选？
+
+🛑 **STOP 验证项**：
+- [ ] `validate_archive.py` 校验通过
+- [ ] CSV 文件是 UTF-8 BOM 编码
+- [ ] 所有图片本地化成功（或标记为 `[图片获取失败]`）
+- [ ] 不可访问的候选已从 CSV 排除
 
 ```bash
 python3 scripts/validate_archive.py "<author_root>"
