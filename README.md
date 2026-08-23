@@ -1276,6 +1276,7 @@ done
 
 | 版本 | 日期 | 变更 |
 |------|------|
+| v5.4.45 | 2026-08-23 | 117技能 — 0 新增 + 1 内容同步（batch-course-delivery v0.2.0→v0.3.0：生产阶段改两棒制——课程大纲为第一棒生产门禁、确认后派生四件套；PPT 生成通道定为 qwen-image-ppt 技能；related_skills 加 qwen-image-ppt；references/rulebook-example.md §7 同步）；badge 保持 117。 |
 | v5.4.44 | 2026-08-23 | 117技能（+1 新增 batch-course-delivery v0.2.0：一门课对多客户批量交付——冻结框架+适配规则书+场次配置单+AI工作流派生四件套（PPT/手册/题库/工具包），含 references/rulebook-example.md 与 templates/client-intake-and-session-config.md；🧠 方法论 25→26）；badge 116→117。 |
 | v5.4.43 | 2026-08-19 | 0 新增 + 1 内容同步（wechat-article-archive）；18 SKIP（含 14 永久排除/官方 + 4 GH 版本更新 + 1 cron-slim ratio<0.7）；1 unclassified REPORT（claude-design 本地 v1.1.0 > GH v1.0.0 但 author: BadTechBandit 非自建/非三方标记 → 等用户补 author）；badge 计数保持 116（无新增技能）；skill-evaluator GH 比本地多 35 行验证（GH 含 5 references + 36 行 A/B 双部署 + no_agent 静默原则 + provider timeout 红鲱鱼诊断是完整版，本地 17842b 是 cron 精简分叉）→ SKIP 避免倒退。 |
 

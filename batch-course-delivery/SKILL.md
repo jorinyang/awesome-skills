@@ -1,13 +1,13 @@
 ---
 name: batch-course-delivery
-version: 0.2.0
+version: 0.3.0
 description: "一门课对多客户批量交付：冻结框架+适配规则+配置单+派生四件套。"
 author: 杨瑒 (月夜)
 license: MIT
 metadata:
   hermes:
     tags: [training, batch-delivery, course-config, enterprise]
-    related_skills: [training-course-development, dingtalk-minutes-extraction, darwin-skill]
+    related_skills: [training-course-development, dingtalk-minutes-extraction, darwin-skill, qwen-image-ppt]
 triggers:
   - 批量培训
   - 批量交付
@@ -32,7 +32,7 @@ triggers:
 1. **统一课程框架（冻结）**——模块二级目录 + 红线；冻结后只在评审后升版
 2. **适配规则书**——采集表字段、推导规则（受众/行业/人数/开关/分流/收口）、配置单模板、派生规则、入库规则
 3. **客户信息采集表+场次配置单**——每场一份，讲师签字生效（模板见 `templates/client-intake-and-session-config.md`）
-4. **交付物四件套**——PPT / 学员自学书 / 题库 / 工具包，从"框架+配置单"一次派生（规则表见 `references/rulebook-example.md`）
+4. **交付物四件套**——PPT / 学员自学书 / 题库 / 工具包，从"框架+配置单"派生（规则表见 `references/rulebook-example.md`）；派生前必过中间产物：**本场课程大纲**（框架×配置单实例化，三级目录+分钟级时间盒），确认后才生产四件套
 
 ## 五步闭环
 
@@ -40,7 +40,7 @@ triggers:
 ①采集：客户对齐会的纪要+转写 → 填采集表（拿到客户名称先查工商信息补充）
 ②推导：按规则书生成配置，每条结论留痕（字段号+规则编号）
 ③确认：讲师核对配置单并签字；改推导不改结果，留修改记录
-④生产：AI 工作流按配置单派生四件套，校验门禁通过才交付
+④生产（两棒制）：第一棒=框架+配置单→本场课程大纲（实例化），交客户/讲师确认；第二棒=大纲确认后→派生四件套。大纲是生产门禁，未确认不生产下游
 ⑤回填：交付后 24h 内复盘，新场景/新 Skill 走入库规则
 ```
 
@@ -102,6 +102,7 @@ triggers:
 | 新案例没跑通就替换保底场景 | 入库标准不过，不上场 |
 | 改了 PPT 没同步题库/手册 | 交叉一致性门禁 |
 | 推导规则套错却不留痕 | 推导区无依据记录 = 配置单无效，重做 |
+| 跳过大纲确认直接生成全套交付物 | 大纲是生产门禁；未确认就生产 = 全套返工风险自担 |
 
 ## 实战样例
 
